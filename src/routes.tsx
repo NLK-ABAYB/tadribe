@@ -1,5 +1,10 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
+import {
+  LayoutDashboard, BookOpen, FileText, Award, CheckCircle2,
+  Users, Wallet, GraduationCap,
+} from 'lucide-react'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { PortalLayout } from '@/components/layout/PortalLayout'
 import { RequireAuth } from '@/features/auth/components/RequireAuth'
 
 // Auth pages
@@ -58,6 +63,20 @@ import { EvaluationDetailPage } from '@/features/evaluations/pages/EvaluationDet
 
 // Qualité
 import { QualiopiDashboardPage } from '@/features/quality/pages/QualiopiDashboardPage'
+
+// Portail Apprenant
+import { LearnerDashboardPage } from '@/features/portal-learner/pages/LearnerDashboardPage'
+import { LearnerFormationDetailPage } from '@/features/portal-learner/pages/LearnerFormationDetailPage'
+import { LearnerDocumentsPage } from '@/features/portal-learner/pages/LearnerDocumentsPage'
+import { LearnerCertificatesPage } from '@/features/portal-learner/pages/LearnerCertificatesPage'
+import { LearnerEvaluationsPage } from '@/features/portal-learner/pages/LearnerEvaluationsPage'
+
+// Portail Entreprise
+import { CompanyDashboardPage } from '@/features/portal-company/pages/CompanyDashboardPage'
+import { CompanyCollaboratorsPage } from '@/features/portal-company/pages/CompanyCollaboratorsPage'
+import { CompanyFormationsPage } from '@/features/portal-company/pages/CompanyFormationsPage'
+import { CompanyInvoicesPage } from '@/features/portal-company/pages/CompanyInvoicesPage'
+import { CompanyFundingPage } from '@/features/portal-company/pages/CompanyFundingPage'
 
 export const router = createBrowserRouter([
   // Public routes
@@ -129,6 +148,61 @@ export const router = createBrowserRouter([
       { path: 'lieux', element: <PlaceholderPage title="Lieux" /> },
       { path: 'paiements', element: <PlaceholderPage title="Paiements" /> },
       { path: 'parametres', element: <PlaceholderPage title="Paramètres" /> },
+    ],
+  },
+
+  // Portail Apprenant (apprenant / apprenti)
+  {
+    path: '/mon-espace',
+    element: (
+      <RequireAuth allowedRoles={['apprenant', 'apprenti']}>
+        <PortalLayout
+          title="Espace Apprenant"
+          accentColor="bg-blue-600"
+          navItems={[
+            { label: 'Tableau de bord', href: '/mon-espace', icon: LayoutDashboard },
+            { label: 'Mes formations', href: '/mon-espace/formations', icon: BookOpen },
+            { label: 'Documents', href: '/mon-espace/documents', icon: FileText },
+            { label: 'Certificats', href: '/mon-espace/certificats', icon: Award },
+            { label: 'Évaluations', href: '/mon-espace/evaluations', icon: CheckCircle2 },
+          ]}
+        />
+      </RequireAuth>
+    ),
+    children: [
+      { index: true, element: <LearnerDashboardPage /> },
+      { path: 'formations', element: <LearnerDashboardPage /> },
+      { path: 'formations/:id', element: <LearnerFormationDetailPage /> },
+      { path: 'documents', element: <LearnerDocumentsPage /> },
+      { path: 'certificats', element: <LearnerCertificatesPage /> },
+      { path: 'evaluations', element: <LearnerEvaluationsPage /> },
+    ],
+  },
+
+  // Portail Entreprise
+  {
+    path: '/espace-entreprise',
+    element: (
+      <RequireAuth allowedRoles={['entreprise']}>
+        <PortalLayout
+          title="Espace Entreprise"
+          accentColor="bg-emerald-600"
+          navItems={[
+            { label: 'Tableau de bord', href: '/espace-entreprise', icon: LayoutDashboard },
+            { label: 'Collaborateurs', href: '/espace-entreprise/collaborateurs', icon: Users },
+            { label: 'Formations', href: '/espace-entreprise/formations', icon: GraduationCap },
+            { label: 'Factures', href: '/espace-entreprise/factures', icon: FileText },
+            { label: 'Financements', href: '/espace-entreprise/financements', icon: Wallet },
+          ]}
+        />
+      </RequireAuth>
+    ),
+    children: [
+      { index: true, element: <CompanyDashboardPage /> },
+      { path: 'collaborateurs', element: <CompanyCollaboratorsPage /> },
+      { path: 'formations', element: <CompanyFormationsPage /> },
+      { path: 'factures', element: <CompanyInvoicesPage /> },
+      { path: 'financements', element: <CompanyFundingPage /> },
     ],
   },
 

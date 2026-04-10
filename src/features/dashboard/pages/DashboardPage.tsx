@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthContext } from '@/features/auth/auth-context'
 import {
@@ -9,6 +10,10 @@ import {
 
 export function DashboardPage() {
   const { profile, organization, role } = useAuthContext()
+
+  // Redirect portal users to their dedicated space
+  if (role.isApprenant) return <Navigate to="/mon-espace" replace />
+  if (role.isEntreprise) return <Navigate to="/espace-entreprise" replace />
 
   return (
     <div className="space-y-6">
@@ -67,18 +72,6 @@ export function DashboardPage() {
         </div>
       )}
 
-      {role.isApprenant && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Mon parcours</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Vos formations en cours apparaîtront ici.
-            </p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }

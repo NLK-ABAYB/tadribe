@@ -142,10 +142,28 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 - [x] Routes : /evaluations, /evaluations/:id, /qualiopi
 - [x] Build TypeScript OK
 
+### Phase 9 : Bloc 5 — Portails externes (apprenant, entreprise)
+- [x] PortalLayout (layout responsive avec navbar horizontale, mobile-friendly, déconnexion)
+- [x] Portail Apprenant (`/mon-espace`)
+  - LearnerDashboardPage (KPIs, formations en cours, liens rapides, table toutes formations)
+  - LearnerFormationDetailPage (objectifs, dates, formateur, émargement détaillé)
+  - LearnerDocumentsPage (liste documents avec téléchargement)
+  - LearnerCertificatesPage (certificats avec téléchargement PDF)
+  - LearnerEvaluationsPage (questionnaires à remplir, soumission en ligne)
+  - Hooks : useMyBeneficiaryProfile, useMyEnrollments, useMyAttendance, useMyDocuments, useMyCertificates, useMyEvaluations
+- [x] Portail Entreprise (`/espace-entreprise`)
+  - CompanyDashboardPage (KPIs collaborateurs/formations/factures, formations récentes, factures en attente)
+  - CompanyCollaboratorsPage (table salariés avec badges apprenti/salarié)
+  - CompanyFormationsPage (table inscriptions avec statuts)
+  - CompanyInvoicesPage (résumé HT/payé/dû, table factures)
+  - CompanyFundingPage (résumé demandé/accordé, table dossiers)
+  - Hooks : useMyCompany, useCompanyBeneficiaries, useCompanyEnrollments, useCompanyInvoices, useCompanyFunding
+- [x] Redirections automatiques : apprenants → /mon-espace, entreprises → /espace-entreprise
+- [x] Routes protégées par rôle (RequireAuth allowedRoles)
+- [x] Build TypeScript OK
+
 ### Ce qui reste à faire
 - [ ] Module Paramètres (organisation, équipe, sous-traitants ind.27)
-- [ ] Portail apprenant (layout dédié, parcours, documents, évaluations)
-- [ ] Portail entreprise (layout dédié, salariés, factures)
 - [ ] Dashboard KPIs avancés, veille réglementaire
 - [ ] Remplacer types placeholder par `supabase gen types typescript`
 
@@ -220,12 +238,13 @@ tadribe/
     ├── components/
     │   ├── ui/             # shadcn/ui (button, input, card, etc.)
     │   └── layout/
-    │       ├── AppLayout.tsx
-    │       ├── Sidebar.tsx  # Nav adaptée au rôle
-    │       └── Header.tsx   # User menu + rôle badge
+    │       ├── AppLayout.tsx    # Layout admin (sidebar + header)
+    │       ├── PortalLayout.tsx # Layout portails (navbar horizontale responsive)
+    │       ├── Sidebar.tsx      # Nav adaptée au rôle
+    │       └── Header.tsx       # User menu + rôle badge
     └── features/
         ├── auth/            # Login, Register, ForgotPassword, RequireAuth, AuthContext
-        ├── dashboard/       # DashboardPage (KPIs par rôle)
+        ├── dashboard/       # DashboardPage (KPIs par rôle, redirections portails)
         ├── commercial/      # Companies, Contacts, Pipeline (kanban)
         ├── sessions/        # Sessions list + detail (avec relations)
         ├── invoicing/       # Factures, workflow devis→facture, formulaire lignes
@@ -235,5 +254,9 @@ tadribe/
         ├── enrollments/     # Inscriptions (workflow, positionnement ind.8, documents ind.9)
         ├── attendance/      # Émargement (signature canvas, présence ind.12)
         ├── documents/       # Documents légaux (conventions PDF, certificats, GED)
-        └── funding/         # Financements (CPF, OPCO, France Travail, suivi dossiers)
+        ├── funding/         # Financements (CPF, OPCO, France Travail, suivi dossiers)
+        ├── evaluations/     # Évaluations (questionnaires, satisfaction, insertion)
+        ├── quality/         # Tableau de bord Qualiopi (conformité 32 indicateurs)
+        ├── portal-learner/  # Portail apprenant (/mon-espace) : parcours, docs, évals
+        └── portal-company/  # Portail entreprise (/espace-entreprise) : collaborateurs, factures
 ```
