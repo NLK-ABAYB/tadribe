@@ -121,8 +121,16 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 - [x] Routes : sessions/:id/emargement, /conventions, /certificats
 - [x] Build TypeScript OK
 
+### Phase 7 : Bloc 3 — Financements
+- [x] Module Financements complet
+  - FundingListPage (table avec KPIs agrégés, filtres type/statut, recherche)
+  - FundingDetailPage (workflow stepper 6 étapes, montants, CPF, dates de suivi)
+  - FundingForm (tous les types CPF/OPCO/France Travail/AGEFIPH, subrogation, CPF conditionnel)
+  - Hooks CRUD : useFundingDossiers, useFundingDossier, useCreateFundingDossier, useUpdateFundingDossier
+- [x] Routes : /financements, /financements/:id
+- [x] Build TypeScript OK
+
 ### Ce qui reste à faire
-- [ ] Module Financements (dossiers OPCO/CPF/France Travail, subrogation)
 - [ ] Module Évaluations (questionnaires, satisfaction, certificats)
 - [ ] Module Qualité (réclamations ind.31, amélioration ind.32, veille ind.23-25, Qualiopi)
 - [ ] Module Paramètres (organisation, équipe, sous-traitants ind.27)
@@ -215,5 +223,6 @@ tadribe/
         ├── beneficiaries/   # Bénéficiaires (fiche, handicap ind.26, apprentissage)
         ├── enrollments/     # Inscriptions (workflow, positionnement ind.8, documents ind.9)
         ├── attendance/      # Émargement (signature canvas, présence ind.12)
-        └── documents/       # Documents légaux (conventions PDF, certificats, GED)
+        ├── documents/       # Documents légaux (conventions PDF, certificats, GED)
+        └── funding/         # Financements (CPF, OPCO, France Travail, suivi dossiers)
 ```

@@ -48,6 +48,10 @@ import { AttendancePage } from '@/features/attendance/pages/AttendancePage'
 import { ConventionsPage } from '@/features/documents/pages/ConventionsPage'
 import { CertificatesPage } from '@/features/documents/pages/CertificatesPage'
 
+// Financements
+import { FundingListPage } from '@/features/funding/pages/FundingListPage'
+import { FundingDetailPage } from '@/features/funding/pages/FundingDetailPage'
+
 export const router = createBrowserRouter([
   // Public routes
   { path: '/login', element: <LoginPage /> },
@@ -103,9 +107,12 @@ export const router = createBrowserRouter([
       { path: 'conventions', element: <ConventionsPage /> },
       { path: 'certificats', element: <CertificatesPage /> },
 
+      // Financements
+      { path: 'financements', element: <FundingListPage /> },
+      { path: 'financements/:id', element: <FundingDetailPage /> },
+
       // Placeholders for future modules
       { path: 'lieux', element: <PlaceholderPage title="Lieux" /> },
-      { path: 'financements', element: <PlaceholderPage title="Financements" /> },
       { path: 'paiements', element: <PlaceholderPage title="Paiements" /> },
       { path: 'evaluations', element: <PlaceholderPage title="Évaluations" /> },
       { path: 'qualiopi', element: <PlaceholderPage title="Qualiopi" /> },
