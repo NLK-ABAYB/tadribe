@@ -130,12 +130,23 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 - [x] Routes : /financements, /financements/:id
 - [x] Build TypeScript OK
 
+### Phase 8 : Bloc 4 — Évaluations + Qualiopi
+- [x] Module Évaluations
+  - EvaluationsListPage (grille cartes, filtre type, recherche, création inline)
+  - EvaluationDetailPage (stats réponses/score moyen, questions, table des réponses)
+  - Hooks CRUD : useEvaluations, useEvaluation, useEvaluationResponses, useCreateEvaluation, useSubmitResponse
+- [x] Module Qualité — Tableau de bord Qualiopi
+  - QualiopiDashboardPage (conformité calculée en temps réel sur données CRM)
+  - 11 indicateurs couvrant les 7 critères RNQ : information du public (ind.1), résultats (ind.2), conception (ind.6), positionnement (ind.8), documents (ind.9), émargement (ind.12), compétences formateurs (ind.21), accessibilité handicap (ind.26), satisfaction (ind.30), réclamations (ind.31), amélioration continue (ind.32)
+  - Statuts conforme/partiel/non conforme avec seuils 80%/40%
+- [x] Routes : /evaluations, /evaluations/:id, /qualiopi
+- [x] Build TypeScript OK
+
 ### Ce qui reste à faire
-- [ ] Module Évaluations (questionnaires, satisfaction, certificats)
-- [ ] Module Qualité (réclamations ind.31, amélioration ind.32, veille ind.23-25, Qualiopi)
 - [ ] Module Paramètres (organisation, équipe, sous-traitants ind.27)
 - [ ] Portail apprenant (layout dédié, parcours, documents, évaluations)
 - [ ] Portail entreprise (layout dédié, salariés, factures)
+- [ ] Dashboard KPIs avancés, veille réglementaire
 - [ ] Remplacer types placeholder par `supabase gen types typescript`
 
 ## Décisions techniques

@@ -52,6 +52,13 @@ import { CertificatesPage } from '@/features/documents/pages/CertificatesPage'
 import { FundingListPage } from '@/features/funding/pages/FundingListPage'
 import { FundingDetailPage } from '@/features/funding/pages/FundingDetailPage'
 
+// Évaluations
+import { EvaluationsListPage } from '@/features/evaluations/pages/EvaluationsListPage'
+import { EvaluationDetailPage } from '@/features/evaluations/pages/EvaluationDetailPage'
+
+// Qualité
+import { QualiopiDashboardPage } from '@/features/quality/pages/QualiopiDashboardPage'
+
 export const router = createBrowserRouter([
   // Public routes
   { path: '/login', element: <LoginPage /> },
@@ -111,11 +118,16 @@ export const router = createBrowserRouter([
       { path: 'financements', element: <FundingListPage /> },
       { path: 'financements/:id', element: <FundingDetailPage /> },
 
+      // Évaluations
+      { path: 'evaluations', element: <EvaluationsListPage /> },
+      { path: 'evaluations/:id', element: <EvaluationDetailPage /> },
+
+      // Qualité
+      { path: 'qualiopi', element: <QualiopiDashboardPage /> },
+
       // Placeholders for future modules
       { path: 'lieux', element: <PlaceholderPage title="Lieux" /> },
       { path: 'paiements', element: <PlaceholderPage title="Paiements" /> },
-      { path: 'evaluations', element: <PlaceholderPage title="Évaluations" /> },
-      { path: 'qualiopi', element: <PlaceholderPage title="Qualiopi" /> },
       { path: 'parametres', element: <PlaceholderPage title="Paramètres" /> },
     ],
   },
