@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, MapPin, User, Calendar, Clock, Users, Video } from 'lucide-react'
+import { ArrowLeft, Loader2, MapPin, User, Calendar, Clock, Users, Video, ClipboardCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -40,6 +40,12 @@ export function SessionDetailPage() {
             <Badge>{SESSION_STATUSES[session.status]}</Badge>
           </div>
         </div>
+        <Link to={`/sessions/${id}/emargement`}>
+          <Button variant="outline" size="sm">
+            <ClipboardCheck className="mr-2 h-4 w-4" />
+            Émargement
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

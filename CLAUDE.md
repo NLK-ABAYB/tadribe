@@ -101,13 +101,31 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 - [x] Routes mises à jour : formations/:id, formateurs/:id, beneficiaires/:id, inscriptions/:id
 - [x] Build TypeScript OK
 
+### Phase 6 : Bloc 2 — Documents légaux, Émargement, Certificats, PDF
+- [x] @react-pdf/renderer installé pour génération PDF
+- [x] Types ajoutés : Certificate, Document (GED)
+- [x] Module Émargement (ind. 12)
+  - AttendancePage (créneaux par session, présence/absence, signature électronique)
+  - SignatureCanvas (composant canvas tactile pour signature)
+  - Hooks : useSessionSlots, useAttendances, useEnrollmentAttendances, useMarkAttendance, useSignAttendance, useCreateSessionSlot
+  - Bouton "Émargement" ajouté sur SessionDetailPage
+- [x] Module Documents
+  - ConventionsPage (liste des inscriptions avec entreprise, génération PDF convention)
+  - CertificatesPage (certificats de réalisation, génération auto pour inscriptions terminées)
+  - Hooks : useCertificates, useCreateCertificate, useDocuments, useCreateDocument
+- [x] Templates PDF (react-pdf/renderer)
+  - ConventionPDF (convention de formation inter-entreprise, articles L.6353-1/2, mentions légales)
+  - CertificatePDF (certificat de réalisation, art. L.6353-1)
+  - AttendanceSheetPDF (feuille d'émargement paysage, matin/après-midi, signatures)
+- [x] Navigation mise à jour : sections Documents (conventions, certificats) dans la sidebar
+- [x] Routes : sessions/:id/emargement, /conventions, /certificats
+- [x] Build TypeScript OK
+
 ### Ce qui reste à faire
-- [ ] Module Émargement (signature, absences, ind.12)
 - [ ] Module Financements (dossiers OPCO/CPF/France Travail, subrogation)
 - [ ] Module Évaluations (questionnaires, satisfaction, certificats)
 - [ ] Module Qualité (réclamations ind.31, amélioration ind.32, veille ind.23-25, Qualiopi)
 - [ ] Module Paramètres (organisation, équipe, sous-traitants ind.27)
-- [ ] Génération PDF (factures, conventions, attestations)
 - [ ] Portail apprenant (layout dédié, parcours, documents, évaluations)
 - [ ] Portail entreprise (layout dédié, salariés, factures)
 - [ ] Remplacer types placeholder par `supabase gen types typescript`
@@ -195,5 +213,7 @@ tadribe/
         ├── catalogue/       # Formations (liste, détail, CRUD, Qualiopi ind.1/2/6/7)
         ├── trainers/        # Formateurs (profil, compétences ind.21, tarifs)
         ├── beneficiaries/   # Bénéficiaires (fiche, handicap ind.26, apprentissage)
-        └── enrollments/     # Inscriptions (workflow, positionnement ind.8, documents ind.9)
+        ├── enrollments/     # Inscriptions (workflow, positionnement ind.8, documents ind.9)
+        ├── attendance/      # Émargement (signature canvas, présence ind.12)
+        └── documents/       # Documents légaux (conventions PDF, certificats, GED)
 ```

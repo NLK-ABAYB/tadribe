@@ -41,6 +41,13 @@ import { BeneficiaryDetailPage } from '@/features/beneficiaries/pages/Beneficiar
 import { EnrollmentsListPage } from '@/features/enrollments/pages/EnrollmentsListPage'
 import { EnrollmentDetailPage } from '@/features/enrollments/pages/EnrollmentDetailPage'
 
+// Émargement
+import { AttendancePage } from '@/features/attendance/pages/AttendancePage'
+
+// Documents
+import { ConventionsPage } from '@/features/documents/pages/ConventionsPage'
+import { CertificatesPage } from '@/features/documents/pages/CertificatesPage'
+
 export const router = createBrowserRouter([
   // Public routes
   { path: '/login', element: <LoginPage /> },
@@ -88,6 +95,13 @@ export const router = createBrowserRouter([
       // Inscriptions
       { path: 'inscriptions', element: <EnrollmentsListPage /> },
       { path: 'inscriptions/:id', element: <EnrollmentDetailPage /> },
+
+      // Émargement
+      { path: 'sessions/:id/emargement', element: <AttendancePage /> },
+
+      // Documents
+      { path: 'conventions', element: <ConventionsPage /> },
+      { path: 'certificats', element: <CertificatesPage /> },
 
       // Placeholders for future modules
       { path: 'lieux', element: <PlaceholderPage title="Lieux" /> },

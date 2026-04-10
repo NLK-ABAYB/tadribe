@@ -451,6 +451,44 @@ export interface EvaluationResponse {
   created_at: string
 }
 
+// Certificate matching migration 007
+export interface Certificate {
+  id: string
+  organization_id: string
+  enrollment_id: string
+  certificate_type: string
+  title: string
+  objectives_achieved: string[]
+  duration_hours: number | null
+  start_date: string | null
+  end_date: string | null
+  certification_id: string | null
+  certification_obtained: boolean | null
+  blocks_obtained: Record<string, unknown>[] | null
+  issued_date: string
+  pdf_url: string | null
+  sent_to_beneficiary: boolean
+  sent_to_funder: boolean
+  created_by: string | null
+  created_at: string
+}
+
+// Document (GED) matching migration 006
+export interface Document {
+  id: string
+  organization_id: string
+  document_type: string
+  title: string
+  file_url: string
+  file_size: number | null
+  mime_type: string | null
+  related_to_type: string | null
+  related_to_id: string | null
+  uploaded_by: string | null
+  metadata: Record<string, unknown> | null
+  created_at: string
+}
+
 // Placeholder Database type for createClient<Database>
 // Replace with `npx supabase gen types typescript` output once connected
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

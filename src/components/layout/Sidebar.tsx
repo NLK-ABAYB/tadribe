@@ -15,6 +15,8 @@ import {
   Shield,
   Settings,
   MapPin,
+  Award,
+  PenLine,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthContext } from '@/features/auth/auth-context'
@@ -89,6 +91,13 @@ function getNavSections(isStaff: boolean, isFormateur: boolean): NavSection[] {
       title: 'Équipe',
       items: [
         { label: 'Formateurs', href: '/formateurs', icon: UserCheck },
+      ],
+    },
+    {
+      title: 'Documents',
+      items: [
+        { label: 'Conventions', href: '/conventions', icon: PenLine },
+        { label: 'Certificats', href: '/certificats', icon: Award },
       ],
     },
     {
