@@ -1,0 +1,113 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { CalendarDays, Search, Loader2 } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { SESSION_STATUSES } from '@/lib/constants'
+import { useSessions } from '../hooks/use-sessions'
+import type { SessionStatus } from '@/lib/types/database'
+
+const STATUS_VARIANT: Record<SessionStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'outline'> = {
+  planifiee: 'secondary',
+  confirmee: 'default',
+  en_cours: 'success',
+  terminee: 'outline',
+  annulee: 'destructive',
+}
+
+export function SessionsListPage() {
+  const { data: sessions, isLoading } = useSessions()
+  const [search, setSearch] = useState('')
+
+  const filtered = sessions?.filter((s) => {
+    const term = search.toLowerCase()
+    return (
+      s.formations?.title?.toLowerCase().includes(term) ||
+      s.code?.toLowerCase().includes(term) ||
+      `${s.trainers?.first_name ?? ''} ${s.trainers?.last_name ?? ''}`.toLowerCase().includes(term)
+    )
+  })
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Sessions</h1>
+        <p className="text-muted-foreground">
+          Planification et suivi des sessions de formation
+        </p>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Rechercher par formation, code ou formateur..."
+          className="pl-10"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : !filtered?.length ? (
+        <div className="flex flex-col items-center py-12 text-center">
+          <CalendarDays className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold">Aucune session</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            {search ? 'Aucun résultat' : 'Les sessions apparaîtront ici'}
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="px-4 py-3 text-left text-sm font-medium">Formation</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Code</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Dates</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Formateur</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Lieu</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((session) => (
+                <tr key={session.id} className="border-b last:border-0 hover:bg-muted/30">
+                  <td className="px-4 py-3">
+                    <Link
+                      to={`/sessions/${session.id}`}
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      {session.formations?.title ?? '—'}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
+                    {session.code ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    {new Date(session.start_date).toLocaleDateString('fr-FR')}
+                    {' — '}
+                    {new Date(session.end_date).toLocaleDateString('fr-FR')}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
+                    {session.trainers ? `${session.trainers.first_name} ${session.trainers.last_name}` : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
+                    {session.is_remote ? 'Distanciel' : session.locations?.name ?? '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Badge variant={STATUS_VARIANT[session.status]}>
+                      {SESSION_STATUSES[session.status]}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,182 @@
+import { useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { ArrowLeft, Plus, Loader2, Mail, Phone, Globe, Users } from 'lucide-react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { useCompany, useUpdateCompany } from '../hooks/use-companies'
+import { useContacts, useCreateContact } from '../hooks/use-contacts'
+import { useAuthContext } from '@/features/auth/auth-context'
+import { CompanyForm } from '../components/CompanyForm'
+import { ContactForm } from '../components/ContactForm'
+import { FUNDING_TYPES } from '@/lib/constants'
+
+export function CompanyDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const { profile } = useAuthContext()
+  const { data: company, isLoading } = useCompany(id)
+  const { data: contacts } = useContacts(id)
+  const updateCompany = useUpdateCompany()
+  const createContact = useCreateContact()
+  const [editing, setEditing] = useState(false)
+  const [showContactForm, setShowContactForm] = useState(false)
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (!company) {
+    return <p className="text-center text-muted-foreground py-12">Entreprise non trouvée</p>
+  }
+
+  async function handleUpdate(data: Record<string, unknown>) {
+    await updateCompany.mutateAsync({ id: company!.id, ...data } as Parameters<typeof updateCompany.mutateAsync>[0])
+    toast.success('Entreprise mise à jour')
+    setEditing(false)
+  }
+
+  async function handleCreateContact(data: Record<string, unknown>) {
+    if (!profile) return
+    await createContact.mutateAsync({
+      ...data,
+      organization_id: profile.organization_id,
+      company_id: company!.id,
+    } as Parameters<typeof createContact.mutateAsync>[0])
+    toast.success('Contact ajouté')
+    setShowContactForm(false)
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Link to="/entreprises">
+          <Button variant="ghost" size="icon">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold tracking-tight">{company.name}</h1>
+          <div className="flex gap-2 mt-1">
+            {company.siret && (
+              <Badge variant="outline">SIRET: {company.siret}</Badge>
+            )}
+            {company.default_funding_type && (
+              <Badge variant="secondary">
+                {FUNDING_TYPES[company.default_funding_type]}
+              </Badge>
+            )}
+          </div>
+        </div>
+        <Button variant="outline" onClick={() => setEditing(!editing)}>
+          {editing ? 'Annuler' : 'Modifier'}
+        </Button>
+      </div>
+
+      {editing ? (
+        <Card>
+          <CardContent className="pt-6">
+            <CompanyForm
+              defaultValues={company}
+              onSubmit={handleUpdate}
+              isSubmitting={updateCompany.isPending}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Informations</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {company.email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  {company.email}
+                </div>
+              )}
+              {company.phone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  {company.phone}
+                </div>
+              )}
+              {company.website && (
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  {company.website}
+                </div>
+              )}
+              {company.sector && <p>Secteur : {company.sector}</p>}
+              {company.size_range && <p>Effectif : {company.size_range}</p>}
+              {company.convention_collective && <p>CCN : {company.convention_collective}</p>}
+              {company.notes && (
+                <>
+                  <Separator />
+                  <p className="text-muted-foreground">{company.notes}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Contacts ({contacts?.length ?? 0})
+              </CardTitle>
+              <Button size="sm" variant="outline" onClick={() => setShowContactForm(!showContactForm)}>
+                <Plus className="mr-1 h-3 w-3" />
+                Ajouter
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {showContactForm && (
+                <div className="mb-4 border-b pb-4">
+                  <ContactForm
+                    onSubmit={handleCreateContact}
+                    isSubmitting={createContact.isPending}
+                  />
+                </div>
+              )}
+              {contacts?.length ? (
+                <div className="space-y-3">
+                  {contacts.map((contact) => (
+                    <div key={contact.id} className="flex items-center justify-between rounded-lg border p-3">
+                      <div>
+                        <p className="font-medium text-sm">
+                          {contact.first_name} {contact.last_name}
+                        </p>
+                        {contact.job_title && (
+                          <p className="text-xs text-muted-foreground">{contact.job_title}</p>
+                        )}
+                        {contact.email && (
+                          <p className="text-xs text-muted-foreground">{contact.email}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-1">
+                        {contact.is_signatory && <Badge variant="outline" className="text-xs">Signataire</Badge>}
+                        {contact.is_billing_contact && <Badge variant="outline" className="text-xs">Facturation</Badge>}
+                        {contact.is_training_manager && <Badge variant="outline" className="text-xs">Formation</Badge>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Aucun contact
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  )
+}
