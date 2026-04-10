@@ -75,12 +75,34 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
   - InvoiceWorkflow (stepper visuel: devis → convention → facture → paiement)
   - Hooks CRUD : useInvoices, useInvoiceLines
 
+### Phase 5 : Bloc 1 — Formations, Formateurs, Bénéficiaires, Inscriptions
+- [x] Types DB complets (`database.ts`) : Formation, Trainer, Beneficiary, Enrollment, Certification, etc.
+- [x] Constants enrichis : ACTION_CATEGORIES, FORMATION_MODALITIES, EVAL_TYPES, QUALIFICATION_LEVELS, FUNDING_STATUSES
+- [x] Module Formations (catalogue)
+  - FormationsListPage (recherche, filtre catégorie, grille cartes)
+  - FormationDetailPage (objectifs ind.1, résultats ind.2, pédagogie ind.6, tarifs)
+  - FormationForm (Zod, champs Qualiopi : objectifs, prérequis, accessibilité, CPF)
+  - Hooks CRUD : useFormations, useFormation, useCreateFormation, useUpdateFormation, useDeleteFormation
+- [x] Module Formateurs
+  - TrainersListPage (recherche, cartes avec spécialités, interne/externe)
+  - TrainerDetailPage (coordonnées, tarifs, compétences validées ind.21, bio)
+  - TrainerForm (identité, spécialités, tarifs, bio)
+  - Hooks CRUD : useTrainers, useTrainer, useTrainerCompetencies, useCreateTrainer, useUpdateTrainer
+- [x] Module Bénéficiaires
+  - BeneficiariesListPage (table avec entreprise, qualification, badges PSH/apprenti/CPF)
+  - BeneficiaryDetailPage (coordonnées, situation pro, handicap ind.26 avec RGPD, apprentissage, inscriptions)
+  - BeneficiaryForm (identité, entreprise, qualification, handicap conditionnel, apprentissage conditionnel)
+  - Hooks CRUD : useBeneficiaries, useBeneficiary, useCreateBeneficiary, useUpdateBeneficiary
+- [x] Module Inscriptions
+  - EnrollmentsListPage (table avec bénéficiaire, formation, session, statut, filtre statut)
+  - EnrollmentDetailPage (workflow stepper 5 étapes, positionnement ind.8, documents ind.9, session info)
+  - EnrollmentForm (sélection session + bénéficiaire, statut, type contrat)
+  - Hooks CRUD : useEnrollments, useEnrollment, useCreateEnrollment, useUpdateEnrollment
+- [x] Routes mises à jour : formations/:id, formateurs/:id, beneficiaires/:id, inscriptions/:id
+- [x] Build TypeScript OK
+
 ### Ce qui reste à faire
-- [ ] Module Formations (catalogue, certifications, ressources pédagogiques)
-- [ ] Module Bénéficiaires (fiche, positionnement ind.8, handicap ind.26)
-- [ ] Module Inscriptions (workflow, documents ind.9, convention)
 - [ ] Module Émargement (signature, absences, ind.12)
-- [ ] Module Formateurs (compétences ind.21, CV, planning)
 - [ ] Module Financements (dossiers OPCO/CPF/France Travail, subrogation)
 - [ ] Module Évaluations (questionnaires, satisfaction, certificats)
 - [ ] Module Qualité (réclamations ind.31, amélioration ind.32, veille ind.23-25, Qualiopi)
@@ -169,5 +191,9 @@ tadribe/
         ├── dashboard/       # DashboardPage (KPIs par rôle)
         ├── commercial/      # Companies, Contacts, Pipeline (kanban)
         ├── sessions/        # Sessions list + detail (avec relations)
-        └── invoicing/       # Factures, workflow devis→facture, formulaire lignes
+        ├── invoicing/       # Factures, workflow devis→facture, formulaire lignes
+        ├── catalogue/       # Formations (liste, détail, CRUD, Qualiopi ind.1/2/6/7)
+        ├── trainers/        # Formateurs (profil, compétences ind.21, tarifs)
+        ├── beneficiaries/   # Bénéficiaires (fiche, handicap ind.26, apprentissage)
+        └── enrollments/     # Inscriptions (workflow, positionnement ind.8, documents ind.9)
 ```

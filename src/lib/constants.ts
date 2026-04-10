@@ -78,3 +78,55 @@ export const INVOICE_STATUSES = {
   contentieux: 'Contentieux',
   avoir: 'Avoir',
 } as const
+
+// Funding statuses
+export const FUNDING_STATUSES = {
+  brouillon: 'Brouillon',
+  depose: 'Déposé',
+  en_instruction: 'En instruction',
+  accorde: 'Accordé',
+  refuse: 'Refusé',
+  annule: 'Annulé',
+  realise: 'Réalisé',
+  paye: 'Payé',
+} as const
+
+// Action categories (Qualiopi)
+export const ACTION_CATEGORIES = {
+  af: 'Actions de formation',
+  bc: 'Bilans de compétences',
+  vae: 'VAE',
+  cfa: 'Apprentissage (CFA)',
+} as const
+
+// Formation modalities
+export const FORMATION_MODALITIES = {
+  presentiel: 'Présentiel',
+  distanciel: 'Distanciel',
+  hybride: 'Hybride',
+  afest: 'AFEST',
+} as const
+
+// Evaluation types
+export const EVAL_TYPES = {
+  positionnement: 'Positionnement',
+  formative: 'Évaluation formative',
+  sommative: 'Évaluation sommative',
+  satisfaction_chaud: 'Satisfaction à chaud',
+  satisfaction_froid: 'Satisfaction à froid',
+  insertion_3m: 'Insertion 3 mois',
+  insertion_6m: 'Insertion 6 mois',
+  insertion_12m: 'Insertion 12 mois',
+} as const
+
+// Qualification levels
+export const QUALIFICATION_LEVELS = {
+  '1': 'Niveau 1 - Sans diplôme',
+  '2': 'Niveau 2 - CAP/BEP',
+  '3': 'Niveau 3 - CAP/BEP',
+  '4': 'Niveau 4 - Bac',
+  '5': 'Niveau 5 - Bac+2',
+  '6': 'Niveau 6 - Licence/Maîtrise',
+  '7': 'Niveau 7 - Master',
+  '8': 'Niveau 8 - Doctorat',
+} as const

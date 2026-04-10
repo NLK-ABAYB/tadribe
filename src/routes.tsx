@@ -25,6 +25,22 @@ import { InvoicesListPage } from '@/features/invoicing/pages/InvoicesListPage'
 import { InvoiceDetailPage } from '@/features/invoicing/pages/InvoiceDetailPage'
 import { InvoiceEditPage } from '@/features/invoicing/pages/InvoiceEditPage'
 
+// Catalogue (Formations)
+import { FormationsListPage } from '@/features/catalogue/pages/FormationsListPage'
+import { FormationDetailPage } from '@/features/catalogue/pages/FormationDetailPage'
+
+// Formateurs
+import { TrainersListPage } from '@/features/trainers/pages/TrainersListPage'
+import { TrainerDetailPage } from '@/features/trainers/pages/TrainerDetailPage'
+
+// Bénéficiaires
+import { BeneficiariesListPage } from '@/features/beneficiaries/pages/BeneficiariesListPage'
+import { BeneficiaryDetailPage } from '@/features/beneficiaries/pages/BeneficiaryDetailPage'
+
+// Inscriptions
+import { EnrollmentsListPage } from '@/features/enrollments/pages/EnrollmentsListPage'
+import { EnrollmentDetailPage } from '@/features/enrollments/pages/EnrollmentDetailPage'
+
 export const router = createBrowserRouter([
   // Public routes
   { path: '/login', element: <LoginPage /> },
@@ -57,12 +73,24 @@ export const router = createBrowserRouter([
       { path: 'factures/new', element: <InvoiceEditPage /> },
       { path: 'factures/:id', element: <InvoiceDetailPage /> },
 
+      // Catalogue (Formations)
+      { path: 'formations', element: <FormationsListPage /> },
+      { path: 'formations/:id', element: <FormationDetailPage /> },
+
+      // Formateurs
+      { path: 'formateurs', element: <TrainersListPage /> },
+      { path: 'formateurs/:id', element: <TrainerDetailPage /> },
+
+      // Bénéficiaires
+      { path: 'beneficiaires', element: <BeneficiariesListPage /> },
+      { path: 'beneficiaires/:id', element: <BeneficiaryDetailPage /> },
+
+      // Inscriptions
+      { path: 'inscriptions', element: <EnrollmentsListPage /> },
+      { path: 'inscriptions/:id', element: <EnrollmentDetailPage /> },
+
       // Placeholders for future modules
-      { path: 'formations', element: <PlaceholderPage title="Formations" /> },
       { path: 'lieux', element: <PlaceholderPage title="Lieux" /> },
-      { path: 'beneficiaires', element: <PlaceholderPage title="Bénéficiaires" /> },
-      { path: 'inscriptions', element: <PlaceholderPage title="Inscriptions" /> },
-      { path: 'formateurs', element: <PlaceholderPage title="Formateurs" /> },
       { path: 'financements', element: <PlaceholderPage title="Financements" /> },
       { path: 'paiements', element: <PlaceholderPage title="Paiements" /> },
       { path: 'evaluations', element: <PlaceholderPage title="Évaluations" /> },
