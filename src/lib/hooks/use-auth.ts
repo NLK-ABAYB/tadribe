@@ -42,23 +42,38 @@ export function useAuth() {
       }
     })
 
-    // Listen for auth changes
+    // Listen for auth changes.
+    // IMPORTANT: the callback must NOT be async. Since supabase-js v2.39+,
+    // signInWithPassword() awaits all onAuthStateChange callbacks via
+    // Promise.allSettled(). An async callback that awaits a network call
+    // (fetchProfile) blocks signInWithPassword from ever resolving, which
+    // freezes the login button spinner.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('[auth] onAuthStateChange:', {
           event,
           hasSession: !!session,
           userId: session?.user?.id ?? null,
         })
         if (session?.user) {
-          const profile = await fetchProfile(session.user.id)
-          console.log('[auth] profile fetched after auth change:', {
-            event,
-            hasProfile: !!profile,
-            organizationId: profile?.organization_id ?? null,
-            role: profile?.role ?? null,
+          // Set user/session immediately so RequireAuth sees a logged-in
+          // user (shows spinner, not a redirect to /login) while the
+          // profile loads in the background.
+          setState(prev => ({
+            ...prev,
+            user: session.user,
+            session,
+            loading: true,
+          }))
+          fetchProfile(session.user.id).then(profile => {
+            console.log('[auth] profile fetched after auth change:', {
+              event,
+              hasProfile: !!profile,
+              organizationId: profile?.organization_id ?? null,
+              role: profile?.role ?? null,
+            })
+            setState({ user: session.user, profile, session, loading: false })
           })
-          setState({ user: session.user, profile, session, loading: false })
         } else {
           console.log('[auth] auth change with no session, clearing state')
           setState({ user: null, profile: null, session: null, loading: false })
