@@ -57,24 +57,29 @@ CREATE TRIGGER set_updated_at_profiles
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
 -- ===================== FONCTIONS HELPER RLS =====================
+-- Ces helpers vivent dans le schéma `public` : sur Supabase Cloud, le rôle
+-- qui exécute les migrations n'a pas les droits d'écriture sur le schéma
+-- `auth` (réservé à Supabase). Les politiques RLS appellent donc
+-- `public.organization_id()` / `public.user_role()` / `public.is_staff()` /
+-- `public.is_admin()`.
 
-CREATE OR REPLACE FUNCTION auth.organization_id()
+CREATE OR REPLACE FUNCTION public.organization_id()
 RETURNS UUID AS $$
   SELECT organization_id FROM public.profiles WHERE id = auth.uid()
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
-CREATE OR REPLACE FUNCTION auth.user_role()
+CREATE OR REPLACE FUNCTION public.user_role()
 RETURNS public.user_role AS $$
   SELECT role FROM public.profiles WHERE id = auth.uid()
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
-CREATE OR REPLACE FUNCTION auth.is_staff()
+CREATE OR REPLACE FUNCTION public.is_staff()
 RETURNS BOOLEAN AS $$
   SELECT role IN ('admin_of', 'gestionnaire', 'commercial')
   FROM public.profiles WHERE id = auth.uid()
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
-CREATE OR REPLACE FUNCTION auth.is_admin()
+CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS BOOLEAN AS $$
   SELECT role = 'admin_of'
   FROM public.profiles WHERE id = auth.uid()
@@ -86,12 +91,12 @@ ALTER TABLE public.organizations ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "org_select_own"
   ON public.organizations FOR SELECT
-  USING (id = auth.organization_id());
+  USING (id = public.organization_id());
 
 CREATE POLICY "org_update_admin"
   ON public.organizations FOR UPDATE
-  USING (id = auth.organization_id() AND auth.is_admin())
-  WITH CHECK (id = auth.organization_id() AND auth.is_admin());
+  USING (id = public.organization_id() AND public.is_admin())
+  WITH CHECK (id = public.organization_id() AND public.is_admin());
 
 -- ===================== RLS: PROFILES =====================
 
@@ -99,7 +104,7 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "profiles_select_org"
   ON public.profiles FOR SELECT
-  USING (organization_id = auth.organization_id());
+  USING (organization_id = public.organization_id());
 
 CREATE POLICY "profiles_update_self"
   ON public.profiles FOR UPDATE
@@ -108,13 +113,13 @@ CREATE POLICY "profiles_update_self"
 
 CREATE POLICY "profiles_insert_admin"
   ON public.profiles FOR INSERT
-  WITH CHECK (organization_id = auth.organization_id() AND auth.is_admin());
+  WITH CHECK (organization_id = public.organization_id() AND public.is_admin());
 
 CREATE POLICY "profiles_delete_admin"
   ON public.profiles FOR DELETE
-  USING (organization_id = auth.organization_id() AND auth.is_admin());
+  USING (organization_id = public.organization_id() AND public.is_admin());
 
 CREATE POLICY "profiles_update_admin"
   ON public.profiles FOR UPDATE
-  USING (organization_id = auth.organization_id() AND auth.is_admin())
-  WITH CHECK (organization_id = auth.organization_id() AND auth.is_admin());
+  USING (organization_id = public.organization_id() AND public.is_admin())
+  WITH CHECK (organization_id = public.organization_id() AND public.is_admin());

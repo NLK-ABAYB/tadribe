@@ -36,7 +36,7 @@ CREATE POLICY "opcos_select_all"
 
 CREATE POLICY "opcos_manage_admin"
   ON public.opcos FOR ALL
-  USING (auth.is_admin());
+  USING (public.is_admin());
 
 -- ===================== COMPANIES =====================
 
@@ -72,22 +72,17 @@ ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "companies_staff_all"
   ON public.companies FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "companies_formateur_select"
   ON public.companies FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
   );
 
-CREATE POLICY "companies_entreprise_select"
-  ON public.companies FOR SELECT
-  USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
-    AND id IN (SELECT company_id FROM public.contacts WHERE user_id = auth.uid())
-  );
+-- NB : la politique companies_entreprise_select référence public.contacts et
+-- est donc créée plus bas, une fois la table contacts existante.
 
 -- ===================== CONTACTS =====================
 
@@ -119,14 +114,24 @@ ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "contacts_staff_all"
   ON public.contacts FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "contacts_entreprise_select"
   ON public.contacts FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND company_id IN (SELECT company_id FROM public.contacts WHERE user_id = auth.uid())
+  );
+
+-- Politique companies_entreprise_select : définie ici car elle référence
+-- public.contacts, qui vient d'être créée.
+CREATE POLICY "companies_entreprise_select"
+  ON public.companies FOR SELECT
+  USING (
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
+    AND id IN (SELECT company_id FROM public.contacts WHERE user_id = auth.uid())
   );
 
 -- ===================== OPPORTUNITIES =====================
@@ -160,7 +165,7 @@ ALTER TABLE public.opportunities ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "opportunities_staff_all"
   ON public.opportunities FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 -- ===================== INTERACTIONS =====================
 
@@ -185,4 +190,4 @@ ALTER TABLE public.interactions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "interactions_staff_all"
   ON public.interactions FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());

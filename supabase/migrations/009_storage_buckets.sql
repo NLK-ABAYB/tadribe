@@ -17,32 +17,32 @@ CREATE POLICY "documents_staff_insert"
   ON storage.objects FOR INSERT
   WITH CHECK (
     bucket_id = 'documents'
-    AND auth.is_staff()
-    AND (storage.foldername(name))[1] = auth.organization_id()::text
+    AND public.is_staff()
+    AND (storage.foldername(name))[1] = public.organization_id()::text
   );
 
 CREATE POLICY "documents_staff_select"
   ON storage.objects FOR SELECT
   USING (
     bucket_id = 'documents'
-    AND auth.is_staff()
-    AND (storage.foldername(name))[1] = auth.organization_id()::text
+    AND public.is_staff()
+    AND (storage.foldername(name))[1] = public.organization_id()::text
   );
 
 CREATE POLICY "documents_staff_update"
   ON storage.objects FOR UPDATE
   USING (
     bucket_id = 'documents'
-    AND auth.is_staff()
-    AND (storage.foldername(name))[1] = auth.organization_id()::text
+    AND public.is_staff()
+    AND (storage.foldername(name))[1] = public.organization_id()::text
   );
 
 CREATE POLICY "documents_staff_delete"
   ON storage.objects FOR DELETE
   USING (
     bucket_id = 'documents'
-    AND auth.is_admin()
-    AND (storage.foldername(name))[1] = auth.organization_id()::text
+    AND public.is_admin()
+    AND (storage.foldername(name))[1] = public.organization_id()::text
   );
 
 -- Formateur peut lire les documents de son org
@@ -50,8 +50,8 @@ CREATE POLICY "documents_formateur_select"
   ON storage.objects FOR SELECT
   USING (
     bucket_id = 'documents'
-    AND auth.user_role() = 'formateur'
-    AND (storage.foldername(name))[1] = auth.organization_id()::text
+    AND public.user_role() = 'formateur'
+    AND (storage.foldername(name))[1] = public.organization_id()::text
   );
 
 -- Apprenants peuvent lire les documents de leur org
@@ -59,8 +59,8 @@ CREATE POLICY "documents_apprenant_select"
   ON storage.objects FOR SELECT
   USING (
     bucket_id = 'documents'
-    AND auth.user_role() IN ('apprenant', 'apprenti')
-    AND (storage.foldername(name))[1] = auth.organization_id()::text
+    AND public.user_role() IN ('apprenant', 'apprenti')
+    AND (storage.foldername(name))[1] = public.organization_id()::text
   );
 
 -- ===================== STORAGE POLICIES: avatars =====================
@@ -93,6 +93,6 @@ CREATE POLICY "logos_manage_admin"
   ON storage.objects FOR INSERT
   WITH CHECK (
     bucket_id = 'logos'
-    AND auth.is_admin()
-    AND (storage.foldername(name))[1] = auth.organization_id()::text
+    AND public.is_admin()
+    AND (storage.foldername(name))[1] = public.organization_id()::text
   );

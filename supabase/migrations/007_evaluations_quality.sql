@@ -27,11 +27,11 @@ ALTER TABLE public.evaluations ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "evaluations_staff_all"
   ON public.evaluations FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "evaluations_select_org"
   ON public.evaluations FOR SELECT
-  USING (organization_id = auth.organization_id());
+  USING (organization_id = public.organization_id());
 
 -- ===================== EVALUATION RESPONSES =====================
 
@@ -60,15 +60,15 @@ CREATE POLICY "eval_resp_staff_all"
     EXISTS (
       SELECT 1 FROM public.evaluations ev
       WHERE ev.id = evaluation_responses.evaluation_id
-      AND ev.organization_id = auth.organization_id()
+      AND ev.organization_id = public.organization_id()
     )
-    AND auth.is_staff()
+    AND public.is_staff()
   );
 
 CREATE POLICY "eval_resp_apprenant_select"
   ON public.evaluation_responses FOR SELECT
   USING (
-    auth.user_role() IN ('apprenant', 'apprenti')
+    public.user_role() IN ('apprenant', 'apprenti')
     AND beneficiary_id IN (
       SELECT id FROM public.beneficiaries WHERE profile_id = auth.uid()
     )
@@ -77,7 +77,7 @@ CREATE POLICY "eval_resp_apprenant_select"
 CREATE POLICY "eval_resp_apprenant_insert"
   ON public.evaluation_responses FOR INSERT
   WITH CHECK (
-    auth.user_role() IN ('apprenant', 'apprenti')
+    public.user_role() IN ('apprenant', 'apprenti')
     AND beneficiary_id IN (
       SELECT id FROM public.beneficiaries WHERE profile_id = auth.uid()
     )
@@ -86,14 +86,14 @@ CREATE POLICY "eval_resp_apprenant_insert"
 CREATE POLICY "eval_resp_entreprise_insert"
   ON public.evaluation_responses FOR INSERT
   WITH CHECK (
-    auth.user_role() = 'entreprise'
+    public.user_role() = 'entreprise'
     AND respondent_type = 'entreprise'
   );
 
 CREATE POLICY "eval_resp_formateur_insert"
   ON public.evaluation_responses FOR INSERT
   WITH CHECK (
-    auth.user_role() = 'formateur'
+    public.user_role() = 'formateur'
     AND respondent_type = 'formateur'
   );
 
@@ -127,11 +127,11 @@ ALTER TABLE public.certificates ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "certificates_staff_all"
   ON public.certificates FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "certificates_select_org"
   ON public.certificates FOR SELECT
-  USING (organization_id = auth.organization_id());
+  USING (organization_id = public.organization_id());
 
 -- ===================== COMPLAINTS (ind. 31) =====================
 
@@ -171,17 +171,17 @@ ALTER TABLE public.complaints ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "complaints_staff_all"
   ON public.complaints FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "complaints_insert_any"
   ON public.complaints FOR INSERT
-  WITH CHECK (organization_id = auth.organization_id());
+  WITH CHECK (organization_id = public.organization_id());
 
 CREATE POLICY "complaints_select_own_apprenant"
   ON public.complaints FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() IN ('apprenant', 'apprenti')
+    organization_id = public.organization_id()
+    AND public.user_role() IN ('apprenant', 'apprenti')
     AND beneficiary_id IN (
       SELECT id FROM public.beneficiaries WHERE profile_id = auth.uid()
     )
@@ -190,8 +190,8 @@ CREATE POLICY "complaints_select_own_apprenant"
 CREATE POLICY "complaints_select_own_entreprise"
   ON public.complaints FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND company_id IN (
       SELECT company_id FROM public.contacts WHERE user_id = auth.uid()
     )
@@ -200,8 +200,8 @@ CREATE POLICY "complaints_select_own_entreprise"
 CREATE POLICY "complaints_select_formateur"
   ON public.complaints FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
   );
 
 -- ===================== IMPROVEMENT ACTIONS (ind. 32) =====================
@@ -238,11 +238,11 @@ ALTER TABLE public.improvement_actions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "improvements_staff_all"
   ON public.improvement_actions FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "improvements_formateur_select"
   ON public.improvement_actions FOR SELECT
-  USING (organization_id = auth.organization_id() AND auth.user_role() = 'formateur');
+  USING (organization_id = public.organization_id() AND public.user_role() = 'formateur');
 
 -- Ajouter FK sur complaints
 ALTER TABLE public.complaints
@@ -275,11 +275,11 @@ ALTER TABLE public.watch_entries ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "watch_staff_all"
   ON public.watch_entries FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "watch_formateur_select"
   ON public.watch_entries FOR SELECT
-  USING (organization_id = auth.organization_id() AND auth.user_role() = 'formateur');
+  USING (organization_id = public.organization_id() AND public.user_role() = 'formateur');
 
 -- ===================== QUALITY REVIEWS =====================
 
@@ -303,7 +303,7 @@ ALTER TABLE public.quality_reviews ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "quality_reviews_staff_all"
   ON public.quality_reviews FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 -- ===================== QUALIOPI EVIDENCE =====================
 
@@ -336,8 +336,8 @@ ALTER TABLE public.qualiopi_evidence ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "qualiopi_staff_all"
   ON public.qualiopi_evidence FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "qualiopi_formateur_select"
   ON public.qualiopi_evidence FOR SELECT
-  USING (organization_id = auth.organization_id() AND auth.user_role() = 'formateur');
+  USING (organization_id = public.organization_id() AND public.user_role() = 'formateur');

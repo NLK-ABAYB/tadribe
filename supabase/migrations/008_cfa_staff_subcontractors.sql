@@ -26,21 +26,21 @@ ALTER TABLE public.apprentice_visits ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "visits_staff_all"
   ON public.apprentice_visits FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "visits_formateur_all"
   ON public.apprentice_visits FOR ALL
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
     AND trainer_id IN (SELECT id FROM public.trainers WHERE profile_id = auth.uid())
   );
 
 CREATE POLICY "visits_apprenti_select"
   ON public.apprentice_visits FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'apprenti'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'apprenti'
     AND enrollment_id IN (
       SELECT e.id FROM public.enrollments e
       JOIN public.beneficiaries b ON b.id = e.beneficiary_id
@@ -51,8 +51,8 @@ CREATE POLICY "visits_apprenti_select"
 CREATE POLICY "visits_entreprise_select"
   ON public.apprentice_visits FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND enrollment_id IN (
       SELECT e.id FROM public.enrollments e
       WHERE e.company_id IN (
@@ -87,16 +87,16 @@ ALTER TABLE public.staff_training ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "staff_training_admin_all"
   ON public.staff_training FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_admin());
+  USING (organization_id = public.organization_id() AND public.is_admin());
 
 CREATE POLICY "staff_training_gestionnaire_all"
   ON public.staff_training FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.user_role() = 'gestionnaire');
+  USING (organization_id = public.organization_id() AND public.user_role() = 'gestionnaire');
 
 CREATE POLICY "staff_training_self_select"
   ON public.staff_training FOR SELECT
   USING (
-    organization_id = auth.organization_id()
+    organization_id = public.organization_id()
     AND profile_id = auth.uid()
   );
 
@@ -123,12 +123,12 @@ ALTER TABLE public.professional_interviews ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "interviews_admin_all"
   ON public.professional_interviews FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_admin());
+  USING (organization_id = public.organization_id() AND public.is_admin());
 
 CREATE POLICY "interviews_self_select"
   ON public.professional_interviews FOR SELECT
   USING (
-    organization_id = auth.organization_id()
+    organization_id = public.organization_id()
     AND profile_id = auth.uid()
   );
 
@@ -167,4 +167,4 @@ ALTER TABLE public.subcontractors ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "subcontractors_staff_all"
   ON public.subcontractors FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());

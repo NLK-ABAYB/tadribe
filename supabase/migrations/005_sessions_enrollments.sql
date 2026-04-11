@@ -23,11 +23,11 @@ ALTER TABLE public.locations ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "locations_staff_all"
   ON public.locations FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "locations_select_org"
   ON public.locations FOR SELECT
-  USING (organization_id = auth.organization_id());
+  USING (organization_id = public.organization_id());
 
 -- ===================== TRAINERS =====================
 
@@ -64,13 +64,13 @@ ALTER TABLE public.trainers ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "trainers_staff_all"
   ON public.trainers FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "trainers_self_select"
   ON public.trainers FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
     AND profile_id = auth.uid()
   );
 
@@ -94,9 +94,9 @@ CREATE POLICY "trainer_comp_staff_all"
     EXISTS (
       SELECT 1 FROM public.trainers t
       WHERE t.id = trainer_competencies.trainer_id
-      AND t.organization_id = auth.organization_id()
+      AND t.organization_id = public.organization_id()
     )
-    AND auth.is_staff()
+    AND public.is_staff()
   );
 
 CREATE POLICY "trainer_comp_self_select"
@@ -146,38 +146,19 @@ ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "sessions_staff_all"
   ON public.sessions FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "sessions_formateur_select"
   ON public.sessions FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
     AND trainer_id IN (SELECT id FROM public.trainers WHERE profile_id = auth.uid())
   );
 
-CREATE POLICY "sessions_apprenant_select"
-  ON public.sessions FOR SELECT
-  USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() IN ('apprenant', 'apprenti')
-    AND id IN (
-      SELECT session_id FROM public.enrollments e
-      JOIN public.beneficiaries b ON b.id = e.beneficiary_id
-      WHERE b.profile_id = auth.uid()
-    )
-  );
-
-CREATE POLICY "sessions_entreprise_select"
-  ON public.sessions FOR SELECT
-  USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
-    AND id IN (
-      SELECT session_id FROM public.enrollments
-      WHERE company_id IN (SELECT company_id FROM public.contacts WHERE user_id = auth.uid())
-    )
-  );
+-- NB : les politiques sessions_apprenant_select et sessions_entreprise_select
+-- référencent public.enrollments et sont donc créées plus bas, une fois la
+-- table enrollments existante.
 
 -- ===================== SESSION SLOTS =====================
 
@@ -205,9 +186,9 @@ CREATE POLICY "slots_staff_all"
     EXISTS (
       SELECT 1 FROM public.sessions s
       WHERE s.id = session_slots.session_id
-      AND s.organization_id = auth.organization_id()
+      AND s.organization_id = public.organization_id()
     )
-    AND auth.is_staff()
+    AND public.is_staff()
   );
 
 CREATE POLICY "slots_read_org"
@@ -216,7 +197,7 @@ CREATE POLICY "slots_read_org"
     EXISTS (
       SELECT 1 FROM public.sessions s
       WHERE s.id = session_slots.session_id
-      AND s.organization_id = auth.organization_id()
+      AND s.organization_id = public.organization_id()
     )
   );
 
@@ -265,28 +246,28 @@ ALTER TABLE public.beneficiaries ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "beneficiaries_staff_all"
   ON public.beneficiaries FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "beneficiaries_formateur_select"
   ON public.beneficiaries FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
   );
 
 CREATE POLICY "beneficiaries_self_select"
   ON public.beneficiaries FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() IN ('apprenant', 'apprenti')
+    organization_id = public.organization_id()
+    AND public.user_role() IN ('apprenant', 'apprenti')
     AND profile_id = auth.uid()
   );
 
 CREATE POLICY "beneficiaries_entreprise_select"
   ON public.beneficiaries FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND company_id IN (SELECT company_id FROM public.contacts WHERE user_id = auth.uid())
   );
 
@@ -338,13 +319,13 @@ ALTER TABLE public.enrollments ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "enrollments_staff_all"
   ON public.enrollments FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "enrollments_formateur_select"
   ON public.enrollments FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
     AND session_id IN (
       SELECT s.id FROM public.sessions s
       JOIN public.trainers t ON t.id = s.trainer_id
@@ -355,8 +336,8 @@ CREATE POLICY "enrollments_formateur_select"
 CREATE POLICY "enrollments_apprenant_select"
   ON public.enrollments FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() IN ('apprenant', 'apprenti')
+    organization_id = public.organization_id()
+    AND public.user_role() IN ('apprenant', 'apprenti')
     AND beneficiary_id IN (
       SELECT id FROM public.beneficiaries WHERE profile_id = auth.uid()
     )
@@ -365,10 +346,35 @@ CREATE POLICY "enrollments_apprenant_select"
 CREATE POLICY "enrollments_entreprise_select"
   ON public.enrollments FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND company_id IN (
       SELECT company_id FROM public.contacts WHERE user_id = auth.uid()
+    )
+  );
+
+-- Politiques sur public.sessions qui référencent public.enrollments : définies
+-- ici car elles dépendent de la table enrollments, qui vient d'être créée.
+CREATE POLICY "sessions_apprenant_select"
+  ON public.sessions FOR SELECT
+  USING (
+    organization_id = public.organization_id()
+    AND public.user_role() IN ('apprenant', 'apprenti')
+    AND id IN (
+      SELECT session_id FROM public.enrollments e
+      JOIN public.beneficiaries b ON b.id = e.beneficiary_id
+      WHERE b.profile_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "sessions_entreprise_select"
+  ON public.sessions FOR SELECT
+  USING (
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
+    AND id IN (
+      SELECT session_id FROM public.enrollments
+      WHERE company_id IN (SELECT company_id FROM public.contacts WHERE user_id = auth.uid())
     )
   );
 
@@ -399,15 +405,15 @@ CREATE POLICY "attendances_staff_all"
     EXISTS (
       SELECT 1 FROM public.enrollments e
       WHERE e.id = attendances.enrollment_id
-      AND e.organization_id = auth.organization_id()
+      AND e.organization_id = public.organization_id()
     )
-    AND auth.is_staff()
+    AND public.is_staff()
   );
 
 CREATE POLICY "attendances_formateur_all"
   ON public.attendances FOR ALL
   USING (
-    auth.user_role() = 'formateur'
+    public.user_role() = 'formateur'
     AND EXISTS (
       SELECT 1 FROM public.enrollments e
       JOIN public.sessions s ON s.id = e.session_id
@@ -420,7 +426,7 @@ CREATE POLICY "attendances_formateur_all"
 CREATE POLICY "attendances_apprenant_select"
   ON public.attendances FOR SELECT
   USING (
-    auth.user_role() IN ('apprenant', 'apprenti')
+    public.user_role() IN ('apprenant', 'apprenti')
     AND EXISTS (
       SELECT 1 FROM public.enrollments e
       JOIN public.beneficiaries b ON b.id = e.beneficiary_id
@@ -452,9 +458,9 @@ CREATE POLICY "adaptations_staff_all"
     EXISTS (
       SELECT 1 FROM public.enrollments e
       WHERE e.id = individual_adaptations.enrollment_id
-      AND e.organization_id = auth.organization_id()
+      AND e.organization_id = public.organization_id()
     )
-    AND auth.is_staff()
+    AND public.is_staff()
   );
 
 CREATE POLICY "adaptations_read_org"
@@ -463,6 +469,6 @@ CREATE POLICY "adaptations_read_org"
     EXISTS (
       SELECT 1 FROM public.enrollments e
       WHERE e.id = individual_adaptations.enrollment_id
-      AND e.organization_id = auth.organization_id()
+      AND e.organization_id = public.organization_id()
     )
   );

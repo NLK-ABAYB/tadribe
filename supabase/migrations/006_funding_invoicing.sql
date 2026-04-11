@@ -45,13 +45,13 @@ ALTER TABLE public.funding_dossiers ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "funding_staff_all"
   ON public.funding_dossiers FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "funding_apprenant_select"
   ON public.funding_dossiers FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() IN ('apprenant', 'apprenti')
+    organization_id = public.organization_id()
+    AND public.user_role() IN ('apprenant', 'apprenti')
     AND beneficiary_id IN (
       SELECT id FROM public.beneficiaries WHERE profile_id = auth.uid()
     )
@@ -60,8 +60,8 @@ CREATE POLICY "funding_apprenant_select"
 CREATE POLICY "funding_entreprise_select"
   ON public.funding_dossiers FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND company_id IN (
       SELECT company_id FROM public.contacts WHERE user_id = auth.uid()
     )
@@ -112,13 +112,13 @@ ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "invoices_staff_all"
   ON public.invoices FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "invoices_apprenant_select"
   ON public.invoices FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() IN ('apprenant', 'apprenti')
+    organization_id = public.organization_id()
+    AND public.user_role() IN ('apprenant', 'apprenti')
     AND beneficiary_id IN (
       SELECT id FROM public.beneficiaries WHERE profile_id = auth.uid()
     )
@@ -127,8 +127,8 @@ CREATE POLICY "invoices_apprenant_select"
 CREATE POLICY "invoices_entreprise_select"
   ON public.invoices FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND company_id IN (
       SELECT company_id FROM public.contacts WHERE user_id = auth.uid()
     )
@@ -158,9 +158,9 @@ CREATE POLICY "invoice_lines_staff_all"
     EXISTS (
       SELECT 1 FROM public.invoices i
       WHERE i.id = invoice_lines.invoice_id
-      AND i.organization_id = auth.organization_id()
+      AND i.organization_id = public.organization_id()
     )
-    AND auth.is_staff()
+    AND public.is_staff()
   );
 
 CREATE POLICY "invoice_lines_read_via_invoice"
@@ -169,7 +169,7 @@ CREATE POLICY "invoice_lines_read_via_invoice"
     EXISTS (
       SELECT 1 FROM public.invoices i
       WHERE i.id = invoice_lines.invoice_id
-      AND i.organization_id = auth.organization_id()
+      AND i.organization_id = public.organization_id()
     )
   );
 
@@ -195,13 +195,13 @@ ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "payments_staff_all"
   ON public.payments FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "payments_entreprise_select"
   ON public.payments FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND invoice_id IN (
       SELECT id FROM public.invoices
       WHERE company_id IN (SELECT company_id FROM public.contacts WHERE user_id = auth.uid())
@@ -231,9 +231,9 @@ CREATE POLICY "reminders_staff_all"
     EXISTS (
       SELECT 1 FROM public.invoices i
       WHERE i.id = payment_reminders.invoice_id
-      AND i.organization_id = auth.organization_id()
+      AND i.organization_id = public.organization_id()
     )
-    AND auth.is_staff()
+    AND public.is_staff()
   );
 
 -- ===================== DOCUMENTS / GED =====================
@@ -270,13 +270,13 @@ ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "documents_staff_all"
   ON public.documents FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "documents_formateur_select"
   ON public.documents FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
     AND (
       trainer_id IN (SELECT id FROM public.trainers WHERE profile_id = auth.uid())
       OR session_id IN (
@@ -290,8 +290,8 @@ CREATE POLICY "documents_formateur_select"
 CREATE POLICY "documents_apprenant_select"
   ON public.documents FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() IN ('apprenant', 'apprenti')
+    organization_id = public.organization_id()
+    AND public.user_role() IN ('apprenant', 'apprenti')
     AND beneficiary_id IN (
       SELECT id FROM public.beneficiaries WHERE profile_id = auth.uid()
     )
@@ -300,8 +300,8 @@ CREATE POLICY "documents_apprenant_select"
 CREATE POLICY "documents_entreprise_select"
   ON public.documents FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
     AND company_id IN (
       SELECT company_id FROM public.contacts WHERE user_id = auth.uid()
     )

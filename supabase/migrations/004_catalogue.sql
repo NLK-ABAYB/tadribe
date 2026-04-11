@@ -34,7 +34,7 @@ CREATE POLICY "certifications_select_all"
 
 CREATE POLICY "certifications_manage_admin"
   ON public.certifications FOR ALL
-  USING (auth.is_admin());
+  USING (public.is_admin());
 
 -- ===================== FORMATIONS =====================
 
@@ -92,27 +92,27 @@ ALTER TABLE public.formations ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "formations_staff_all"
   ON public.formations FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "formations_formateur_select"
   ON public.formations FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'formateur'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'formateur'
   );
 
 CREATE POLICY "formations_apprenant_select"
   ON public.formations FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() IN ('apprenant', 'apprenti')
+    organization_id = public.organization_id()
+    AND public.user_role() IN ('apprenant', 'apprenti')
   );
 
 CREATE POLICY "formations_entreprise_select"
   ON public.formations FOR SELECT
   USING (
-    organization_id = auth.organization_id()
-    AND auth.user_role() = 'entreprise'
+    organization_id = public.organization_id()
+    AND public.user_role() = 'entreprise'
   );
 
 -- ===================== FORMATION VERSIONS (ind. 6) =====================
@@ -138,9 +138,9 @@ CREATE POLICY "formation_versions_staff_all"
     EXISTS (
       SELECT 1 FROM public.formations f
       WHERE f.id = formation_versions.formation_id
-      AND f.organization_id = auth.organization_id()
+      AND f.organization_id = public.organization_id()
     )
-    AND auth.is_staff()
+    AND public.is_staff()
   );
 
 CREATE POLICY "formation_versions_read_org"
@@ -149,7 +149,7 @@ CREATE POLICY "formation_versions_read_org"
     EXISTS (
       SELECT 1 FROM public.formations f
       WHERE f.id = formation_versions.formation_id
-      AND f.organization_id = auth.organization_id()
+      AND f.organization_id = public.organization_id()
     )
   );
 
@@ -180,11 +180,11 @@ ALTER TABLE public.pedagogical_resources ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "resources_staff_all"
   ON public.pedagogical_resources FOR ALL
-  USING (organization_id = auth.organization_id() AND auth.is_staff());
+  USING (organization_id = public.organization_id() AND public.is_staff());
 
 CREATE POLICY "resources_public_select"
   ON public.pedagogical_resources FOR SELECT
   USING (
-    organization_id = auth.organization_id()
+    organization_id = public.organization_id()
     AND is_public = true
   );
