@@ -69,13 +69,12 @@ export function ContactsListPage() {
                     {contact.job_title ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">
-                    {contact.phone ?? contact.mobile ?? '—'}
+                    {contact.phone ?? '—'}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
-                      {contact.is_signatory && <Badge variant="outline" className="text-xs">Signataire</Badge>}
-                      {contact.is_billing_contact && <Badge variant="outline" className="text-xs">Facturation</Badge>}
-                      {contact.is_training_manager && <Badge variant="outline" className="text-xs">Formation</Badge>}
+                      {contact.contact_type && <Badge variant="outline" className="text-xs">{contact.contact_type}</Badge>}
+                      {contact.is_active === false && <Badge variant="outline" className="text-xs">Inactif</Badge>}
                     </div>
                   </td>
                 </tr>

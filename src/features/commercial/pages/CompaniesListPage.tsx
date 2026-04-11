@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { useCompanies, useCreateCompany } from '../hooks/use-companies'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { CompanyForm } from '../components/CompanyForm'
-import { FUNDING_TYPES } from '@/lib/constants'
 
 export function CompaniesListPage() {
   const { profile } = useAuthContext()
@@ -96,16 +95,14 @@ export function CompaniesListPage() {
                   <div className="space-y-1 text-sm text-muted-foreground">
                     {company.siret && <p>SIRET: {company.siret}</p>}
                     {company.email && <p>{company.email}</p>}
-                    {company.sector && <p>{company.sector}</p>}
+                    {company.naf_code && <p>NAF: {company.naf_code}</p>}
                   </div>
                   <div className="mt-3 flex gap-2">
-                    {company.default_funding_type && (
-                      <Badge variant="secondary">
-                        {FUNDING_TYPES[company.default_funding_type]}
-                      </Badge>
+                    {company.is_client && (
+                      <Badge variant="secondary">Client</Badge>
                     )}
-                    {!company.is_active && (
-                      <Badge variant="outline">Inactif</Badge>
+                    {company.is_prospect && (
+                      <Badge variant="outline">Prospect</Badge>
                     )}
                   </div>
                 </CardContent>

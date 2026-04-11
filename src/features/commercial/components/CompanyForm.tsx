@@ -10,12 +10,13 @@ import type { Company } from '@/lib/types/database'
 const companySchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
   siret: z.string().length(14, 'Le SIRET doit contenir 14 chiffres').regex(/^\d+$/, 'Chiffres uniquement').nullable().or(z.literal('')),
+  siren: z.string().length(9, 'Le SIREN doit contenir 9 chiffres').regex(/^\d+$/, 'Chiffres uniquement').nullable().or(z.literal('')),
   email: z.string().email('Email invalide').nullable().or(z.literal('')),
   phone: z.string().nullable().or(z.literal('')),
   website: z.string().nullable().or(z.literal('')),
-  sector: z.string().nullable().or(z.literal('')),
-  size_range: z.string().nullable().or(z.literal('')),
-  convention_collective: z.string().nullable().or(z.literal('')),
+  naf_code: z.string().nullable().or(z.literal('')),
+  workforce_size: z.coerce.number().int().nonnegative().nullable().or(z.literal('')),
+  idcc: z.string().nullable().or(z.literal('')),
   notes: z.string().nullable().or(z.literal('')),
 })
 
@@ -37,12 +38,13 @@ export function CompanyForm({ defaultValues, onSubmit, isSubmitting }: CompanyFo
     defaultValues: {
       name: defaultValues?.name ?? '',
       siret: defaultValues?.siret ?? '',
+      siren: defaultValues?.siren ?? '',
       email: defaultValues?.email ?? '',
       phone: defaultValues?.phone ?? '',
       website: defaultValues?.website ?? '',
-      sector: defaultValues?.sector ?? '',
-      size_range: defaultValues?.size_range ?? '',
-      convention_collective: defaultValues?.convention_collective ?? '',
+      naf_code: defaultValues?.naf_code ?? '',
+      workforce_size: defaultValues?.workforce_size ?? '',
+      idcc: defaultValues?.idcc ?? '',
       notes: defaultValues?.notes ?? '',
     },
   })
@@ -64,6 +66,18 @@ export function CompanyForm({ defaultValues, onSubmit, isSubmitting }: CompanyFo
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
+          <Label htmlFor="siren">SIREN</Label>
+          <Input id="siren" maxLength={9} placeholder="123456789" {...register('siren')} />
+          {errors.siren && <p className="text-sm text-destructive">{errors.siren.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="naf_code">Code NAF/APE</Label>
+          <Input id="naf_code" placeholder="ex: 8559A" {...register('naf_code')} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" {...register('email')} />
           {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
@@ -76,24 +90,18 @@ export function CompanyForm({ defaultValues, onSubmit, isSubmitting }: CompanyFo
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="sector">Secteur d'activité</Label>
-          <Input id="sector" {...register('sector')} />
+          <Label htmlFor="workforce_size">Effectif</Label>
+          <Input id="workforce_size" type="number" min={0} placeholder="ex: 150" {...register('workforce_size')} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="size_range">Taille</Label>
-          <Input id="size_range" placeholder="ex: 50-249" {...register('size_range')} />
+          <Label htmlFor="idcc">IDCC (convention collective)</Label>
+          <Input id="idcc" placeholder="ex: 1486" {...register('idcc')} />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="website">Site web</Label>
-          <Input id="website" {...register('website')} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="convention_collective">Convention collective</Label>
-          <Input id="convention_collective" {...register('convention_collective')} />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="website">Site web</Label>
+        <Input id="website" {...register('website')} />
       </div>
 
       <div className="space-y-2">

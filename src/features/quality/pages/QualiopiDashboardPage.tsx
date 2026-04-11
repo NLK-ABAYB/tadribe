@@ -25,10 +25,10 @@ export function QualiopiDashboardPage() {
 
   // Compute conformity based on existing data
   function computeIndicators(): Indicator[] {
-    const formationsWithObjectives = formations?.filter((f) => f.objectives?.length > 0).length ?? 0
+    const formationsWithObjectives = formations?.filter((f) => (f.objectives?.length ?? 0) > 0).length ?? 0
     const formationsWithResults = formations?.filter((f) => f.satisfaction_rate != null).length ?? 0
     const totalFormations = formations?.length ?? 0
-    const trainersWithCompetencies = trainers?.filter((t) => t.specialties?.length > 0).length ?? 0
+    const trainersWithCompetencies = trainers?.filter((t) => (t.specialties?.length ?? 0) > 0).length ?? 0
     const enrollmentsWithPositioning = enrollments?.filter((e) => e.positioning_done).length ?? 0
     const enrollmentsWithDocs = enrollments?.filter((e) => e.convocation_sent && e.welcome_booklet_sent).length ?? 0
     const totalEnrollments = enrollments?.length ?? 0

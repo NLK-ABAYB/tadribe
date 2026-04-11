@@ -152,12 +152,14 @@ export function EnrollmentsListPage() {
                     {enrollment.companies?.name ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">
-                    {new Date(enrollment.enrollment_date).toLocaleDateString('fr-FR')}
+                    {enrollment.enrollment_date ? new Date(enrollment.enrollment_date).toLocaleDateString('fr-FR') : '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant={STATUS_VARIANT[enrollment.status]}>
-                      {INSCRIPTION_STATUSES[enrollment.status]}
-                    </Badge>
+                    {enrollment.status && (
+                      <Badge variant={STATUS_VARIANT[enrollment.status]}>
+                        {INSCRIPTION_STATUSES[enrollment.status]}
+                      </Badge>
+                    )}
                   </td>
                 </tr>
               ))}

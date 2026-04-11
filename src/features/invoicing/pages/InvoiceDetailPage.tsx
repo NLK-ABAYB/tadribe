@@ -9,7 +9,7 @@ import { useInvoice, useInvoiceLines, useUpdateInvoice } from '../hooks/use-invo
 import { InvoiceWorkflow } from '../components/InvoiceWorkflow'
 import { INVOICE_STATUSES } from '@/lib/constants'
 
-function getWorkflowStep(status: string): string {
+function getWorkflowStep(status: string | null): string {
   if (status === 'brouillon') return 'devis'
   if (status === 'emise' || status === 'envoyee') return 'facture'
   if (status === 'payee' || status === 'payee_partiellement') return 'paiement'
@@ -38,7 +38,7 @@ export function InvoiceDetailPage() {
   }
 
   async function advanceStatus() {
-    if (!invoice) return
+    if (!invoice || !invoice.status) return
     const nextStatus: Record<string, string> = {
       brouillon: 'emise',
       emise: 'envoyee',
@@ -50,7 +50,8 @@ export function InvoiceDetailPage() {
     toast.success(`Statut mis à jour : ${INVOICE_STATUSES[next as keyof typeof INVOICE_STATUSES]}`)
   }
 
-  const remaining = invoice.total_ttc - invoice.amount_paid
+  const amountPaid = invoice.amount_paid ?? 0
+  const remaining = invoice.total_ttc - amountPaid
 
   return (
     <div className="space-y-6">
@@ -66,7 +67,7 @@ export function InvoiceDetailPage() {
           </h1>
           <div className="flex items-center gap-2 mt-1">
             <Badge>
-              {INVOICE_STATUSES[invoice.status as keyof typeof INVOICE_STATUSES] ?? invoice.status}
+              {invoice.status ? (INVOICE_STATUSES[invoice.status as keyof typeof INVOICE_STATUSES] ?? invoice.status) : '—'}
             </Badge>
             <span className="text-sm text-muted-foreground">
               {invoice.recipient_name}
@@ -123,8 +124,8 @@ export function InvoiceDetailPage() {
               <span>{formatCurrency(invoice.total_ht)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">TVA ({invoice.tva_rate}%)</span>
-              <span>{formatCurrency(invoice.tva_amount)}</span>
+              <span className="text-muted-foreground">TVA ({invoice.tva_rate ?? 0}%)</span>
+              <span>{formatCurrency(invoice.tva_amount ?? 0)}</span>
             </div>
             <Separator />
             <div className="flex justify-between font-bold">
@@ -141,7 +142,7 @@ export function InvoiceDetailPage() {
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Payé</span>
-              <span className="text-green-600 font-medium">{formatCurrency(invoice.amount_paid)}</span>
+              <span className="text-green-600 font-medium">{formatCurrency(amountPaid)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Reste dû</span>

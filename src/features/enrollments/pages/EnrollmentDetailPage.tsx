@@ -92,9 +92,11 @@ export function EnrollmentDetailPage() {
             </p>
           </div>
         </div>
-        <Badge variant={STATUS_VARIANT[enrollment.status]} className="text-sm">
-          {INSCRIPTION_STATUSES[enrollment.status]}
-        </Badge>
+        {enrollment.status && (
+          <Badge variant={STATUS_VARIANT[enrollment.status]} className="text-sm">
+            {INSCRIPTION_STATUSES[enrollment.status]}
+          </Badge>
+        )}
       </div>
 
       {/* Workflow stepper */}
@@ -197,7 +199,7 @@ export function EnrollmentDetailPage() {
             </div>
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase">Date d'inscription</p>
-              <p className="text-sm">{new Date(enrollment.enrollment_date).toLocaleDateString('fr-FR')}</p>
+              <p className="text-sm">{enrollment.enrollment_date ? new Date(enrollment.enrollment_date).toLocaleDateString('fr-FR') : '—'}</p>
             </div>
             {enrollment.retraction_deadline && (
               <div>

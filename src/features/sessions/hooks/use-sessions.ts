@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Session } from '@/lib/types/database'
+import type { Tables, TablesInsert, TablesUpdate, Json } from '@/types/supabase'
+
+type Session = Tables<'sessions'>
 
 interface SessionWithRelations extends Session {
-  formations: { title: string; duration_hours: number; objectives: string[] | null } | null
-  trainers: { first_name: string; last_name: string; email: string } | null
-  locations: { name: string; address: Record<string, unknown> | null; capacity: number | null } | null
+  formations: { title: string; duration_hours: number | null; objectives: string[] | null } | null
+  trainers: { first_name: string; last_name: string; email: string | null } | null
+  locations: { name: string; address: Json | null; capacity: number | null } | null
 }
 
 export function useSessions() {
@@ -51,14 +53,14 @@ export function useSession(id: string | undefined) {
 export function useCreateSession() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (session: Partial<Session> & Pick<Session, 'organization_id' | 'formation_id' | 'start_date' | 'end_date'>) => {
+    mutationFn: async (session: TablesInsert<'sessions'>) => {
       const { data, error } = await supabase
         .from('sessions')
-        .insert(session as never)
+        .insert(session)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Session
+      return data as Session
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
@@ -69,15 +71,15 @@ export function useCreateSession() {
 export function useUpdateSession() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Session> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: TablesUpdate<'sessions'> & { id: string }) => {
       const { data, error } = await supabase
         .from('sessions')
-        .update(updates as never)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Session
+      return data as Session
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] })

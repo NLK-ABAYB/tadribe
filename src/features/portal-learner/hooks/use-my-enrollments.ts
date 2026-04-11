@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Enrollment, Beneficiary } from '@/lib/types/database'
+import type { Tables } from '@/types/supabase'
+
+type Enrollment = Tables<'enrollments'>
+type Beneficiary = Tables<'beneficiaries'>
 
 export interface MyEnrollmentWithRelations extends Enrollment {
   sessions: {
@@ -29,7 +32,7 @@ export function useMyBeneficiaryProfile(userId: string | undefined) {
         .eq('profile_id', userId!)
         .single()
       if (error) throw error
-      return data as unknown as Beneficiary
+      return data as Beneficiary
     },
     enabled: !!userId,
   })
@@ -95,17 +98,10 @@ export function useMyDocuments(beneficiaryId: string | undefined) {
       const { data, error } = await supabase
         .from('documents')
         .select('*')
-        .eq('related_to_type', 'beneficiary')
-        .eq('related_to_id', beneficiaryId!)
+        .eq('beneficiary_id', beneficiaryId!)
         .order('created_at', { ascending: false })
       if (error) throw error
-      return data as unknown as {
-        id: string
-        document_type: string
-        title: string
-        file_url: string
-        created_at: string
-      }[]
+      return data as Tables<'documents'>[]
     },
     enabled: !!beneficiaryId,
   })
@@ -164,15 +160,7 @@ export function useMyEvaluations(beneficiaryId: string | undefined) {
         .eq('is_active', true)
         .order('scheduled_date', { ascending: false })
       if (error) throw error
-      return data as unknown as {
-        id: string
-        title: string
-        eval_type: string
-        description: string | null
-        questions: Record<string, unknown>[]
-        scheduled_date: string | null
-        deadline_date: string | null
-      }[]
+      return data as Tables<'evaluations'>[]
     },
     enabled: !!beneficiaryId,
   })

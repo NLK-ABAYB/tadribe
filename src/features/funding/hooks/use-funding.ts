@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { FundingDossier } from '@/lib/types/database'
+import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
+
+type FundingDossier = Tables<'funding_dossiers'>
 
 export interface FundingDossierWithRelations extends FundingDossier {
   beneficiaries: { first_name: string; last_name: string } | null
@@ -60,18 +62,14 @@ export function useFundingDossier(id: string | undefined) {
 export function useCreateFundingDossier() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (dossier: Partial<FundingDossier> & {
-      organization_id: string
-      funding_type: FundingDossier['funding_type']
-      status: FundingDossier['status']
-    }) => {
+    mutationFn: async (dossier: TablesInsert<'funding_dossiers'>) => {
       const { data, error } = await supabase
         .from('funding_dossiers')
-        .insert(dossier as never)
+        .insert(dossier)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as FundingDossier
+      return data as FundingDossier
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funding-dossiers'] })
@@ -82,15 +80,15 @@ export function useCreateFundingDossier() {
 export function useUpdateFundingDossier() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<FundingDossier> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: TablesUpdate<'funding_dossiers'> & { id: string }) => {
       const { data, error } = await supabase
         .from('funding_dossiers')
-        .update(updates as never)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as FundingDossier
+      return data as FundingDossier
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['funding-dossiers'] })

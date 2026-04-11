@@ -104,9 +104,11 @@ export function CompanyFundingPage() {
                         {dossier.amount_granted != null ? `${dossier.amount_granted.toLocaleString('fr-FR')} €` : '—'}
                       </td>
                       <td className="px-4 py-2">
-                        <Badge variant={STATUS_COLOR[dossier.status] ?? 'secondary'} className="text-xs">
-                          {FUNDING_STATUSES[dossier.status as keyof typeof FUNDING_STATUSES] ?? dossier.status}
-                        </Badge>
+                        {dossier.status && (
+                          <Badge variant={STATUS_COLOR[dossier.status] ?? 'secondary'} className="text-xs">
+                            {FUNDING_STATUSES[dossier.status as keyof typeof FUNDING_STATUSES] ?? dossier.status}
+                          </Badge>
+                        )}
                       </td>
                     </tr>
                   ))}

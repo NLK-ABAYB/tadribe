@@ -117,9 +117,9 @@ export function PipelinePage() {
                           {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(opp.amount)}
                         </p>
                       )}
-                      {opp.expected_close_date && (
+                      {opp.expected_close && (
                         <p className="text-xs text-muted-foreground mt-1">
-                          Clôture : {new Date(opp.expected_close_date).toLocaleDateString('fr-FR')}
+                          Clôture : {new Date(opp.expected_close).toLocaleDateString('fr-FR')}
                         </p>
                       )}
                       <div className="flex gap-1 mt-2 flex-wrap">

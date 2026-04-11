@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Trainer, TrainerCompetency } from '@/lib/types/database'
+import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
+
+type Trainer = Tables<'trainers'>
+type TrainerCompetency = Tables<'trainer_competencies'>
 
 export function useTrainers() {
   return useQuery({
@@ -11,7 +14,7 @@ export function useTrainers() {
         .select('*')
         .order('last_name')
       if (error) throw error
-      return data as unknown as Trainer[]
+      return data as Trainer[]
     },
   })
 }
@@ -26,7 +29,7 @@ export function useTrainer(id: string | undefined) {
         .eq('id', id!)
         .single()
       if (error) throw error
-      return data as unknown as Trainer
+      return data as Trainer
     },
     enabled: !!id,
   })
@@ -53,14 +56,14 @@ export function useTrainerCompetencies(trainerId: string | undefined) {
 export function useCreateTrainer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (trainer: Partial<Trainer> & { organization_id: string; first_name: string; last_name: string }) => {
+    mutationFn: async (trainer: TablesInsert<'trainers'>) => {
       const { data, error } = await supabase
         .from('trainers')
-        .insert(trainer as never)
+        .insert(trainer)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Trainer
+      return data as Trainer
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainers'] })
@@ -71,15 +74,15 @@ export function useCreateTrainer() {
 export function useUpdateTrainer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Trainer> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: TablesUpdate<'trainers'> & { id: string }) => {
       const { data, error } = await supabase
         .from('trainers')
-        .update(updates as never)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Trainer
+      return data as Trainer
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['trainers'] })

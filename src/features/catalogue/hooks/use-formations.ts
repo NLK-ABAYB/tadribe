@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Formation } from '@/lib/types/database'
+import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
+
+type Formation = Tables<'formations'>
 
 export function useFormations() {
   return useQuery({
@@ -11,7 +13,7 @@ export function useFormations() {
         .select('*')
         .order('title')
       if (error) throw error
-      return data as unknown as Formation[]
+      return data as Formation[]
     },
   })
 }
@@ -26,7 +28,7 @@ export function useFormation(id: string | undefined) {
         .eq('id', id!)
         .single()
       if (error) throw error
-      return data as unknown as Formation
+      return data as Formation
     },
     enabled: !!id,
   })
@@ -35,14 +37,14 @@ export function useFormation(id: string | undefined) {
 export function useCreateFormation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (formation: Partial<Formation> & { organization_id: string; title: string }) => {
+    mutationFn: async (formation: TablesInsert<'formations'>) => {
       const { data, error } = await supabase
         .from('formations')
-        .insert(formation as never)
+        .insert(formation)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Formation
+      return data as Formation
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['formations'] })
@@ -53,15 +55,15 @@ export function useCreateFormation() {
 export function useUpdateFormation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Formation> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: TablesUpdate<'formations'> & { id: string }) => {
       const { data, error } = await supabase
         .from('formations')
-        .update(updates as never)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Formation
+      return data as Formation
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['formations'] })

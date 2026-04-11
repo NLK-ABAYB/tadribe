@@ -26,32 +26,32 @@ export function useDashboardStats() {
         beneficiariesRes,
         fundingRes,
       ] = await Promise.all([
-        supabase.from('companies').select('id, is_active'),
+        supabase.from('companies').select('id, is_client'),
         supabase.from('sessions').select('id, status'),
         supabase.from('enrollments').select('id, status'),
-        supabase.from('invoices').select('id, status, total_ttc, paid_amount'),
+        supabase.from('invoices').select('id, status, total_ttc, amount_paid'),
         supabase.from('formations').select('id, is_active'),
         supabase.from('trainers').select('id'),
         supabase.from('beneficiaries').select('id'),
         supabase.from('funding_dossiers').select('id, status, amount_requested, amount_granted'),
       ])
 
-      const companies = (companiesRes.data ?? []) as unknown as { id: string; is_active: boolean }[]
-      const sessions = (sessionsRes.data ?? []) as unknown as { id: string; status: string }[]
-      const enrollments = (enrollmentsRes.data ?? []) as unknown as { id: string; status: string }[]
-      const invoices = (invoicesRes.data ?? []) as unknown as { id: string; status: string; total_ttc: number | null; paid_amount: number | null }[]
-      const formations = (formationsRes.data ?? []) as unknown as { id: string; is_active: boolean }[]
-      const trainers = (trainersRes.data ?? []) as unknown as { id: string }[]
-      const beneficiaries = (beneficiariesRes.data ?? []) as unknown as { id: string }[]
-      const funding = (fundingRes.data ?? []) as unknown as { id: string; status: string; amount_requested: number | null; amount_granted: number | null }[]
+      const companies = companiesRes.data ?? []
+      const sessions = sessionsRes.data ?? []
+      const enrollments = enrollmentsRes.data ?? []
+      const invoices = invoicesRes.data ?? []
+      const formations = formationsRes.data ?? []
+      const trainers = trainersRes.data ?? []
+      const beneficiaries = beneficiariesRes.data ?? []
+      const funding = fundingRes.data ?? []
 
-      const unpaidStatuses = ['emise', 'envoyee', 'en_retard']
-      const unpaidInvoices = invoices.filter((i) => unpaidStatuses.includes(i.status))
+      const unpaidStatuses: string[] = ['emise', 'envoyee', 'en_retard']
+      const unpaidInvoices = invoices.filter((i) => i.status !== null && unpaidStatuses.includes(i.status))
 
       return {
         companies: {
           total: companies.length,
-          active: companies.filter((c) => c.is_active).length,
+          active: companies.filter((c) => c.is_client === true).length,
         },
         sessions: {
           total: sessions.length,
@@ -67,12 +67,12 @@ export function useDashboardStats() {
         invoices: {
           total: invoices.length,
           enAttente: unpaidInvoices.length,
-          montantDu: unpaidInvoices.reduce((sum, i) => sum + ((i.total_ttc ?? 0) - (i.paid_amount ?? 0)), 0),
-          montantPaye: invoices.reduce((sum, i) => sum + (i.paid_amount ?? 0), 0),
+          montantDu: unpaidInvoices.reduce((sum, i) => sum + ((i.total_ttc ?? 0) - (i.amount_paid ?? 0)), 0),
+          montantPaye: invoices.reduce((sum, i) => sum + (i.amount_paid ?? 0), 0),
         },
         formations: {
           total: formations.length,
-          active: formations.filter((f) => f.is_active).length,
+          active: formations.filter((f) => f.is_active === true).length,
         },
         trainers: { total: trainers.length },
         beneficiaries: { total: beneficiaries.length },

@@ -81,8 +81,14 @@ export function LearnerEvaluationsPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
+                  {(() => {
+                    const questionList: Record<string, unknown>[] = Array.isArray(evaluation.questions)
+                      ? (evaluation.questions as Record<string, unknown>[])
+                      : []
+                    return (
+                  <>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                    <span>{evaluation.questions?.length ?? 0} question(s)</span>
+                    <span>{questionList.length} question(s)</span>
                     {evaluation.deadline_date && (
                       <span>Date limite : {new Date(evaluation.deadline_date).toLocaleDateString('fr-FR')}</span>
                     )}
@@ -90,7 +96,7 @@ export function LearnerEvaluationsPage() {
 
                   {isActive ? (
                     <div className="space-y-4 border-t pt-4">
-                      {evaluation.questions?.map((q, i) => {
+                      {questionList.map((q, i) => {
                         const questionText = (q.text as string) ?? (q.question as string) ?? `Question ${i + 1}`
                         const key = `q_${i}`
                         return (
@@ -126,6 +132,9 @@ export function LearnerEvaluationsPage() {
                       Répondre
                     </Button>
                   )}
+                  </>
+                    )
+                  })()}
                 </CardContent>
               </Card>
             )

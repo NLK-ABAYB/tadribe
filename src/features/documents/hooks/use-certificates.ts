@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Certificate } from '@/lib/types/database'
+import type { Tables, TablesInsert } from '@/types/supabase'
+
+type Certificate = Tables<'certificates'>
 
 export interface CertificateWithRelations extends Certificate {
   enrollments: {
@@ -67,20 +69,14 @@ export function useCertificate(id: string | undefined) {
 export function useCreateCertificate() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (certificate: Partial<Certificate> & {
-      organization_id: string
-      enrollment_id: string
-      certificate_type: string
-      title: string
-      issued_date: string
-    }) => {
+    mutationFn: async (certificate: TablesInsert<'certificates'>) => {
       const { data, error } = await supabase
         .from('certificates')
-        .insert(certificate as never)
+        .insert(certificate)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Certificate
+      return data as Certificate
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['certificates'] })

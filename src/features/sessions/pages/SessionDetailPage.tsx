@@ -37,7 +37,7 @@ export function SessionDetailPage() {
           </h1>
           <div className="flex items-center gap-2 mt-1">
             {session.code && <Badge variant="outline">{session.code}</Badge>}
-            <Badge>{SESSION_STATUSES[session.status]}</Badge>
+            {session.status && <Badge>{SESSION_STATUSES[session.status]}</Badge>}
           </div>
         </div>
         <Link to={`/sessions/${id}/emargement`}>

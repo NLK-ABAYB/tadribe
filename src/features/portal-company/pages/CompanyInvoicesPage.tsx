@@ -24,10 +24,10 @@ export function CompanyInvoicesPage() {
   const isLoading = companyLoading || invoicesLoading
 
   const totalHT = invoices?.reduce((sum, i) => sum + (i.total_ht ?? 0), 0) ?? 0
-  const totalPaid = invoices?.reduce((sum, i) => sum + (i.paid_amount ?? 0), 0) ?? 0
+  const totalPaid = invoices?.reduce((sum, i) => sum + (i.amount_paid ?? 0), 0) ?? 0
   const totalDue = invoices
     ?.filter((i) => i.status !== 'payee' && i.status !== 'avoir' && i.status !== 'brouillon')
-    .reduce((sum, i) => sum + ((i.total_ttc ?? 0) - (i.paid_amount ?? 0)), 0) ?? 0
+    .reduce((sum, i) => sum + ((i.total_ttc ?? 0) - (i.amount_paid ?? 0)), 0) ?? 0
 
   if (isLoading) {
     return (
@@ -103,15 +103,17 @@ export function CompanyInvoicesPage() {
                         {invoice.total_ttc != null ? `${invoice.total_ttc.toLocaleString('fr-FR')} €` : '—'}
                       </td>
                       <td className="px-4 py-2 text-sm text-muted-foreground hidden md:table-cell">
-                        {invoice.paid_amount != null ? `${invoice.paid_amount.toLocaleString('fr-FR')} €` : '0 €'}
+                        {invoice.amount_paid != null ? `${invoice.amount_paid.toLocaleString('fr-FR')} €` : '0 €'}
                       </td>
                       <td className="px-4 py-2 text-sm text-muted-foreground hidden sm:table-cell">
                         {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('fr-FR') : '—'}
                       </td>
                       <td className="px-4 py-2">
-                        <Badge variant={STATUS_COLOR[invoice.status] ?? 'secondary'} className="text-xs">
-                          {INVOICE_STATUSES[invoice.status as keyof typeof INVOICE_STATUSES] ?? invoice.status}
-                        </Badge>
+                        {invoice.status && (
+                          <Badge variant={STATUS_COLOR[invoice.status] ?? 'secondary'} className="text-xs">
+                            {INVOICE_STATUSES[invoice.status as keyof typeof INVOICE_STATUSES] ?? invoice.status}
+                          </Badge>
+                        )}
                       </td>
                     </tr>
                   ))}

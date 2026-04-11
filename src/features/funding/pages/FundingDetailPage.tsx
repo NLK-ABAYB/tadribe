@@ -83,9 +83,11 @@ export function FundingDetailPage() {
               {dossier.funder_reference && (
                 <span className="text-sm font-mono text-muted-foreground">{dossier.funder_reference}</span>
               )}
-              <Badge variant={STATUS_VARIANT[dossier.status]}>
-                {FUNDING_STATUSES[dossier.status]}
-              </Badge>
+              {dossier.status && (
+                <Badge variant={STATUS_VARIANT[dossier.status]}>
+                  {FUNDING_STATUSES[dossier.status]}
+                </Badge>
+              )}
               {dossier.is_subrogation && <Badge variant="outline">Subrogation</Badge>}
             </div>
           </div>

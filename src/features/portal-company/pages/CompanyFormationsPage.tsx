@@ -84,9 +84,11 @@ export function CompanyFormationsPage() {
                           : '—'}
                       </td>
                       <td className="px-4 py-2">
-                        <Badge variant={STATUS_COLOR[enrollment.status] ?? 'secondary'} className="text-xs">
-                          {INSCRIPTION_STATUSES[enrollment.status as keyof typeof INSCRIPTION_STATUSES] ?? enrollment.status}
-                        </Badge>
+                        {enrollment.status && (
+                          <Badge variant={STATUS_COLOR[enrollment.status] ?? 'secondary'} className="text-xs">
+                            {INSCRIPTION_STATUSES[enrollment.status as keyof typeof INSCRIPTION_STATUSES] ?? enrollment.status}
+                          </Badge>
+                        )}
                       </td>
                     </tr>
                   ))}

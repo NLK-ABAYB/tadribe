@@ -34,6 +34,7 @@ function makeInvoice(overrides: Partial<Invoice> = {}): Invoice {
     amount_paid: 0,
     nda_mention: null,
     tva_mention: null,
+    payment_schedule: null,
     issue_date: '2026-04-01',
     due_date: '2026-05-01',
     payment_date: null,

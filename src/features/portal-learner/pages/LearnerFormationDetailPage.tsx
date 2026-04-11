@@ -47,7 +47,7 @@ export function LearnerFormationDetailPage() {
         <div className="flex-1">
           <h1 className="text-2xl font-bold tracking-tight">{formation?.title ?? 'Formation'}</h1>
           <div className="flex items-center gap-2 mt-1">
-            <Badge>{INSCRIPTION_STATUSES[enrollment.status]}</Badge>
+            {enrollment.status && <Badge>{INSCRIPTION_STATUSES[enrollment.status]}</Badge>}
             {session?.code && <span className="text-sm text-muted-foreground font-mono">{session.code}</span>}
           </div>
         </div>
@@ -139,7 +139,7 @@ export function LearnerFormationDetailPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase">Inscription</p>
-                <p className="text-sm">{new Date(enrollment.enrollment_date).toLocaleDateString('fr-FR')}</p>
+                <p className="text-sm">{enrollment.enrollment_date ? new Date(enrollment.enrollment_date).toLocaleDateString('fr-FR') : '—'}</p>
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase">Positionnement</p>

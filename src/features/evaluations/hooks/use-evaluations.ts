@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Evaluation, EvaluationResponse } from '@/lib/types/database'
+import type { Tables, TablesInsert } from '@/types/supabase'
+
+type Evaluation = Tables<'evaluations'>
+type EvaluationResponse = Tables<'evaluation_responses'>
 
 export interface EvaluationWithRelations extends Evaluation {
   sessions: { code: string | null; formations: { title: string } | null } | null
@@ -67,18 +70,14 @@ export function useEvaluationResponses(evaluationId: string | undefined) {
 export function useCreateEvaluation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (evaluation: Partial<Evaluation> & {
-      organization_id: string
-      eval_type: Evaluation['eval_type']
-      title: string
-    }) => {
+    mutationFn: async (evaluation: TablesInsert<'evaluations'>) => {
       const { data, error } = await supabase
         .from('evaluations')
-        .insert(evaluation as never)
+        .insert(evaluation)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Evaluation
+      return data as Evaluation
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evaluations'] })
@@ -89,22 +88,14 @@ export function useCreateEvaluation() {
 export function useSubmitResponse() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (response: {
-      evaluation_id: string
-      enrollment_id?: string
-      beneficiary_id?: string
-      respondent_type?: string
-      respondent_name?: string
-      answers: Record<string, unknown>
-      score?: number
-    }) => {
+    mutationFn: async (response: TablesInsert<'evaluation_responses'>) => {
       const { data, error } = await supabase
         .from('evaluation_responses')
-        .insert(response as never)
+        .insert(response)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as EvaluationResponse
+      return data as EvaluationResponse
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evaluation-responses'] })

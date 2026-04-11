@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Attendance, SessionSlot } from '@/lib/types/database'
+import type { Tables, TablesInsert } from '@/types/supabase'
+
+type Attendance = Tables<'attendances'>
+type SessionSlot = Tables<'session_slots'>
 
 export interface AttendanceWithSlot extends Attendance {
   session_slots: {
@@ -23,7 +26,7 @@ export function useSessionSlots(sessionId: string | undefined) {
         .order('slot_date')
         .order('start_time')
       if (error) throw error
-      return data as unknown as SessionSlot[]
+      return data as SessionSlot[]
     },
     enabled: !!sessionId,
   })
@@ -70,23 +73,15 @@ export function useEnrollmentAttendances(enrollmentId: string | undefined) {
 export function useMarkAttendance() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (attendance: {
-      enrollment_id: string
-      session_slot_id: string
-      is_present: boolean
-      signed_at?: string
-      signature_data?: string
-      absence_justified?: boolean
-      absence_reason?: string
-    }) => {
+    mutationFn: async (attendance: TablesInsert<'attendances'>) => {
       // Upsert: if attendance exists for this enrollment+slot, update it
       const { data, error } = await supabase
         .from('attendances')
-        .upsert(attendance as never, { onConflict: 'enrollment_id,session_slot_id' })
+        .upsert(attendance, { onConflict: 'enrollment_id,session_slot_id' })
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Attendance
+      return data as Attendance
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attendances'] })
@@ -104,12 +99,12 @@ export function useSignAttendance() {
           is_present: true,
           signed_at: new Date().toISOString(),
           signature_data,
-        } as never)
+        })
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Attendance
+      return data as Attendance
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attendances'] })
@@ -120,14 +115,14 @@ export function useSignAttendance() {
 export function useCreateSessionSlot() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (slot: Partial<SessionSlot> & { session_id: string; slot_date: string; start_time: string; end_time: string }) => {
+    mutationFn: async (slot: TablesInsert<'session_slots'>) => {
       const { data, error } = await supabase
         .from('session_slots')
-        .insert(slot as never)
+        .insert(slot)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as SessionSlot
+      return data as SessionSlot
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['session-slots'] })

@@ -60,10 +60,11 @@ export function SettingsPage() {
     toast.success('Organisation mise à jour')
   }
 
-  async function handleToggleActive(memberId: string, currentActive: boolean) {
+  async function handleToggleActive(memberId: string, currentActive: boolean | null) {
+    const next = !currentActive
     await updateProfile.mutateAsync({
       id: memberId,
-      is_active: !currentActive,
+      is_active: next,
     })
     toast.success(currentActive ? 'Utilisateur désactivé' : 'Utilisateur activé')
   }

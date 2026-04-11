@@ -98,9 +98,11 @@ export function SessionsListPage() {
                     {session.is_remote ? 'Distanciel' : session.locations?.name ?? '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant={STATUS_VARIANT[session.status]}>
-                      {SESSION_STATUSES[session.status]}
-                    </Badge>
+                    {session.status && (
+                      <Badge variant={STATUS_VARIANT[session.status]}>
+                        {SESSION_STATUSES[session.status]}
+                      </Badge>
+                    )}
                   </td>
                 </tr>
               ))}

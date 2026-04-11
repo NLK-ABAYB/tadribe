@@ -32,7 +32,7 @@ export function CompanyDashboardPage() {
   const activeEnrollments = enrollments?.filter((e) => e.status === 'en_formation' || e.status === 'confirme') ?? []
   const completedEnrollments = enrollments?.filter((e) => e.status === 'termine') ?? []
   const unpaidInvoices = invoices?.filter((i) => i.status === 'envoyee' || i.status === 'emise' || i.status === 'en_retard') ?? []
-  const totalOwed = unpaidInvoices.reduce((sum, i) => sum + ((i.total_ttc ?? 0) - (i.paid_amount ?? 0)), 0)
+  const totalOwed = unpaidInvoices.reduce((sum, i) => sum + ((i.total_ttc ?? 0) - (i.amount_paid ?? 0)), 0)
 
   return (
     <div className="space-y-6">

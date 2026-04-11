@@ -114,7 +114,7 @@ export function TrainersListPage() {
                       <p>TJM: {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(trainer.daily_rate)}</p>
                     )}
                   </div>
-                  {trainer.specialties?.length > 0 && (
+                  {trainer.specialties && trainer.specialties.length > 0 && (
                     <div className="mt-3 flex gap-1 flex-wrap">
                       {trainer.specialties.slice(0, 3).map((s) => (
                         <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>

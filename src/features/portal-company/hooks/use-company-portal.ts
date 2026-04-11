@@ -1,5 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import type { Tables } from '@/types/supabase'
+
+type Company = Tables<'companies'>
+type Beneficiary = Tables<'beneficiaries'>
+type Enrollment = Tables<'enrollments'>
+type Invoice = Tables<'invoices'>
+type FundingDossier = Tables<'funding_dossiers'>
 
 export function useMyCompany(userId: string | undefined) {
   return useQuery({
@@ -13,22 +20,16 @@ export function useMyCompany(userId: string | undefined) {
         .single()
       if (contactError) throw contactError
 
+      const companyId = (contact as unknown as { company_id: string | null }).company_id
+      if (!companyId) throw new Error('No company linked to this user')
+
       const { data, error } = await supabase
         .from('companies')
         .select('*')
-        .eq('id', (contact as unknown as { company_id: string }).company_id)
+        .eq('id', companyId)
         .single()
       if (error) throw error
-      return data as unknown as {
-        id: string
-        name: string
-        siret: string | null
-        address: Record<string, unknown> | null
-        phone: string | null
-        email: string | null
-        opco_id: string | null
-        convention_collective: string | null
-      }
+      return data as Company
     },
     enabled: !!userId,
   })
@@ -44,14 +45,7 @@ export function useCompanyBeneficiaries(companyId: string | undefined) {
         .eq('company_id', companyId!)
         .order('last_name')
       if (error) throw error
-      return data as unknown as {
-        id: string
-        first_name: string
-        last_name: string
-        email: string | null
-        job_title: string | null
-        is_apprentice: boolean
-      }[]
+      return data as Beneficiary[]
     },
     enabled: !!companyId,
   })
@@ -74,10 +68,7 @@ export function useCompanyEnrollments(companyId: string | undefined) {
         .eq('company_id', companyId!)
         .order('created_at', { ascending: false })
       if (error) throw error
-      return data as unknown as {
-        id: string
-        status: string
-        enrollment_date: string
+      return data as unknown as (Enrollment & {
         beneficiaries: { first_name: string; last_name: string } | null
         sessions: {
           code: string | null
@@ -86,7 +77,7 @@ export function useCompanyEnrollments(companyId: string | undefined) {
           status: string
           formations: { title: string; duration_hours: number | null } | null
         } | null
-      }[]
+      })[]
     },
     enabled: !!companyId,
   })
@@ -102,16 +93,7 @@ export function useCompanyInvoices(companyId: string | undefined) {
         .eq('company_id', companyId!)
         .order('created_at', { ascending: false })
       if (error) throw error
-      return data as unknown as {
-        id: string
-        invoice_number: string | null
-        status: string
-        total_ht: number | null
-        total_ttc: number | null
-        issue_date: string | null
-        due_date: string | null
-        paid_amount: number | null
-      }[]
+      return data as Invoice[]
     },
     enabled: !!companyId,
   })
@@ -130,15 +112,9 @@ export function useCompanyFunding(companyId: string | undefined) {
         .eq('company_id', companyId!)
         .order('created_at', { ascending: false })
       if (error) throw error
-      return data as unknown as {
-        id: string
-        funding_type: string
-        status: string
-        funder_name: string | null
-        amount_requested: number | null
-        amount_granted: number | null
+      return data as unknown as (FundingDossier & {
         beneficiaries: { first_name: string; last_name: string } | null
-      }[]
+      })[]
     },
     enabled: !!companyId,
   })

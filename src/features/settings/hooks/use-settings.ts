@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Organization, Profile } from '@/lib/types/database'
+import type { Tables, TablesUpdate } from '@/types/supabase'
+
+type Organization = Tables<'organizations'>
+type Profile = Tables<'profiles'>
 
 export function useOrganizationSettings(orgId: string | undefined) {
   return useQuery({
@@ -12,7 +15,7 @@ export function useOrganizationSettings(orgId: string | undefined) {
         .eq('id', orgId!)
         .single()
       if (error) throw error
-      return data as unknown as Organization
+      return data as Organization
     },
     enabled: !!orgId,
   })
@@ -21,15 +24,15 @@ export function useOrganizationSettings(orgId: string | undefined) {
 export function useUpdateOrganization() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Organization> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: TablesUpdate<'organizations'> & { id: string }) => {
       const { data, error } = await supabase
         .from('organizations')
-        .update(updates as never)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Organization
+      return data as Organization
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organization-settings'] })
@@ -47,7 +50,7 @@ export function useTeamMembers(orgId: string | undefined) {
         .eq('organization_id', orgId!)
         .order('last_name')
       if (error) throw error
-      return data as unknown as Profile[]
+      return data as Profile[]
     },
     enabled: !!orgId,
   })
@@ -56,15 +59,15 @@ export function useTeamMembers(orgId: string | undefined) {
 export function useUpdateProfile() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Profile> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: TablesUpdate<'profiles'> & { id: string }) => {
       const { data, error } = await supabase
         .from('profiles')
-        .update(updates as never)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Profile
+      return data as Profile
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team-members'] })

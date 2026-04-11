@@ -64,7 +64,7 @@ export function LearnerDocumentsPage() {
                           {DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(doc.created_at).toLocaleDateString('fr-FR')}
+                          {doc.created_at ? new Date(doc.created_at).toLocaleDateString('fr-FR') : '—'}
                         </span>
                       </div>
                     </div>

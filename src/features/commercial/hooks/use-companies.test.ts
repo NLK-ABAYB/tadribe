@@ -18,17 +18,18 @@ function makeCompany(overrides: Partial<Company> = {}): Company {
     organization_id: 'org-1',
     name: 'ACME',
     siret: '12345678900012',
+    siren: '123456789',
     address: null,
     phone: null,
     email: null,
     website: null,
-    sector: null,
-    size_range: null,
+    naf_code: null,
+    workforce_size: null,
+    idcc: null,
     opco_id: null,
-    default_funding_type: null,
-    convention_collective: null,
     notes: null,
-    is_active: true,
+    is_client: true,
+    is_prospect: false,
     created_at: '2026-04-01T00:00:00Z',
     updated_at: '2026-04-01T00:00:00Z',
     ...overrides,
@@ -113,15 +114,15 @@ describe('useUpdateCompany', () => {
       http.patch(`${SUPABASE_REST}/companies`, ({ request }) => {
         const url = new URL(request.url)
         expect(url.searchParams.get('id')).toBe('eq.co-1')
-        return HttpResponse.json(makeCompany({ sector: 'Industrie' }))
+        return HttpResponse.json(makeCompany({ naf_code: '8559A' }))
       }),
     )
 
     const { result } = renderHookWithQueryClient(() => useUpdateCompany())
 
-    const returned = await result.current.mutateAsync({ id: 'co-1', sector: 'Industrie' })
+    const returned = await result.current.mutateAsync({ id: 'co-1', naf_code: '8559A' })
 
-    expect(returned.sector).toBe('Industrie')
+    expect(returned.naf_code).toBe('8559A')
   })
 })
 

@@ -11,7 +11,6 @@ import { useContacts, useCreateContact } from '../hooks/use-contacts'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { CompanyForm } from '../components/CompanyForm'
 import { ContactForm } from '../components/ContactForm'
-import { FUNDING_TYPES } from '@/lib/constants'
 
 export function CompanyDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -66,10 +65,11 @@ export function CompanyDetailPage() {
             {company.siret && (
               <Badge variant="outline">SIRET: {company.siret}</Badge>
             )}
-            {company.default_funding_type && (
-              <Badge variant="secondary">
-                {FUNDING_TYPES[company.default_funding_type]}
-              </Badge>
+            {company.is_client && (
+              <Badge variant="secondary">Client</Badge>
+            )}
+            {company.is_prospect && (
+              <Badge variant="outline">Prospect</Badge>
             )}
           </div>
         </div>
@@ -113,9 +113,9 @@ export function CompanyDetailPage() {
                   {company.website}
                 </div>
               )}
-              {company.sector && <p>Secteur : {company.sector}</p>}
-              {company.size_range && <p>Effectif : {company.size_range}</p>}
-              {company.convention_collective && <p>CCN : {company.convention_collective}</p>}
+              {company.naf_code && <p>Code NAF : {company.naf_code}</p>}
+              {company.workforce_size != null && <p>Effectif : {company.workforce_size}</p>}
+              {company.idcc && <p>IDCC : {company.idcc}</p>}
               {company.notes && (
                 <>
                   <Separator />
@@ -161,9 +161,8 @@ export function CompanyDetailPage() {
                         )}
                       </div>
                       <div className="flex gap-1">
-                        {contact.is_signatory && <Badge variant="outline" className="text-xs">Signataire</Badge>}
-                        {contact.is_billing_contact && <Badge variant="outline" className="text-xs">Facturation</Badge>}
-                        {contact.is_training_manager && <Badge variant="outline" className="text-xs">Formation</Badge>}
+                        {contact.contact_type && <Badge variant="outline" className="text-xs">{contact.contact_type}</Badge>}
+                        {contact.is_active === false && <Badge variant="outline" className="text-xs">Inactif</Badge>}
                       </div>
                     </div>
                   ))}

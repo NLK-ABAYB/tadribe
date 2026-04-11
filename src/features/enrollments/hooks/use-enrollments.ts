@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Enrollment } from '@/lib/types/database'
+import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
+
+type Enrollment = Tables<'enrollments'>
 
 interface EnrollmentWithRelations extends Enrollment {
   beneficiaries: { first_name: string; last_name: string; email: string | null } | null
@@ -63,18 +65,14 @@ export function useEnrollment(id: string | undefined) {
 export function useCreateEnrollment() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (enrollment: Partial<Enrollment> & {
-      organization_id: string
-      session_id: string
-      beneficiary_id: string
-    }) => {
+    mutationFn: async (enrollment: TablesInsert<'enrollments'>) => {
       const { data, error } = await supabase
         .from('enrollments')
-        .insert(enrollment as never)
+        .insert(enrollment)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Enrollment
+      return data as Enrollment
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['enrollments'] })
@@ -85,15 +83,15 @@ export function useCreateEnrollment() {
 export function useUpdateEnrollment() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Enrollment> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: TablesUpdate<'enrollments'> & { id: string }) => {
       const { data, error } = await supabase
         .from('enrollments')
-        .update(updates as never)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Enrollment
+      return data as Enrollment
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['enrollments'] })

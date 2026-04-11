@@ -197,9 +197,11 @@ export function FundingListPage() {
                     {d.amount_granted != null ? fmt.format(d.amount_granted) : '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant={STATUS_VARIANT[d.status]}>
-                      {FUNDING_STATUSES[d.status]}
-                    </Badge>
+                    {d.status && (
+                      <Badge variant={STATUS_VARIANT[d.status]}>
+                        {FUNDING_STATUSES[d.status]}
+                      </Badge>
+                    )}
                   </td>
                 </tr>
               ))}

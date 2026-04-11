@@ -37,17 +37,18 @@ function makeCompany(overrides: Partial<Company> = {}): Company {
     organization_id: 'org-1',
     name: 'ACME',
     siret: '12345678900012',
+    siren: '123456789',
     address: null,
     phone: null,
     email: 'contact@acme.test',
     website: null,
-    sector: 'Industrie',
-    size_range: null,
+    naf_code: '8559A',
+    workforce_size: null,
+    idcc: null,
     opco_id: null,
-    default_funding_type: null,
-    convention_collective: null,
     notes: null,
-    is_active: true,
+    is_client: true,
+    is_prospect: false,
     created_at: '2026-04-01T00:00:00Z',
     updated_at: '2026-04-01T00:00:00Z',
     ...overrides,
@@ -87,11 +88,11 @@ describe('CompaniesListPage', () => {
     expect(screen.getByText(/commencez par ajouter une entreprise/i)).toBeInTheDocument()
   })
 
-  it('renders a card per company with name, SIRET and sector', () => {
+  it('renders a card per company with name, SIRET and NAF code', () => {
     useCompaniesMock.mockReturnValue({
       data: [
         makeCompany(),
-        makeCompany({ id: 'co-2', name: 'Beta SAS', siret: '98765432100012', sector: 'Tech' }),
+        makeCompany({ id: 'co-2', name: 'Beta SAS', siret: '98765432100012', naf_code: '6201Z' }),
       ],
       isLoading: false,
     })
@@ -102,8 +103,8 @@ describe('CompaniesListPage', () => {
     expect(screen.getByText('Beta SAS')).toBeInTheDocument()
     expect(screen.getByText(/12345678900012/)).toBeInTheDocument()
     expect(screen.getByText(/98765432100012/)).toBeInTheDocument()
-    expect(screen.getByText('Industrie')).toBeInTheDocument()
-    expect(screen.getByText('Tech')).toBeInTheDocument()
+    expect(screen.getByText(/8559A/)).toBeInTheDocument()
+    expect(screen.getByText(/6201Z/)).toBeInTheDocument()
 
     // Cards are links to the detail page
     const links = screen.getAllByRole('link')

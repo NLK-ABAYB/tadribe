@@ -128,9 +128,11 @@ export function LearnerDashboardPage() {
                         <Badge variant="outline" className="mt-2">{enrollment.sessions.formations.modality}</Badge>
                       )}
                     </div>
-                    <Badge variant={STATUS_COLOR[enrollment.status] ?? 'secondary'}>
-                      {INSCRIPTION_STATUSES[enrollment.status]}
-                    </Badge>
+                    {enrollment.status && (
+                      <Badge variant={STATUS_COLOR[enrollment.status] ?? 'secondary'}>
+                        {INSCRIPTION_STATUSES[enrollment.status]}
+                      </Badge>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -209,9 +211,11 @@ export function LearnerDashboardPage() {
                         : '—'}
                     </td>
                     <td className="px-4 py-2">
-                      <Badge variant={STATUS_COLOR[enrollment.status] ?? 'secondary'} className="text-xs">
-                        {INSCRIPTION_STATUSES[enrollment.status]}
-                      </Badge>
+                      {enrollment.status && (
+                        <Badge variant={STATUS_COLOR[enrollment.status] ?? 'secondary'} className="text-xs">
+                          {INSCRIPTION_STATUSES[enrollment.status]}
+                        </Badge>
+                      )}
                     </td>
                   </tr>
                 ))}

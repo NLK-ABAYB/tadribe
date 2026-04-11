@@ -164,7 +164,7 @@ export function EvaluationsListPage() {
                     {evaluation.scheduled_date && (
                       <p>Prévue : {new Date(evaluation.scheduled_date).toLocaleDateString('fr-FR')}</p>
                     )}
-                    <p>{evaluation.questions?.length ?? 0} question(s)</p>
+                    <p>{Array.isArray(evaluation.questions) ? evaluation.questions.length : 0} question(s)</p>
                   </div>
                   {!evaluation.is_active && <Badge variant="outline" className="mt-2">Inactif</Badge>}
                 </CardContent>

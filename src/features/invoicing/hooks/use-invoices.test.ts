@@ -33,6 +33,7 @@ function makeInvoice(overrides: Partial<Invoice> = {}): Invoice {
     amount_paid: 0,
     nda_mention: null,
     tva_mention: null,
+    payment_schedule: null,
     issue_date: '2026-04-01',
     due_date: '2026-05-01',
     payment_date: null,
@@ -113,6 +114,7 @@ describe('useInvoiceLines', () => {
         total_ht: 1000,
         formation_id: null,
         line_order: 1,
+        created_at: '2026-04-01T00:00:00Z',
       },
     ]
     server.use(

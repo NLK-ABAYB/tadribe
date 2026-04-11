@@ -32,6 +32,10 @@ export function EvaluationDetailPage() {
     ? responses.reduce((sum, r) => sum + (r.score ?? 0), 0) / responses.length
     : null
 
+  const questions = Array.isArray(evaluation.questions)
+    ? (evaluation.questions as Record<string, unknown>[])
+    : []
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -68,7 +72,7 @@ export function EvaluationDetailPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-xs font-medium text-muted-foreground uppercase">Questions</p>
-            <p className="text-2xl font-bold">{evaluation.questions?.length ?? 0}</p>
+            <p className="text-2xl font-bold">{questions.length}</p>
           </CardContent>
         </Card>
       </div>
@@ -105,9 +109,9 @@ export function EvaluationDetailPage() {
             <CardTitle className="text-base">Questions</CardTitle>
           </CardHeader>
           <CardContent>
-            {evaluation.questions?.length ? (
+            {questions.length ? (
               <ol className="list-decimal list-inside space-y-2 text-sm">
-                {evaluation.questions.map((q: Record<string, unknown>, i: number) => (
+                {questions.map((q, i) => (
                   <li key={i}>{(q.text as string) ?? (q.question as string) ?? JSON.stringify(q)}</li>
                 ))}
               </ol>
@@ -152,7 +156,7 @@ export function EvaluationDetailPage() {
                         {r.score != null ? `${r.score}/10` : '—'}
                       </td>
                       <td className="px-4 py-2 text-sm text-muted-foreground">
-                        {new Date(r.submitted_at).toLocaleDateString('fr-FR')}
+                        {r.submitted_at ? new Date(r.submitted_at).toLocaleDateString('fr-FR') : '—'}
                       </td>
                     </tr>
                   ))}

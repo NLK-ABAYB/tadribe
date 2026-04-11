@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import type { Company } from '@/lib/types/database'
+import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
+
+type Company = Tables<'companies'>
 
 export function useCompanies() {
   return useQuery({
@@ -11,7 +13,7 @@ export function useCompanies() {
         .select('*')
         .order('name')
       if (error) throw error
-      return data as unknown as Company[]
+      return data as Company[]
     },
   })
 }
@@ -26,7 +28,7 @@ export function useCompany(id: string | undefined) {
         .eq('id', id!)
         .single()
       if (error) throw error
-      return data as unknown as Company
+      return data as Company
     },
     enabled: !!id,
   })
@@ -35,14 +37,14 @@ export function useCompany(id: string | undefined) {
 export function useCreateCompany() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (company: Partial<Company> & { name: string; organization_id: string }) => {
+    mutationFn: async (company: TablesInsert<'companies'>) => {
       const { data, error } = await supabase
         .from('companies')
-        .insert(company as never)
+        .insert(company)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Company
+      return data as Company
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] })
@@ -53,15 +55,15 @@ export function useCreateCompany() {
 export function useUpdateCompany() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Company> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: TablesUpdate<'companies'> & { id: string }) => {
       const { data, error } = await supabase
         .from('companies')
-        .update(updates as never)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()
       if (error) throw error
-      return data as unknown as Company
+      return data as Company
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['companies'] })

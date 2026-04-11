@@ -135,7 +135,7 @@ export function TrainerDetailPage() {
               <CardTitle className="text-base">Spécialités</CardTitle>
             </CardHeader>
             <CardContent>
-              {trainer.specialties?.length > 0 ? (
+              {trainer.specialties && trainer.specialties.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {trainer.specialties.map((s) => (
                     <Badge key={s} variant="secondary">{s}</Badge>

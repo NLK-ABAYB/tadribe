@@ -105,12 +105,14 @@ export function InvoicesListPage() {
                     {formatCurrency(inv.total_ttc)}
                   </td>
                   <td className="px-4 py-3 text-sm text-right">
-                    {formatCurrency(inv.amount_paid)}
+                    {formatCurrency(inv.amount_paid ?? 0)}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant={STATUS_VARIANT[inv.status] ?? 'secondary'}>
-                      {INVOICE_STATUSES[inv.status as keyof typeof INVOICE_STATUSES] ?? inv.status}
-                    </Badge>
+                    {inv.status && (
+                      <Badge variant={STATUS_VARIANT[inv.status] ?? 'secondary'}>
+                        {INVOICE_STATUSES[inv.status as keyof typeof INVOICE_STATUSES] ?? inv.status}
+                      </Badge>
+                    )}
                   </td>
                 </tr>
               ))}

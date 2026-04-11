@@ -12,12 +12,9 @@ const contactSchema = z.object({
   last_name: z.string().min(1, 'Le nom est requis'),
   email: z.string().email('Email invalide').nullable().or(z.literal('')),
   phone: z.string().nullable().or(z.literal('')),
-  mobile: z.string().nullable().or(z.literal('')),
   job_title: z.string().nullable().or(z.literal('')),
-  role_in_company: z.string().nullable().or(z.literal('')),
-  is_signatory: z.boolean(),
-  is_billing_contact: z.boolean(),
-  is_training_manager: z.boolean(),
+  contact_type: z.string().nullable().or(z.literal('')),
+  is_active: z.boolean(),
   notes: z.string().nullable().or(z.literal('')),
 })
 
@@ -41,12 +38,9 @@ export function ContactForm({ defaultValues, onSubmit, isSubmitting }: ContactFo
       last_name: defaultValues?.last_name ?? '',
       email: defaultValues?.email ?? '',
       phone: defaultValues?.phone ?? '',
-      mobile: defaultValues?.mobile ?? '',
       job_title: defaultValues?.job_title ?? '',
-      role_in_company: defaultValues?.role_in_company ?? '',
-      is_signatory: defaultValues?.is_signatory ?? false,
-      is_billing_contact: defaultValues?.is_billing_contact ?? false,
-      is_training_manager: defaultValues?.is_training_manager ?? false,
+      contact_type: defaultValues?.contact_type ?? '',
+      is_active: defaultValues?.is_active ?? true,
       notes: defaultValues?.notes ?? '',
     },
   })
@@ -80,27 +74,19 @@ export function ContactForm({ defaultValues, onSubmit, isSubmitting }: ContactFo
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="contact-phone">Téléphone fixe</Label>
+          <Label htmlFor="contact-phone">Téléphone</Label>
           <Input id="contact-phone" {...register('phone')} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="mobile">Mobile</Label>
-          <Input id="mobile" {...register('mobile')} />
+          <Label htmlFor="contact_type">Type de contact</Label>
+          <Input id="contact_type" placeholder="ex: signataire, facturation, formation" {...register('contact_type')} />
         </div>
       </div>
 
       <div className="flex items-center gap-6">
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" className="rounded" {...register('is_signatory')} />
-          Signataire
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" className="rounded" {...register('is_billing_contact')} />
-          Contact facturation
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" className="rounded" {...register('is_training_manager')} />
-          Responsable formation
+          <input type="checkbox" className="rounded" {...register('is_active')} />
+          Contact actif
         </label>
       </div>
 
