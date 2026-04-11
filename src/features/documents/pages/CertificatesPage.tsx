@@ -24,7 +24,7 @@ export function CertificatesPage() {
   )
 
   async function handleGenerate(enrollmentId: string) {
-    if (!profile || !organization) return
+    if (!profile?.organization_id || !organization) return
     const enrollment = enrollments?.find((e) => e.id === enrollmentId)
     if (!enrollment) return
 

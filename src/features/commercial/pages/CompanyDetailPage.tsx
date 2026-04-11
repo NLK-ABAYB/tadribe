@@ -41,7 +41,7 @@ export function CompanyDetailPage() {
   }
 
   async function handleCreateContact(data: Record<string, unknown>) {
-    if (!profile) return
+    if (!profile?.organization_id) return
     await createContact.mutateAsync({
       ...data,
       organization_id: profile.organization_id,

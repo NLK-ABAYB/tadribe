@@ -5,7 +5,7 @@ import type { Tables, TablesUpdate } from '@/types/supabase'
 type Organization = Tables<'organizations'>
 type Profile = Tables<'profiles'>
 
-export function useOrganizationSettings(orgId: string | undefined) {
+export function useOrganizationSettings(orgId: string | null | undefined) {
   return useQuery({
     queryKey: ['organization-settings', orgId],
     queryFn: async () => {
@@ -40,7 +40,7 @@ export function useUpdateOrganization() {
   })
 }
 
-export function useTeamMembers(orgId: string | undefined) {
+export function useTeamMembers(orgId: string | null | undefined) {
   return useQuery({
     queryKey: ['team-members', orgId],
     queryFn: async () => {

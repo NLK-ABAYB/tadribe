@@ -2216,7 +2216,7 @@ export type Database = {
           job_title: string | null
           last_login_at: string | null
           last_name: string
-          organization_id: string
+          organization_id: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
@@ -2233,7 +2233,7 @@ export type Database = {
           job_title?: string | null
           last_login_at?: string | null
           last_name: string
-          organization_id: string
+          organization_id?: string | null
           phone?: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
@@ -2250,7 +2250,7 @@ export type Database = {
           job_title?: string | null
           last_login_at?: string | null
           last_name?: string
-          organization_id?: string
+          organization_id?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
@@ -2913,6 +2913,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bootstrap_organization: {
+        Args: {
+          org_name: string
+          org_siret: string
+          org_nda?: string | null
+          org_address?: Json | null
+        }
+        Returns: Database["public"]["Tables"]["organizations"]["Row"]
+      }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       organization_id: { Args: never; Returns: string }

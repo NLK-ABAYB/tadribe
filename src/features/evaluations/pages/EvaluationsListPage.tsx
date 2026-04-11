@@ -45,7 +45,7 @@ export function EvaluationsListPage() {
   })
 
   async function handleCreate() {
-    if (!profile || !newTitle) return
+    if (!profile?.organization_id || !newTitle) return
     await createEvaluation.mutateAsync({
       organization_id: profile.organization_id,
       title: newTitle,

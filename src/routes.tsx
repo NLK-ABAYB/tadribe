@@ -23,6 +23,9 @@ const LoginPage = lazyNamed(() => import('@/features/auth/pages/LoginPage'), 'Lo
 const RegisterPage = lazyNamed(() => import('@/features/auth/pages/RegisterPage'), 'RegisterPage')
 const ForgotPasswordPage = lazyNamed(() => import('@/features/auth/pages/ForgotPasswordPage'), 'ForgotPasswordPage')
 
+// Onboarding (authenticated user without an organization yet)
+const OnboardingPage = lazyNamed(() => import('@/features/onboarding/pages/OnboardingPage'), 'OnboardingPage')
+
 // Dashboard
 const DashboardPage = lazyNamed(() => import('@/features/dashboard/pages/DashboardPage'), 'DashboardPage')
 
@@ -114,6 +117,18 @@ export const router = createBrowserRouter([
   { path: '/login', element: publicElement(LoginPage) },
   { path: '/register', element: publicElement(RegisterPage) },
   { path: '/forgot-password', element: publicElement(ForgotPasswordPage) },
+
+  // Onboarding (authenticated, but profile.organization_id IS NULL)
+  {
+    path: '/onboarding',
+    element: (
+      <RequireAuth>
+        <Suspense fallback={<PublicFallback />}>
+          <OnboardingPage />
+        </Suspense>
+      </RequireAuth>
+    ),
+  },
 
   // Protected routes
   {

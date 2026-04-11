@@ -38,7 +38,7 @@ export function FormationsListPage() {
   })
 
   async function handleCreate(data: Record<string, unknown>) {
-    if (!profile) return
+    if (!profile?.organization_id) return
     await createFormation.mutateAsync({
       ...data,
       organization_id: profile.organization_id,

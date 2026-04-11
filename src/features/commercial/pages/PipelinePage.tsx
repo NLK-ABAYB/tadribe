@@ -32,7 +32,7 @@ export function PipelinePage() {
   const [newTitle, setNewTitle] = useState('')
 
   async function handleCreate() {
-    if (!profile || !newTitle.trim()) return
+    if (!profile?.organization_id || !newTitle.trim()) return
     await createOpp.mutateAsync({
       organization_id: profile.organization_id,
       title: newTitle.trim(),

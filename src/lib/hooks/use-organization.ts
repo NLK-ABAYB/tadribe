@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Organization } from '@/lib/types/database'
 
-export function useOrganization(organizationId: string | undefined) {
+export function useOrganization(organizationId: string | null | undefined) {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
 

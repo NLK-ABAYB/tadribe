@@ -28,7 +28,7 @@ export function TrainersListPage() {
   })
 
   async function handleCreate(data: Record<string, unknown>) {
-    if (!profile) return
+    if (!profile?.organization_id) return
     await createTrainer.mutateAsync({
       ...data,
       organization_id: profile.organization_id,

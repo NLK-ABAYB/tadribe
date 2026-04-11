@@ -12,7 +12,7 @@ export function InvoiceEditPage() {
   const navigate = useNavigate()
 
   async function handleSubmit(data: Record<string, unknown>) {
-    if (!profile) return
+    if (!profile?.organization_id) return
     const lines = data.lines as Array<{ description: string; quantity: number; unit_price_ht: number }>
     const totalHt = lines.reduce((sum, l) => sum + l.quantity * l.unit_price_ht, 0)
     const tvaRate = (data.tva_rate as number) || 0

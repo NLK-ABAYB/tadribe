@@ -45,7 +45,7 @@ export function FundingListPage() {
   })
 
   async function handleCreate(data: Record<string, unknown>) {
-    if (!profile) return
+    if (!profile?.organization_id) return
     await createDossier.mutateAsync({
       ...data,
       organization_id: profile.organization_id,
