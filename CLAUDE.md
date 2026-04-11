@@ -178,10 +178,27 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 - [x] Navigation sidebar mise à jour : "Veille" ajouté dans section Qualité
 - [x] Build TypeScript OK
 
+### Phase 11 : Qualité — Code splitting et tests unitaires
+- [x] **Code splitting** : `src/routes.tsx` converti en `React.lazy()` pour toutes les pages (auth, admin, portails)
+  - Helper `lazyNamed()` pour gérer les exports nommés
+  - `<Suspense>` intégré dans `AppLayout` et `PortalLayout` autour de `<Outlet />`
+  - `<Suspense>` dédié pour les routes publiques (`/login`, `/register`, `/forgot-password`)
+  - Résultat : `index.js` passe de ~2.5 MB à 308 kB (gzip 93 kB), chaque page est un chunk indépendant
+  - Le chunk `@react-pdf/renderer` (~1.5 MB) n'est chargé qu'à la visite de `/conventions` ou `/certificats`
+- [x] **Vitest** installé (`vitest`, `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `jsdom`)
+  - `vitest.config.ts` séparé de `vite.config.ts` pour éviter les conflits de types avec `tsc -b`
+  - `src/test/setup.ts` : import `@testing-library/jest-dom/vitest`, `cleanup()` après chaque test, polyfills `ResizeObserver` et `matchMedia` pour Radix UI
+  - Scripts npm : `test` (run), `test:watch` (watch mode)
+- [x] **Tests unitaires** (38 tests, 4 fichiers, 100% verts)
+  - `src/lib/utils.test.ts` — helper `cn()` (merge Tailwind + tri)
+  - `src/lib/constants.test.ts` — catalogues USER_ROLES, STAFF_ROLES, FUNDING_TYPES, QUALIFICATION_LEVELS, etc.
+  - `src/features/invoicing/lib/calculations.test.ts` — `computeInvoiceTotals()` (HT, TVA, TTC, exonération, valeurs nulles, taux négatif) + `formatEuros()`
+  - `src/features/quality/pages/VeilleReglementairePage.test.tsx` — rendu, filtrage recherche, état vide, compteurs
+- [x] Refactor : extraction de `computeInvoiceTotals` + `formatEuros` dans `src/features/invoicing/lib/calculations.ts` pour rendre la logique de calcul facturation testable hors composant
+
 ### Ce qui reste à faire
-- [ ] Tests unitaires (hooks, composants)
+- [ ] Élargir les tests (hooks Supabase avec MSW, composants avec QueryClient mock)
 - [ ] Remplacer types placeholder par `supabase gen types typescript`
-- [ ] Code splitting (lazy imports) pour réduire la taille du bundle
 
 ## Décisions techniques
 

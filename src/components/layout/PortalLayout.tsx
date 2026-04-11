@@ -1,5 +1,6 @@
+import { Suspense } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { LogOut, User } from 'lucide-react'
+import { Loader2, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -145,7 +146,15 @@ export function PortalLayout({ title, navItems, accentColor = 'bg-primary' }: Po
 
       {/* Main content */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-        <Outlet />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   )

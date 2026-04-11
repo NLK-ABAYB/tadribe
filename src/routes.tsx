@@ -1,92 +1,119 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import {
   LayoutDashboard, BookOpen, FileText, Award, CheckCircle2,
-  Users, Wallet, GraduationCap,
+  Users, Wallet, GraduationCap, Loader2,
 } from 'lucide-react'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { PortalLayout } from '@/components/layout/PortalLayout'
 import { RequireAuth } from '@/features/auth/components/RequireAuth'
 
-// Auth pages
-import { LoginPage } from '@/features/auth/pages/LoginPage'
-import { RegisterPage } from '@/features/auth/pages/RegisterPage'
-import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage'
+// Lazy loader helper for named exports
+function lazyNamed<T extends string>(
+  loader: () => Promise<Record<T, React.ComponentType>>,
+  name: T,
+) {
+  return lazy(() =>
+    loader().then((mod) => ({ default: mod[name] })),
+  )
+}
+
+// Auth pages (public)
+const LoginPage = lazyNamed(() => import('@/features/auth/pages/LoginPage'), 'LoginPage')
+const RegisterPage = lazyNamed(() => import('@/features/auth/pages/RegisterPage'), 'RegisterPage')
+const ForgotPasswordPage = lazyNamed(() => import('@/features/auth/pages/ForgotPasswordPage'), 'ForgotPasswordPage')
 
 // Dashboard
-import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
+const DashboardPage = lazyNamed(() => import('@/features/dashboard/pages/DashboardPage'), 'DashboardPage')
 
 // Commercial
-import { CompaniesListPage } from '@/features/commercial/pages/CompaniesListPage'
-import { CompanyDetailPage } from '@/features/commercial/pages/CompanyDetailPage'
-import { ContactsListPage } from '@/features/commercial/pages/ContactsListPage'
-import { PipelinePage } from '@/features/commercial/pages/PipelinePage'
+const CompaniesListPage = lazyNamed(() => import('@/features/commercial/pages/CompaniesListPage'), 'CompaniesListPage')
+const CompanyDetailPage = lazyNamed(() => import('@/features/commercial/pages/CompanyDetailPage'), 'CompanyDetailPage')
+const ContactsListPage = lazyNamed(() => import('@/features/commercial/pages/ContactsListPage'), 'ContactsListPage')
+const PipelinePage = lazyNamed(() => import('@/features/commercial/pages/PipelinePage'), 'PipelinePage')
 
 // Sessions
-import { SessionsListPage } from '@/features/sessions/pages/SessionsListPage'
-import { SessionDetailPage } from '@/features/sessions/pages/SessionDetailPage'
+const SessionsListPage = lazyNamed(() => import('@/features/sessions/pages/SessionsListPage'), 'SessionsListPage')
+const SessionDetailPage = lazyNamed(() => import('@/features/sessions/pages/SessionDetailPage'), 'SessionDetailPage')
 
 // Invoicing
-import { InvoicesListPage } from '@/features/invoicing/pages/InvoicesListPage'
-import { InvoiceDetailPage } from '@/features/invoicing/pages/InvoiceDetailPage'
-import { InvoiceEditPage } from '@/features/invoicing/pages/InvoiceEditPage'
+const InvoicesListPage = lazyNamed(() => import('@/features/invoicing/pages/InvoicesListPage'), 'InvoicesListPage')
+const InvoiceDetailPage = lazyNamed(() => import('@/features/invoicing/pages/InvoiceDetailPage'), 'InvoiceDetailPage')
+const InvoiceEditPage = lazyNamed(() => import('@/features/invoicing/pages/InvoiceEditPage'), 'InvoiceEditPage')
 
 // Catalogue (Formations)
-import { FormationsListPage } from '@/features/catalogue/pages/FormationsListPage'
-import { FormationDetailPage } from '@/features/catalogue/pages/FormationDetailPage'
+const FormationsListPage = lazyNamed(() => import('@/features/catalogue/pages/FormationsListPage'), 'FormationsListPage')
+const FormationDetailPage = lazyNamed(() => import('@/features/catalogue/pages/FormationDetailPage'), 'FormationDetailPage')
 
 // Formateurs
-import { TrainersListPage } from '@/features/trainers/pages/TrainersListPage'
-import { TrainerDetailPage } from '@/features/trainers/pages/TrainerDetailPage'
+const TrainersListPage = lazyNamed(() => import('@/features/trainers/pages/TrainersListPage'), 'TrainersListPage')
+const TrainerDetailPage = lazyNamed(() => import('@/features/trainers/pages/TrainerDetailPage'), 'TrainerDetailPage')
 
 // Bénéficiaires
-import { BeneficiariesListPage } from '@/features/beneficiaries/pages/BeneficiariesListPage'
-import { BeneficiaryDetailPage } from '@/features/beneficiaries/pages/BeneficiaryDetailPage'
+const BeneficiariesListPage = lazyNamed(() => import('@/features/beneficiaries/pages/BeneficiariesListPage'), 'BeneficiariesListPage')
+const BeneficiaryDetailPage = lazyNamed(() => import('@/features/beneficiaries/pages/BeneficiaryDetailPage'), 'BeneficiaryDetailPage')
 
 // Inscriptions
-import { EnrollmentsListPage } from '@/features/enrollments/pages/EnrollmentsListPage'
-import { EnrollmentDetailPage } from '@/features/enrollments/pages/EnrollmentDetailPage'
+const EnrollmentsListPage = lazyNamed(() => import('@/features/enrollments/pages/EnrollmentsListPage'), 'EnrollmentsListPage')
+const EnrollmentDetailPage = lazyNamed(() => import('@/features/enrollments/pages/EnrollmentDetailPage'), 'EnrollmentDetailPage')
 
 // Émargement
-import { AttendancePage } from '@/features/attendance/pages/AttendancePage'
+const AttendancePage = lazyNamed(() => import('@/features/attendance/pages/AttendancePage'), 'AttendancePage')
 
 // Documents
-import { ConventionsPage } from '@/features/documents/pages/ConventionsPage'
-import { CertificatesPage } from '@/features/documents/pages/CertificatesPage'
+const ConventionsPage = lazyNamed(() => import('@/features/documents/pages/ConventionsPage'), 'ConventionsPage')
+const CertificatesPage = lazyNamed(() => import('@/features/documents/pages/CertificatesPage'), 'CertificatesPage')
 
 // Financements
-import { FundingListPage } from '@/features/funding/pages/FundingListPage'
-import { FundingDetailPage } from '@/features/funding/pages/FundingDetailPage'
+const FundingListPage = lazyNamed(() => import('@/features/funding/pages/FundingListPage'), 'FundingListPage')
+const FundingDetailPage = lazyNamed(() => import('@/features/funding/pages/FundingDetailPage'), 'FundingDetailPage')
 
 // Évaluations
-import { EvaluationsListPage } from '@/features/evaluations/pages/EvaluationsListPage'
-import { EvaluationDetailPage } from '@/features/evaluations/pages/EvaluationDetailPage'
+const EvaluationsListPage = lazyNamed(() => import('@/features/evaluations/pages/EvaluationsListPage'), 'EvaluationsListPage')
+const EvaluationDetailPage = lazyNamed(() => import('@/features/evaluations/pages/EvaluationDetailPage'), 'EvaluationDetailPage')
 
 // Qualité
-import { QualiopiDashboardPage } from '@/features/quality/pages/QualiopiDashboardPage'
-import { VeilleReglementairePage } from '@/features/quality/pages/VeilleReglementairePage'
+const QualiopiDashboardPage = lazyNamed(() => import('@/features/quality/pages/QualiopiDashboardPage'), 'QualiopiDashboardPage')
+const VeilleReglementairePage = lazyNamed(() => import('@/features/quality/pages/VeilleReglementairePage'), 'VeilleReglementairePage')
 
 // Paramètres
-import { SettingsPage } from '@/features/settings/pages/SettingsPage'
+const SettingsPage = lazyNamed(() => import('@/features/settings/pages/SettingsPage'), 'SettingsPage')
 
 // Portail Apprenant
-import { LearnerDashboardPage } from '@/features/portal-learner/pages/LearnerDashboardPage'
-import { LearnerFormationDetailPage } from '@/features/portal-learner/pages/LearnerFormationDetailPage'
-import { LearnerDocumentsPage } from '@/features/portal-learner/pages/LearnerDocumentsPage'
-import { LearnerCertificatesPage } from '@/features/portal-learner/pages/LearnerCertificatesPage'
-import { LearnerEvaluationsPage } from '@/features/portal-learner/pages/LearnerEvaluationsPage'
+const LearnerDashboardPage = lazyNamed(() => import('@/features/portal-learner/pages/LearnerDashboardPage'), 'LearnerDashboardPage')
+const LearnerFormationDetailPage = lazyNamed(() => import('@/features/portal-learner/pages/LearnerFormationDetailPage'), 'LearnerFormationDetailPage')
+const LearnerDocumentsPage = lazyNamed(() => import('@/features/portal-learner/pages/LearnerDocumentsPage'), 'LearnerDocumentsPage')
+const LearnerCertificatesPage = lazyNamed(() => import('@/features/portal-learner/pages/LearnerCertificatesPage'), 'LearnerCertificatesPage')
+const LearnerEvaluationsPage = lazyNamed(() => import('@/features/portal-learner/pages/LearnerEvaluationsPage'), 'LearnerEvaluationsPage')
 
 // Portail Entreprise
-import { CompanyDashboardPage } from '@/features/portal-company/pages/CompanyDashboardPage'
-import { CompanyCollaboratorsPage } from '@/features/portal-company/pages/CompanyCollaboratorsPage'
-import { CompanyFormationsPage } from '@/features/portal-company/pages/CompanyFormationsPage'
-import { CompanyInvoicesPage } from '@/features/portal-company/pages/CompanyInvoicesPage'
-import { CompanyFundingPage } from '@/features/portal-company/pages/CompanyFundingPage'
+const CompanyDashboardPage = lazyNamed(() => import('@/features/portal-company/pages/CompanyDashboardPage'), 'CompanyDashboardPage')
+const CompanyCollaboratorsPage = lazyNamed(() => import('@/features/portal-company/pages/CompanyCollaboratorsPage'), 'CompanyCollaboratorsPage')
+const CompanyFormationsPage = lazyNamed(() => import('@/features/portal-company/pages/CompanyFormationsPage'), 'CompanyFormationsPage')
+const CompanyInvoicesPage = lazyNamed(() => import('@/features/portal-company/pages/CompanyInvoicesPage'), 'CompanyInvoicesPage')
+const CompanyFundingPage = lazyNamed(() => import('@/features/portal-company/pages/CompanyFundingPage'), 'CompanyFundingPage')
+
+function PublicFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  )
+}
+
+function publicElement(Component: React.ComponentType) {
+  return (
+    <Suspense fallback={<PublicFallback />}>
+      <Component />
+    </Suspense>
+  )
+}
 
 export const router = createBrowserRouter([
   // Public routes
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
-  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/login', element: publicElement(LoginPage) },
+  { path: '/register', element: publicElement(RegisterPage) },
+  { path: '/forgot-password', element: publicElement(ForgotPasswordPage) },
 
   // Protected routes
   {

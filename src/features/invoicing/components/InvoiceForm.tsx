@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { computeInvoiceTotals, formatEuros } from '../lib/calculations'
 
 const lineSchema = z.object({
   description: z.string().min(1, 'Description requise'),
@@ -62,12 +63,9 @@ export function InvoiceForm({ defaultValues, tvaExempt = false, ndaNumber, onSub
   const watchedLines = watch('lines')
   const watchedTvaRate = watch('tva_rate')
 
-  const totalHt = watchedLines?.reduce((sum, line) => sum + (line.quantity || 0) * (line.unit_price_ht || 0), 0) ?? 0
-  const tvaAmount = totalHt * (watchedTvaRate || 0) / 100
-  const totalTtc = totalHt + tvaAmount
+  const { totalHt, tvaAmount, totalTtc } = computeInvoiceTotals(watchedLines, watchedTvaRate)
 
-  const formatCurrency = (n: number) =>
-    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
+  const formatCurrency = formatEuros
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
