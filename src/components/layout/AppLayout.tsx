@@ -13,6 +13,11 @@ const STAFF_ROLES = ['admin_of', 'gestionnaire', 'commercial', 'formateur'] as c
 export function AppLayout() {
   const { profile } = useAuthContext()
 
+  console.log('[AppLayout] render', {
+    role: profile?.role ?? null,
+    organizationId: profile?.organization_id ?? null,
+  })
+
   // A staff user without an organization just signed up: send them to the
   // onboarding page so they can create their organism. RequireAuth has
   // already guaranteed `profile` is non-null at this point.
@@ -21,6 +26,7 @@ export function AppLayout() {
     !profile.organization_id &&
     (STAFF_ROLES as readonly string[]).includes(profile.role)
   ) {
+    console.log('[AppLayout] staff user without org → redirect /onboarding')
     return <Navigate to="/onboarding" replace />
   }
 

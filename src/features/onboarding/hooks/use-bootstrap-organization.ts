@@ -28,8 +28,8 @@ export function useBootstrapOrganization() {
       const { data, error } = await supabase.rpc('bootstrap_organization', {
         org_name: input.name,
         org_siret: input.siret,
-        org_nda: input.nda ?? null,
-        org_address: (input.address ?? null) as Json | null,
+        ...(input.nda ? { org_nda: input.nda } : {}),
+        ...(input.address ? { org_address: input.address as unknown as Json } : {}),
       })
       if (error) throw error
       return data as Organization

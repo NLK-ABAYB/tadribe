@@ -7,6 +7,7 @@ export function useOrganization(organizationId: string | null | undefined) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('[org] useOrganization effect, organizationId =', organizationId)
     if (!organizationId) {
       setOrganization(null)
       setLoading(false)
@@ -21,9 +22,13 @@ export function useOrganization(organizationId: string | null | undefined) {
       .single()
       .then(({ data, error }) => {
         if (error) {
-          console.error('Error fetching organization:', error)
+          console.error('[org] fetch error:', {
+            code: error.code,
+            message: error.message,
+          })
           setOrganization(null)
         } else {
+          console.log('[org] fetched:', { id: data.id, name: data.name })
           setOrganization(data)
         }
         setLoading(false)

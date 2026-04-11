@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,8 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const location = useLocation()
   const {
     register,
     handleSubmit,
@@ -30,6 +32,14 @@ export function LoginForm() {
     setError(null)
     try {
       await signInWithEmail(data.email, data.password)
+      // Send the user to where they were trying to go (or `/`); RequireAuth
+      // and AppLayout will then route them to /onboarding if they have no
+      // organization yet.
+      const from = (location.state as { from?: { pathname: string } } | null)
+        ?.from?.pathname
+      const target = from && from !== '/login' ? from : '/'
+      console.log('[LoginForm] sign-in success → navigate to', target)
+      navigate(target, { replace: true })
     } catch (err) {
       setError(
         err instanceof Error

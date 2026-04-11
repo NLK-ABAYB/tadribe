@@ -12,7 +12,17 @@ export function RequireAuth({ children, allowedRoles }: RequireAuthProps) {
   const { user, profile, loading } = useAuthContext()
   const location = useLocation()
 
+  console.log('[RequireAuth] render', {
+    path: location.pathname,
+    loading,
+    hasUser: !!user,
+    hasProfile: !!profile,
+    role: profile?.role ?? null,
+    organizationId: profile?.organization_id ?? null,
+  })
+
   if (loading) {
+    console.log('[RequireAuth] still loading → spinner')
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -21,10 +31,12 @@ export function RequireAuth({ children, allowedRoles }: RequireAuthProps) {
   }
 
   if (!user) {
+    console.log('[RequireAuth] no user → redirect /login')
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   if (!profile) {
+    console.warn('[RequireAuth] user without profile → blocked screen')
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
@@ -38,6 +50,10 @@ export function RequireAuth({ children, allowedRoles }: RequireAuthProps) {
   }
 
   if (allowedRoles && !allowedRoles.includes(profile.role)) {
+    console.log('[RequireAuth] role not allowed', {
+      role: profile.role,
+      allowedRoles,
+    })
     return <Navigate to="/" replace />
   }
 
