@@ -63,6 +63,10 @@ import { EvaluationDetailPage } from '@/features/evaluations/pages/EvaluationDet
 
 // Qualité
 import { QualiopiDashboardPage } from '@/features/quality/pages/QualiopiDashboardPage'
+import { VeilleReglementairePage } from '@/features/quality/pages/VeilleReglementairePage'
+
+// Paramètres
+import { SettingsPage } from '@/features/settings/pages/SettingsPage'
 
 // Portail Apprenant
 import { LearnerDashboardPage } from '@/features/portal-learner/pages/LearnerDashboardPage'
@@ -144,10 +148,15 @@ export const router = createBrowserRouter([
       // Qualité
       { path: 'qualiopi', element: <QualiopiDashboardPage /> },
 
+      // Veille réglementaire
+      { path: 'veille', element: <VeilleReglementairePage /> },
+
+      // Paramètres
+      { path: 'parametres', element: <SettingsPage /> },
+
       // Placeholders for future modules
       { path: 'lieux', element: <PlaceholderPage title="Lieux" /> },
       { path: 'paiements', element: <PlaceholderPage title="Paiements" /> },
-      { path: 'parametres', element: <PlaceholderPage title="Paramètres" /> },
     ],
   },
 

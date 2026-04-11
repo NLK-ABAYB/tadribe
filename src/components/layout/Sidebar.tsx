@@ -17,6 +17,7 @@ import {
   MapPin,
   Award,
   PenLine,
+  Eye,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthContext } from '@/features/auth/auth-context'
@@ -112,6 +113,7 @@ function getNavSections(isStaff: boolean, isFormateur: boolean): NavSection[] {
       items: [
         { label: 'Évaluations', href: '/evaluations', icon: Star },
         { label: 'Qualiopi', href: '/qualiopi', icon: Shield },
+        { label: 'Veille', href: '/veille', icon: Eye },
       ],
     },
     {

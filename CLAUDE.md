@@ -162,10 +162,26 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 - [x] Routes protégées par rôle (RequireAuth allowedRoles)
 - [x] Build TypeScript OK
 
+### Phase 10 : Bloc 6 — Dashboard KPIs, Veille réglementaire, Paramètres
+- [x] Dashboard KPIs temps réel
+  - useDashboardStats (agrégation parallèle : entreprises, sessions, inscriptions, factures, formations, formateurs, bénéficiaires, financements)
+  - DashboardPage remodelé : 8 cartes KPI cliquables, résumés sessions/inscriptions
+  - Liens directs vers chaque module depuis les cartes
+- [x] Module Paramètres (/parametres)
+  - SettingsPage : informations organisme (SIRET, NDA, contact, Qualiopi), gestion équipe (rôles, activation/désactivation), référents Qualiopi (handicap ind.26, mobilité)
+  - Hooks : useOrganizationSettings, useUpdateOrganization, useTeamMembers, useUpdateProfile
+  - Édition rôles inline pour admin, toggle activation membres
+- [x] Veille réglementaire (/veille)
+  - VeilleReglementairePage : base de 10 éléments réglementaires clés (RNQ, Loi Avenir Pro, BPF, CPF, OPCO, RGPD, handicap, sous-traitance, France Travail)
+  - Filtres par catégorie (réglementation/qualiopi/financement/formation) et impact (info/action/critique)
+  - Recherche texte et tags
+- [x] Navigation sidebar mise à jour : "Veille" ajouté dans section Qualité
+- [x] Build TypeScript OK
+
 ### Ce qui reste à faire
-- [ ] Module Paramètres (organisation, équipe, sous-traitants ind.27)
-- [ ] Dashboard KPIs avancés, veille réglementaire
+- [ ] Tests unitaires (hooks, composants)
 - [ ] Remplacer types placeholder par `supabase gen types typescript`
+- [ ] Code splitting (lazy imports) pour réduire la taille du bundle
 
 ## Décisions techniques
 
@@ -258,5 +274,6 @@ tadribe/
         ├── evaluations/     # Évaluations (questionnaires, satisfaction, insertion)
         ├── quality/         # Tableau de bord Qualiopi (conformité 32 indicateurs)
         ├── portal-learner/  # Portail apprenant (/mon-espace) : parcours, docs, évals
-        └── portal-company/  # Portail entreprise (/espace-entreprise) : collaborateurs, factures
+        ├── portal-company/  # Portail entreprise (/espace-entreprise) : collaborateurs, factures
+        └── settings/        # Paramètres (organisation, équipe, référents Qualiopi)
 ```
