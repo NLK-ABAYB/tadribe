@@ -196,9 +196,30 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
   - `src/features/quality/pages/VeilleReglementairePage.test.tsx` — rendu, filtrage recherche, état vide, compteurs
 - [x] Refactor : extraction de `computeInvoiceTotals` + `formatEuros` dans `src/features/invoicing/lib/calculations.ts` pour rendre la logique de calcul facturation testable hors composant
 
+### Phase 12 : Types Supabase générés + couverture de tests élargie (hooks MSW + composants)
+- [x] **Types Supabase générés** : `src/types/supabase.ts` récupéré via `supabase gen types typescript --project-id mcyxxgjnkrmbbqshsykg`
+  - `src/lib/types/database.ts` re-exporte désormais `Database` depuis `@/types/supabase` (source canonique)
+  - ⚠️ Au moment de la génération, le projet Supabase distant n'a aucune table dans `public` (migrations non appliquées), donc `Database.Tables` est structurellement vide (`[_ in never]: never`)
+  - Conséquence : on ne peut pas encore passer `<Database>` à `createClient()` sans casser chaque appel `.from('table')`. Le client reste sur le générique permissif par défaut, avec un commentaire d'explication dans `src/lib/supabase.ts`
+  - Les types de lignes écrits à la main dans `database.ts` restent la source de vérité pour les hooks/pages jusqu'à ce que `npx supabase db push` soit exécuté contre le projet distant, puis `supabase gen types typescript` ré-exécuté
+- [x] **MSW v2** installé (`msw`) pour intercepter les requêtes PostgREST dans les tests de hooks
+  - `src/test/msw-server.ts` : `setupServer()` Node + constantes `SUPABASE_URL` / `SUPABASE_REST`
+  - `src/test/setup.ts` : `server.listen({ onUnhandledRequest: 'error' })` + `resetHandlers()` après chaque test + `server.close()` à la fin
+  - `src/test/query-client.tsx` : helpers `createTestQueryClient()`, `withQueryClient()`, `renderWithQueryClient()`, `renderHookWithQueryClient()` (retry:false, staleTime:0, gcTime:0)
+- [x] **Tests de hooks Supabase avec MSW** (6 fichiers, flux CRUD complet)
+  - `src/features/invoicing/hooks/use-invoices.test.ts` — useInvoices (succès+erreur), useInvoice (disabled+fetch par id), useInvoiceLines (filtre invoice_id), useCreateInvoice (insert+erreur 409), useUpdateInvoice (patch par id)
+  - `src/features/sessions/hooks/use-sessions.test.ts` — useSessions (relations embed via `select`), useSession (disabled+fetch par id), useCreateSession, useUpdateSession
+  - `src/features/commercial/hooks/use-companies.test.ts` — useCompanies (succès+erreur), useCompany (disabled+fetch par id), useCreateCompany, useUpdateCompany, useDeleteCompany (204)
+  - `src/features/commercial/hooks/use-contacts.test.ts` — useContacts (sans filtre vs filtre `company_id=eq.xxx`), useCreateContact, useUpdateContact
+- [x] **Tests de composants avec hooks mockés** (états : chargement / données / vide / filtre / erreur)
+  - `src/features/invoicing/pages/InvoicesListPage.test.tsx` — spinner, état vide, rendu des lignes, filtrage par recherche, état vide après filtre (5 tests)
+  - `src/features/sessions/pages/SessionsListPage.test.tsx` — spinner, état vide, rendu avec relations (formation/formateur/lieu/distanciel), filtrage par nom formateur, hint "aucun résultat" (5 tests)
+  - `src/features/commercial/pages/CompaniesListPage.test.tsx` — spinner, état vide, cartes avec SIRET/secteur, filtrage, toggle formulaire de création, hint "aucun résultat" (6 tests) — mocks `useAuthContext` + stub `CompanyForm`
+- [x] **Résultat : 80 tests verts (11 fichiers)**, build TypeScript OK
+
 ### Ce qui reste à faire
-- [ ] Élargir les tests (hooks Supabase avec MSW, composants avec QueryClient mock)
-- [ ] Remplacer types placeholder par `supabase gen types typescript`
+- [ ] Appliquer les migrations SQL sur le projet Supabase distant (`npx supabase db push`) puis régénérer `src/types/supabase.ts` pour activer le générique `createClient<Database>` et remplacer progressivement les types manuels
+- [ ] Étendre la couverture de tests composants aux autres modules (formations, formateurs, bénéficiaires, inscriptions, émargement, financements)
 
 ## Décisions techniques
 
@@ -208,7 +229,7 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 4. **RLS sur toutes les tables** : sécurité au niveau DB, pas seulement au niveau API.
 5. **Enums PostgreSQL** : type safety côté DB, généré en TypeScript via `supabase gen types`.
 6. **Multi-tenant par organization_id** : un seul schéma DB, isolation par RLS. Scalable et simple.
-7. **Database type placeholder** : type `Database` vide pour l'instant, hooks cast via `as unknown as T`. Sera remplacé par les types générés Supabase.
+7. **Database type** : source canonique générée dans `src/types/supabase.ts` et re-exportée depuis `src/lib/types/database.ts`. Structurellement vide tant que les migrations ne sont pas appliquées sur le projet distant (voir Phase 12), donc les hooks continuent à caster via `as unknown as T` en s'appuyant sur les types manuels.
 8. **Mentions légales auto** : les mentions NDA et TVA sont pré-remplies depuis les infos de l'organisation.
 
 ## Points de vigilance

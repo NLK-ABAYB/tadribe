@@ -1,10 +1,15 @@
 import '@testing-library/jest-dom/vitest'
-import { afterEach, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
+import { server } from './msw-server'
 
+// MSW lifecycle: start once, reset handlers between tests, close at the end.
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => {
+  server.resetHandlers()
   cleanup()
 })
+afterAll(() => server.close())
 
 // Polyfill for ResizeObserver (used by Radix UI)
 class ResizeObserverStub {

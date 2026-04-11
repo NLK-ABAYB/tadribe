@@ -1,5 +1,20 @@
-// Placeholder types - replace with `supabase gen types typescript` output
-// These manual types let us build the app before connecting to Supabase
+// Hand-written domain types for the Tadribe CRM.
+//
+// The canonical `Database` type (for `createClient<Database>`) is now
+// generated from Supabase into `src/types/supabase.ts` and re-exported below.
+//
+// NOTE: at the time of this writing, the remote Supabase project
+// (mcyxxgjnkrmbbqshsykg) did not yet have any tables in its `public` schema,
+// so the generated type is structurally empty (Tables: [_ in never]: never).
+// Until the migrations under `supabase/migrations/` are applied remotely
+// (`npx supabase db push`), these hand-written row types remain the source of
+// truth for application code — every hook and page imports them from here.
+//
+// After `db push` + re-running `supabase gen types typescript`, the generated
+// file will expose rich table types and these manual shapes can progressively
+// be replaced with `Tables<'companies'>`, `TablesInsert<'companies'>`, etc.
+
+export type { Database } from '@/types/supabase'
 
 export type UserRole =
   | 'admin_of'
@@ -489,7 +504,3 @@ export interface Document {
   created_at: string
 }
 
-// Placeholder Database type for createClient<Database>
-// Replace with `npx supabase gen types typescript` output once connected
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface Database {}
