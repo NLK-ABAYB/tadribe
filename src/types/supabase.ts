@@ -2915,12 +2915,40 @@ export type Database = {
     Functions: {
       bootstrap_organization: {
         Args: {
+          org_address?: Json
           org_name: string
+          org_nda?: string
           org_siret: string
-          org_nda?: string | null
-          org_address?: Json | null
         }
-        Returns: Database["public"]["Tables"]["organizations"]["Row"]
+        Returns: {
+          address: Json | null
+          created_at: string | null
+          email: string | null
+          id: string
+          legal_form: string | null
+          logo_url: string | null
+          name: string
+          nda: string | null
+          nda_valid_until: string | null
+          phone: string | null
+          qualiopi: boolean | null
+          qualiopi_categories:
+            | Database["public"]["Enums"]["action_category"][]
+            | null
+          qualiopi_valid_until: string | null
+          settings: Json | null
+          siret: string
+          tva_exempt: boolean | null
+          tva_number: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "organizations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
