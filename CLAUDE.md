@@ -15,7 +15,7 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 ## Architecture
 - Multi-tenant : chaque table a `organization_id`, isolation via RLS
 - Feature-based folder structure sous `src/features/`
-- 4 helpers RLS : `auth.organization_id()`, `auth.user_role()`, `auth.is_staff()`, `auth.is_admin()`
+- 4 helpers RLS (dans le schéma `public`, `SECURITY DEFINER` + `STABLE`) : `public.organization_id()`, `public.user_role()`, `public.is_staff()`, `public.is_admin()`
 - Path alias `@/` pointe vers `src/`
 
 ## Rôles utilisateurs
@@ -199,9 +199,7 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 ### Phase 12 : Types Supabase générés + couverture de tests élargie (hooks MSW + composants)
 - [x] **Types Supabase générés** : `src/types/supabase.ts` récupéré via `supabase gen types typescript --project-id mcyxxgjnkrmbbqshsykg`
   - `src/lib/types/database.ts` re-exporte désormais `Database` depuis `@/types/supabase` (source canonique)
-  - ⚠️ Au moment de la génération, le projet Supabase distant n'a aucune table dans `public` (migrations non appliquées), donc `Database.Tables` est structurellement vide (`[_ in never]: never`)
-  - Conséquence : on ne peut pas encore passer `<Database>` à `createClient()` sans casser chaque appel `.from('table')`. Le client reste sur le générique permissif par défaut, avec un commentaire d'explication dans `src/lib/supabase.ts`
-  - Les types de lignes écrits à la main dans `database.ts` restent la source de vérité pour les hooks/pages jusqu'à ce que `npx supabase db push` soit exécuté contre le projet distant, puis `supabase gen types typescript` ré-exécuté
+  - À ce stade de la phase 12, les migrations n'étaient pas encore poussées sur le projet distant ; les hooks continuaient donc à caster via `as unknown as T` en s'appuyant sur les types manuels de `database.ts`. La bascule complète sur les types générés a été réalisée en Phase 13.
 - [x] **MSW v2** installé (`msw`) pour intercepter les requêtes PostgREST dans les tests de hooks
   - `src/test/msw-server.ts` : `setupServer()` Node + constantes `SUPABASE_URL` / `SUPABASE_REST`
   - `src/test/setup.ts` : `server.listen({ onUnhandledRequest: 'error' })` + `resetHandlers()` après chaque test + `server.close()` à la fin
@@ -217,8 +215,37 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
   - `src/features/commercial/pages/CompaniesListPage.test.tsx` — spinner, état vide, cartes avec SIRET/secteur, filtrage, toggle formulaire de création, hint "aucun résultat" (6 tests) — mocks `useAuthContext` + stub `CompanyForm`
 - [x] **Résultat : 80 tests verts (11 fichiers)**, build TypeScript OK
 
+### Phase 13 : Bascule complète sur les types Supabase générés (commit 7ee9fde)
+- [x] **Migrations SQL appliquées sur le projet Supabase distant** (`npx supabase db push`) — les RLS helpers ont été déplacés du schéma `auth` vers `public` (commit `5a2561d`) pour contourner la restriction de permissions du cloud Supabase
+- [x] **Types régénérés** : `src/types/supabase.ts` contient maintenant les 30+ tables réelles (`Database.Tables` n'est plus vide)
+- [x] **`createClient<Database>`** activé dans `src/lib/supabase.ts` : chaque appel `.from('table')` est désormais strictement typé
+- [x] **`src/lib/types/database.ts`** devient un thin re-export shim :
+  - Re-exporte `Database`, `Tables`, `TablesInsert`, `TablesUpdate`, `Enums`, `Json` depuis `@/types/supabase`
+  - Expose des aliases lisibles (`Company`, `Session`, `Invoice`, etc.) au-dessus de `Tables<'xxx'>`
+  - Plus aucun type écrit à la main
+- [x] **17 hooks migrés** — tous les hooks de features utilisent maintenant `Tables<'...'>` / `TablesInsert<'...'>` / `TablesUpdate<'...'>` directement, plus aucun cast `as unknown as T`
+- [x] **Nettoyage des colonnes fantômes** détectées par le type checker contre le schéma réel :
+  - `CompanyForm` : suppression de `sector`, `size_range`, `convention_collective` → ajout de `siren`, `naf_code`, `workforce_size`, `idcc`
+  - `ContactForm` : suppression de `mobile`, `role_in_company`, `is_signatory`, `is_billing_contact`, `is_training_manager` → ajout de `contact_type`, `is_active`
+  - `PipelinePage` : `expected_close_date` → `expected_close`
+  - Invoicing : `paid_amount` → `amount_paid` (bulk replace sur pages invoicing + portail entreprise)
+- [x] **Null-guards systématiques** sur les colonnes nullables du schéma réel :
+  - Statuts nullables utilisés comme index de `Record` : ajout de `&& status` (enrollments, funding, sessions, portails)
+  - Montants/dates nullables passés à des fonctions non-nullable : `?? 0` ou null-guard (invoicing, portail entreprise)
+  - Arrays nullables (`trainer.specialties`, `formation.objectives`) : `(x?.length ?? 0) > 0` ou `x && x.length > 0`
+  - `boolean | null` sur `profile.is_active` dans `SettingsPage`
+- [x] **`evaluations.questions` est `Json` (et non `Json[]`)** dans le schéma réel :
+  - `EvaluationDetailPage`, `EvaluationsListPage` : narrowing via `Array.isArray(evaluation.questions) ? ... : []`
+  - `LearnerEvaluationsPage` : bloc JSX enveloppé dans une IIFE pour narrowing local
+- [x] **Fixtures de tests mises à jour** pour coller aux `Row` générés :
+  - `makeCompany` : passe à `siren`/`naf_code`/`workforce_size`/`idcc`/`is_client`/`is_prospect`
+  - `makeContact` : passe à `contact_type`/`is_active`
+  - `makeInvoice` : ajout de `payment_schedule: null` (champ requis non-optionnel)
+  - `makeInvoiceLine` : ajout de `created_at`
+- [x] **Résultat : 80 tests verts, `bun run build` OK sans erreur TypeScript**
+- [x] **53 fichiers modifiés, 432 insertions, 946 suppressions** — la dette technique des types manuels est soldée
+
 ### Ce qui reste à faire
-- [ ] Appliquer les migrations SQL sur le projet Supabase distant (`npx supabase db push`) puis régénérer `src/types/supabase.ts` pour activer le générique `createClient<Database>` et remplacer progressivement les types manuels
 - [ ] Étendre la couverture de tests composants aux autres modules (formations, formateurs, bénéficiaires, inscriptions, émargement, financements)
 
 ## Décisions techniques
@@ -229,7 +256,7 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 4. **RLS sur toutes les tables** : sécurité au niveau DB, pas seulement au niveau API.
 5. **Enums PostgreSQL** : type safety côté DB, généré en TypeScript via `supabase gen types`.
 6. **Multi-tenant par organization_id** : un seul schéma DB, isolation par RLS. Scalable et simple.
-7. **Database type** : source canonique générée dans `src/types/supabase.ts` et re-exportée depuis `src/lib/types/database.ts`. Structurellement vide tant que les migrations ne sont pas appliquées sur le projet distant (voir Phase 12), donc les hooks continuent à caster via `as unknown as T` en s'appuyant sur les types manuels.
+7. **Database type** : source canonique générée dans `src/types/supabase.ts` (via `supabase gen types typescript --project-id …`) et re-exportée depuis `src/lib/types/database.ts`, qui sert désormais de thin shim au-dessus des types générés (aliases `Company`, `Session`, `Invoice`, etc. au-dessus de `Tables<'xxx'>`). Le client Supabase utilise `createClient<Database>`, les hooks utilisent `Tables<'...'>` / `TablesInsert<'...'>` / `TablesUpdate<'...'>` directement (plus aucun cast `as unknown as T`). Pour régénérer après une nouvelle migration : `npx supabase db push` puis `supabase gen types typescript --project-id … > src/types/supabase.ts`.
 8. **Mentions légales auto** : les mentions NDA et TVA sont pré-remplies depuis les infos de l'organisation.
 
 ## Points de vigilance
@@ -253,7 +280,7 @@ npm run dev              # Lancer le serveur de dev Vite (port 5173)
 npx supabase start       # Lancer Supabase local (Docker)
 npx supabase db reset    # Reset + replay migrations
 npx supabase db push     # Appliquer migrations sur instance distante
-npx supabase gen types typescript --local > src/lib/types/database.ts
+npx supabase gen types typescript --project-id mcyxxgjnkrmbbqshsykg > src/types/supabase.ts
 
 # Build
 npm run build            # TypeScript check + Vite build
@@ -279,12 +306,14 @@ tadribe/
     ├── App.tsx             # QueryClient + AuthProvider + RouterProvider
     ├── routes.tsx          # Toutes les routes (public + protected)
     ├── index.css           # Tailwind + CSS variables shadcn
+    ├── types/
+    │   └── supabase.ts     # Types générés par `supabase gen types` (source canonique)
     ├── lib/
-    │   ├── supabase.ts     # Client Supabase
+    │   ├── supabase.ts     # Client Supabase (createClient<Database>)
     │   ├── constants.ts    # Labels français pour les enums
     │   ├── utils.ts        # cn() helper
     │   ├── types/
-    │   │   └── database.ts # Types DB (placeholder, à régénérer)
+    │   │   └── database.ts # Thin shim : aliases lisibles au-dessus de @/types/supabase
     │   └── hooks/
     │       ├── use-auth.ts
     │       ├── use-role.ts
