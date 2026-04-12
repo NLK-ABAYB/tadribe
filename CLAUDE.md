@@ -245,8 +245,27 @@ CRM SaaS multi-tenant pour organismes de formation en France, conforme Qualiopi.
 - [x] **Résultat : 80 tests verts, `bun run build` OK sans erreur TypeScript**
 - [x] **53 fichiers modifiés, 432 insertions, 946 suppressions** — la dette technique des types manuels est soldée
 
+### Phase 14 : Onboarding + fix auth + couverture tests complète
+- [x] **Migration 010** : trigger `handle_new_user()` auto-création profil sur `auth.users` INSERT (organization_id NULL)
+- [x] **Migration 011** : RPC `bootstrap_organization` (SECURITY DEFINER) — création atomique organisme + liaison profil + promotion admin_of
+- [x] **Migration 012** : policy `profiles_select_self` — corrige le bug RLS `NULL = NULL` qui empêchait l'utilisateur de lire son propre profil quand organization_id est NULL
+- [x] **Page d'onboarding** (`/onboarding`) : formulaire RHF+Zod (nom, SIRET 14 chiffres, NDA optionnel, adresse), appelle `bootstrap_organization` RPC
+- [x] **Redirect staff sans org** : `AppLayout` redirige vers `/onboarding` si `profile.organization_id` est NULL
+- [x] **Guards null-org** : 11 pages avec early-return `if (!profile?.organization_id) return` + hooks élargis à `string | null | undefined`
+- [x] **Fix auth flow** : callback `onAuthStateChange` rendu synchrone (`.then()` au lieu de `async/await`) pour ne pas bloquer `signInWithPassword`
+- [x] **LoginForm redirect** : `navigate('/')` après sign-in réussi (+ restauration `from` location)
+- [x] **Console.log instrumentation** : tags `[auth]`, `[org]`, `[RequireAuth]`, `[AppLayout]`, `[LoginForm]` dans le flux d'auth
+- [x] **Tests composants étendus** à tous les modules restants :
+  - FormationsListPage (7 tests) — spinner, vide, cartes titre/code/durée/prix, badge CPF, recherche, form, aucun résultat
+  - TrainersListPage (7 tests) — spinner, vide, cartes nom/email/TJM/spécialités/interne-externe, recherche nom, recherche spécialité, form, aucun résultat
+  - BeneficiariesListPage (7 tests) — spinner, vide, table nom/email/entreprise/qualification/badges PSH+apprenti+CPF, recherche nom, recherche entreprise, form, aucun résultat
+  - EnrollmentsListPage (7 tests) — spinner, vide, table bénéficiaire/formation/session/entreprise/statut, recherche nom, recherche formation, form, aucun résultat
+  - FundingListPage (7 tests) — spinner, vide, KPIs montants agrégés, table type/bénéficiaire/formation/statut, recherche, form, aucun résultat
+  - EvaluationsListPage (7 tests) — spinner, vide, cartes titre/type/formation/questions, badge Inactif, recherche, form inline, aucun résultat
+- [x] **Résultat : 122 tests verts (17 fichiers)**, build TypeScript OK
+
 ### Ce qui reste à faire
-- [ ] Étendre la couverture de tests composants aux autres modules (formations, formateurs, bénéficiaires, inscriptions, émargement, financements)
+- (tâche tests composants complétée en Phase 14)
 
 ## Décisions techniques
 
