@@ -29,14 +29,18 @@ export function TrainersListPage() {
 
   async function handleCreate(data: Record<string, unknown>) {
     if (!profile?.organization_id) return
-    await createTrainer.mutateAsync({
-      ...data,
-      organization_id: profile.organization_id,
-      first_name: data.first_name as string,
-      last_name: data.last_name as string,
-    } as Parameters<typeof createTrainer.mutateAsync>[0])
-    toast.success('Formateur créé')
-    setShowForm(false)
+    try {
+      await createTrainer.mutateAsync({
+        ...data,
+        organization_id: profile.organization_id,
+        first_name: data.first_name as string,
+        last_name: data.last_name as string,
+      } as Parameters<typeof createTrainer.mutateAsync>[0])
+      toast.success('Formateur créé')
+      setShowForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

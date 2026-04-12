@@ -24,12 +24,16 @@ export function CompaniesListPage() {
 
   async function handleCreate(data: Record<string, unknown>) {
     if (!profile?.organization_id) return
-    await createCompany.mutateAsync({
-      ...data,
-      organization_id: profile.organization_id,
-    } as Parameters<typeof createCompany.mutateAsync>[0])
-    toast.success('Entreprise créée')
-    setShowForm(false)
+    try {
+      await createCompany.mutateAsync({
+        ...data,
+        organization_id: profile.organization_id,
+      } as Parameters<typeof createCompany.mutateAsync>[0])
+      toast.success('Entreprise créée')
+      setShowForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

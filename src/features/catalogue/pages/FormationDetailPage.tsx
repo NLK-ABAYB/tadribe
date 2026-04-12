@@ -34,16 +34,24 @@ export function FormationDetailPage() {
   }
 
   async function handleUpdate(data: Record<string, unknown>) {
-    await updateFormation.mutateAsync({ id: id!, ...data } as Parameters<typeof updateFormation.mutateAsync>[0])
-    toast.success('Formation mise à jour')
-    setEditing(false)
+    try {
+      await updateFormation.mutateAsync({ id: id!, ...data } as Parameters<typeof updateFormation.mutateAsync>[0])
+      toast.success('Formation mise à jour')
+      setEditing(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   async function handleDelete() {
     if (!confirm('Supprimer cette formation ? Cette action est irréversible.')) return
-    await deleteFormation.mutateAsync(id!)
-    toast.success('Formation supprimée')
-    navigate('/formations')
+    try {
+      await deleteFormation.mutateAsync(id!)
+      toast.success('Formation supprimée')
+      navigate('/formations')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   const fmt = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })

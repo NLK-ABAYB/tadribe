@@ -46,15 +46,19 @@ export function EvaluationsListPage() {
 
   async function handleCreate() {
     if (!profile?.organization_id || !newTitle) return
-    await createEvaluation.mutateAsync({
-      organization_id: profile.organization_id,
-      title: newTitle,
-      eval_type: newType,
-      questions: [],
-    })
-    toast.success('Évaluation créée')
-    setNewTitle('')
-    setShowForm(false)
+    try {
+      await createEvaluation.mutateAsync({
+        organization_id: profile.organization_id,
+        title: newTitle,
+        eval_type: newType,
+        questions: [],
+      })
+      toast.success('Évaluation créée')
+      setNewTitle('')
+      setShowForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

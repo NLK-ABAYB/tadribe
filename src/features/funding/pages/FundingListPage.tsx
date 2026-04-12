@@ -46,14 +46,18 @@ export function FundingListPage() {
 
   async function handleCreate(data: Record<string, unknown>) {
     if (!profile?.organization_id) return
-    await createDossier.mutateAsync({
-      ...data,
-      organization_id: profile.organization_id,
-      funding_type: data.funding_type as FundingType,
-      status: (data.status as FundingStatus) || 'brouillon',
-    } as Parameters<typeof createDossier.mutateAsync>[0])
-    toast.success('Dossier de financement créé')
-    setShowForm(false)
+    try {
+      await createDossier.mutateAsync({
+        ...data,
+        organization_id: profile.organization_id,
+        funding_type: data.funding_type as FundingType,
+        status: (data.status as FundingStatus) || 'brouillon',
+      } as Parameters<typeof createDossier.mutateAsync>[0])
+      toast.success('Dossier de financement créé')
+      setShowForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   const fmt = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })

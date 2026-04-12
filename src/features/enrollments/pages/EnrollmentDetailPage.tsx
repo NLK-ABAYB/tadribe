@@ -57,20 +57,26 @@ export function EnrollmentDetailPage() {
     try {
       await updateEnrollment.mutateAsync({ id: id!, status: newStatus })
       toast.success(`Statut mis à jour : ${INSCRIPTION_STATUSES[newStatus]}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
     } finally {
       setUpdatingStatus(false)
     }
   }
 
   async function toggleField(field: string, value: boolean) {
-    await updateEnrollment.mutateAsync({
-      id: id!,
-      [field]: value,
-      ...(field === 'positioning_done' && value ? { positioning_date: new Date().toISOString().slice(0, 10) } : {}),
-      ...(field === 'convention_signed' && value ? { convention_date: new Date().toISOString().slice(0, 10) } : {}),
-      ...(field === 'convocation_sent' && value ? { convocation_date: new Date().toISOString().slice(0, 10) } : {}),
-    } as Parameters<typeof updateEnrollment.mutateAsync>[0])
-    toast.success('Mis à jour')
+    try {
+      await updateEnrollment.mutateAsync({
+        id: id!,
+        [field]: value,
+        ...(field === 'positioning_done' && value ? { positioning_date: new Date().toISOString().slice(0, 10) } : {}),
+        ...(field === 'convention_signed' && value ? { convention_date: new Date().toISOString().slice(0, 10) } : {}),
+        ...(field === 'convocation_sent' && value ? { convocation_date: new Date().toISOString().slice(0, 10) } : {}),
+      } as Parameters<typeof updateEnrollment.mutateAsync>[0])
+      toast.success('Mis à jour')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

@@ -39,13 +39,17 @@ export function FormationsListPage() {
 
   async function handleCreate(data: Record<string, unknown>) {
     if (!profile?.organization_id) return
-    await createFormation.mutateAsync({
-      ...data,
-      organization_id: profile.organization_id,
-      title: data.title as string,
-    } as Parameters<typeof createFormation.mutateAsync>[0])
-    toast.success('Formation créée')
-    setShowForm(false)
+    try {
+      await createFormation.mutateAsync({
+        ...data,
+        organization_id: profile.organization_id,
+        title: data.title as string,
+      } as Parameters<typeof createFormation.mutateAsync>[0])
+      toast.success('Formation créée')
+      setShowForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

@@ -19,24 +19,27 @@ export function InvoiceEditPage() {
     const tvaAmount = totalHt * tvaRate / 100
     const totalTtc = totalHt + tvaAmount
 
-    await createInvoice.mutateAsync({
-      organization_id: profile.organization_id,
-      invoice_number: data.invoice_number as string,
-      invoice_type: data.invoice_type as string,
-      recipient_name: data.recipient_name as string,
-      issue_date: data.issue_date as string,
-      due_date: data.due_date as string,
-      total_ht: totalHt,
-      tva_rate: tvaRate,
-      tva_amount: tvaAmount,
-      total_ttc: totalTtc,
-      nda_mention: (data.nda_mention as string) || null,
-      tva_mention: (data.tva_mention as string) || null,
-      notes: (data.notes as string) || null,
-    } as never)
-
-    toast.success('Facture créée')
-    navigate('/factures')
+    try {
+      await createInvoice.mutateAsync({
+        organization_id: profile.organization_id,
+        invoice_number: data.invoice_number as string,
+        invoice_type: data.invoice_type as string,
+        recipient_name: data.recipient_name as string,
+        issue_date: data.issue_date as string,
+        due_date: data.due_date as string,
+        total_ht: totalHt,
+        tva_rate: tvaRate,
+        tva_amount: tvaAmount,
+        total_ttc: totalTtc,
+        nda_mention: (data.nda_mention as string) || null,
+        tva_mention: (data.tva_mention as string) || null,
+        notes: (data.notes as string) || null,
+      } as never)
+      toast.success('Facture créée')
+      navigate('/factures')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

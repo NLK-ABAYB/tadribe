@@ -57,14 +57,22 @@ export function FundingDetailPage() {
   const currentStepIndex = WORKFLOW_STEPS.findIndex((s) => s.key === dossier.status)
 
   async function handleUpdate(data: Record<string, unknown>) {
-    await updateDossier.mutateAsync({ id: id!, ...data } as Parameters<typeof updateDossier.mutateAsync>[0])
-    toast.success('Dossier mis à jour')
-    setEditing(false)
+    try {
+      await updateDossier.mutateAsync({ id: id!, ...data } as Parameters<typeof updateDossier.mutateAsync>[0])
+      toast.success('Dossier mis à jour')
+      setEditing(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   async function handleStatusChange(newStatus: FundingStatus) {
-    await updateDossier.mutateAsync({ id: id!, status: newStatus })
-    toast.success(`Statut mis à jour : ${FUNDING_STATUSES[newStatus]}`)
+    try {
+      await updateDossier.mutateAsync({ id: id!, status: newStatus })
+      toast.success(`Statut mis à jour : ${FUNDING_STATUSES[newStatus]}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

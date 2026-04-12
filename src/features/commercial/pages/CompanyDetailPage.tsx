@@ -35,20 +35,28 @@ export function CompanyDetailPage() {
   }
 
   async function handleUpdate(data: Record<string, unknown>) {
-    await updateCompany.mutateAsync({ id: company!.id, ...data } as Parameters<typeof updateCompany.mutateAsync>[0])
-    toast.success('Entreprise mise à jour')
-    setEditing(false)
+    try {
+      await updateCompany.mutateAsync({ id: company!.id, ...data } as Parameters<typeof updateCompany.mutateAsync>[0])
+      toast.success('Entreprise mise à jour')
+      setEditing(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   async function handleCreateContact(data: Record<string, unknown>) {
     if (!profile?.organization_id) return
-    await createContact.mutateAsync({
-      ...data,
-      organization_id: profile.organization_id,
-      company_id: company!.id,
-    } as Parameters<typeof createContact.mutateAsync>[0])
-    toast.success('Contact ajouté')
-    setShowContactForm(false)
+    try {
+      await createContact.mutateAsync({
+        ...data,
+        organization_id: profile.organization_id,
+        company_id: company!.id,
+      } as Parameters<typeof createContact.mutateAsync>[0])
+      toast.success('Contact ajouté')
+      setShowContactForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

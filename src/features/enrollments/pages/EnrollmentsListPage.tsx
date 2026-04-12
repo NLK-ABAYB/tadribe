@@ -42,14 +42,18 @@ export function EnrollmentsListPage() {
 
   async function handleCreate(data: Record<string, unknown>) {
     if (!profile?.organization_id) return
-    await createEnrollment.mutateAsync({
-      ...data,
-      organization_id: profile.organization_id,
-      session_id: data.session_id as string,
-      beneficiary_id: data.beneficiary_id as string,
-    } as Parameters<typeof createEnrollment.mutateAsync>[0])
-    toast.success('Inscription créée')
-    setShowForm(false)
+    try {
+      await createEnrollment.mutateAsync({
+        ...data,
+        organization_id: profile.organization_id,
+        session_id: data.session_id as string,
+        beneficiary_id: data.beneficiary_id as string,
+      } as Parameters<typeof createEnrollment.mutateAsync>[0])
+      toast.success('Inscription créée')
+      setShowForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (

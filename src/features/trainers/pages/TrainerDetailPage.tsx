@@ -33,9 +33,13 @@ export function TrainerDetailPage() {
   }
 
   async function handleUpdate(data: Record<string, unknown>) {
-    await updateTrainer.mutateAsync({ id: id!, ...data } as Parameters<typeof updateTrainer.mutateAsync>[0])
-    toast.success('Formateur mis à jour')
-    setEditing(false)
+    try {
+      await updateTrainer.mutateAsync({ id: id!, ...data } as Parameters<typeof updateTrainer.mutateAsync>[0])
+      toast.success('Formateur mis à jour')
+      setEditing(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   const fmt = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })

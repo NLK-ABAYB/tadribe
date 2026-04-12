@@ -46,8 +46,12 @@ export function InvoiceDetailPage() {
     }
     const next = nextStatus[invoice.status]
     if (!next) return
-    await updateInvoice.mutateAsync({ id: invoice.id, status: next } as never)
-    toast.success(`Statut mis à jour : ${INVOICE_STATUSES[next as keyof typeof INVOICE_STATUSES]}`)
+    try {
+      await updateInvoice.mutateAsync({ id: invoice.id, status: next } as never)
+      toast.success(`Statut mis à jour : ${INVOICE_STATUSES[next as keyof typeof INVOICE_STATUSES]}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   const amountPaid = invoice.amount_paid ?? 0

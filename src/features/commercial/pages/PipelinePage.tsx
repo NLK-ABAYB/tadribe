@@ -33,19 +33,27 @@ export function PipelinePage() {
 
   async function handleCreate() {
     if (!profile?.organization_id || !newTitle.trim()) return
-    await createOpp.mutateAsync({
-      organization_id: profile.organization_id,
-      title: newTitle.trim(),
-      stage: 'prospect',
-    })
-    toast.success('Opportunité créée')
-    setNewTitle('')
-    setShowForm(false)
+    try {
+      await createOpp.mutateAsync({
+        organization_id: profile.organization_id,
+        title: newTitle.trim(),
+        stage: 'prospect',
+      })
+      toast.success('Opportunité créée')
+      setNewTitle('')
+      setShowForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   async function handleStageChange(id: string, stage: PipelineStage) {
-    await updateOpp.mutateAsync({ id, stage })
-    toast.success(`Déplacé vers ${PIPELINE_STAGES[stage]}`)
+    try {
+      await updateOpp.mutateAsync({ id, stage })
+      toast.success(`Déplacé vers ${PIPELINE_STAGES[stage]}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   const byStage = ACTIVE_STAGES.reduce<Record<string, typeof opportunities>>((acc, stage) => {

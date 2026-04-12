@@ -37,9 +37,13 @@ export function BeneficiaryDetailPage() {
   }
 
   async function handleUpdate(data: Record<string, unknown>) {
-    await updateBeneficiary.mutateAsync({ id: id!, ...data } as Parameters<typeof updateBeneficiary.mutateAsync>[0])
-    toast.success('Bénéficiaire mis à jour')
-    setEditing(false)
+    try {
+      await updateBeneficiary.mutateAsync({ id: id!, ...data } as Parameters<typeof updateBeneficiary.mutateAsync>[0])
+      toast.success('Bénéficiaire mis à jour')
+      setEditing(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
   }
 
   return (
