@@ -54,7 +54,7 @@ export function RequireAuth({ children, allowedRoles }: RequireAuthProps) {
       role: profile.role,
       allowedRoles,
     })
-    return <Navigate to="/" replace />
+    return <Navigate to="/dashboard" replace />
   }
 
   return <>{children}</>

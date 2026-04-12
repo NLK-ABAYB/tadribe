@@ -121,8 +121,8 @@ describe('BeneficiariesListPage', () => {
     renderPage()
 
     // Names (displayed as links)
-    expect(screen.getByRole('link', { name: /durand alice/i })).toHaveAttribute('href', '/beneficiaires/ben-1')
-    expect(screen.getByRole('link', { name: /leroy bob/i })).toHaveAttribute('href', '/beneficiaires/ben-2')
+    expect(screen.getByRole('link', { name: /durand alice/i })).toHaveAttribute('href', '/dashboard/beneficiaires/ben-1')
+    expect(screen.getByRole('link', { name: /leroy bob/i })).toHaveAttribute('href', '/dashboard/beneficiaires/ben-2')
 
     // Companies
     expect(screen.getByText('ACME')).toBeInTheDocument()

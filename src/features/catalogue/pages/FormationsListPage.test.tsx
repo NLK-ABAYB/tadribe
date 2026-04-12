@@ -132,8 +132,8 @@ describe('FormationsListPage', () => {
     // Links to detail pages
     const links = screen.getAllByRole('link')
     const hrefs = links.map((a) => a.getAttribute('href'))
-    expect(hrefs).toContain('/formations/form-1')
-    expect(hrefs).toContain('/formations/form-2')
+    expect(hrefs).toContain('/dashboard/formations/form-1')
+    expect(hrefs).toContain('/dashboard/formations/form-2')
   })
 
   it('shows CPF badge when eligible', () => {

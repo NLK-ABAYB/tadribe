@@ -46,7 +46,7 @@ export function TrainerDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Formateurs', href: '/formateurs' }, { label: trainer.first_name + ' ' + trainer.last_name }]} />
+      <Breadcrumb items={[{ label: 'Formateurs', href: '/dashboard/formateurs' }, { label: trainer.first_name + ' ' + trainer.last_name }]} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
@@ -188,7 +188,7 @@ export function TrainerDetailPage() {
             <CardTitle className="text-base">Liens rapides</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            <Link to={`/sessions?trainer=${trainer.id}`}>
+            <Link to={`/dashboard/sessions?trainer=${trainer.id}`}>
               <Button variant="outline" size="sm">Sessions</Button>
             </Link>
           </CardContent>

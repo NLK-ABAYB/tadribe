@@ -32,12 +32,12 @@ export function LoginForm() {
     setError(null)
     try {
       await signInWithEmail(data.email, data.password)
-      // Send the user to where they were trying to go (or `/`); RequireAuth
-      // and AppLayout will then route them to /onboarding if they have no
-      // organization yet.
+      // Send the user to where they were trying to go (or `/dashboard`);
+      // RequireAuth and AppLayout will then route them to /onboarding if
+      // they have no organization yet.
       const from = (location.state as { from?: { pathname: string } } | null)
         ?.from?.pathname
-      const target = from && from !== '/login' ? from : '/'
+      const target = from && from !== '/login' ? from : '/dashboard'
       console.log('[LoginForm] sign-in success → navigate to', target)
       navigate(target, { replace: true })
     } catch (err) {

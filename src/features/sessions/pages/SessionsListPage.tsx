@@ -79,7 +79,7 @@ export function SessionsListPage() {
                 <tr key={session.id} className="border-b last:border-0 hover:bg-muted/30">
                   <td className="px-4 py-3">
                     <Link
-                      to={`/sessions/${session.id}`}
+                      to={`/dashboard/sessions/${session.id}`}
                       className="text-sm font-medium text-primary hover:underline"
                     >
                       {session.formations?.title ?? '—'}

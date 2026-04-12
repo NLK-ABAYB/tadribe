@@ -115,11 +115,11 @@ describe('SessionsListPage', () => {
 
     expect(screen.getByRole('link', { name: 'Qualiopi Essentials' })).toHaveAttribute(
       'href',
-      '/sessions/sess-1',
+      '/dashboard/sessions/sess-1',
     )
     expect(screen.getByRole('link', { name: 'RGPD Formations' })).toHaveAttribute(
       'href',
-      '/sessions/sess-2',
+      '/dashboard/sessions/sess-2',
     )
     expect(screen.getByText('Jean Martin')).toBeInTheDocument()
     expect(screen.getByText('Marie Dupont')).toBeInTheDocument()

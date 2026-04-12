@@ -101,11 +101,11 @@ describe('InvoicesListPage', () => {
 
     expect(screen.getByRole('link', { name: 'FA-2026-001' })).toHaveAttribute(
       'href',
-      '/factures/inv-1',
+      '/dashboard/factures/inv-1',
     )
     expect(screen.getByRole('link', { name: 'FA-2026-002' })).toHaveAttribute(
       'href',
-      '/factures/inv-2',
+      '/dashboard/factures/inv-2',
     )
     expect(screen.getByText('ACME')).toBeInTheDocument()
     expect(screen.getByText('Beta SAS')).toBeInTheDocument()

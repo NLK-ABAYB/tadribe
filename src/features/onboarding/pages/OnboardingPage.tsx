@@ -73,7 +73,7 @@ export function OnboardingPage() {
 
   // Already onboarded → straight to dashboard
   if (profile.organization_id) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/dashboard" replace />
   }
 
   async function onSubmit(data: OnboardingFormData) {
@@ -96,7 +96,7 @@ export function OnboardingPage() {
       // Full reload so AuthProvider refetches the profile (which now has
       // organization_id set) and the organization. Keeps the flow simple
       // and avoids a partial in-memory state.
-      window.location.assign('/')
+      window.location.assign('/dashboard')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Une erreur est survenue'
       setServerError(message)

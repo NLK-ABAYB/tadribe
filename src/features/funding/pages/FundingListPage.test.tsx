@@ -134,8 +134,8 @@ describe('FundingListPage', () => {
     renderPage()
 
     // Funding type as link
-    expect(screen.getByRole('link', { name: /opco plan/i })).toHaveAttribute('href', '/financements/fund-1')
-    expect(screen.getByRole('link', { name: /cpf/i })).toHaveAttribute('href', '/financements/fund-2')
+    expect(screen.getByRole('link', { name: /opco plan/i })).toHaveAttribute('href', '/dashboard/financements/fund-1')
+    expect(screen.getByRole('link', { name: /cpf/i })).toHaveAttribute('href', '/dashboard/financements/fund-2')
 
     // Funder references
     expect(screen.getByText('REF-001')).toBeInTheDocument()

@@ -62,7 +62,7 @@ export function CompanyDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Entreprises', href: '/entreprises' }, { label: company.name }]} />
+      <Breadcrumb items={[{ label: 'Entreprises', href: '/dashboard/entreprises' }, { label: company.name }]} />
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">{company.name}</h1>
@@ -187,13 +187,13 @@ export function CompanyDetailPage() {
             <CardTitle className="text-base">Liens rapides</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            <Link to={`/inscriptions?company=${company.id}`}>
+            <Link to={`/dashboard/inscriptions?company=${company.id}`}>
               <Button variant="outline" size="sm">Inscriptions</Button>
             </Link>
-            <Link to={`/factures?company=${company.id}`}>
+            <Link to={`/dashboard/factures?company=${company.id}`}>
               <Button variant="outline" size="sm">Factures</Button>
             </Link>
-            <Link to={`/financements?company=${company.id}`}>
+            <Link to={`/dashboard/financements?company=${company.id}`}>
               <Button variant="outline" size="sm">Financements</Button>
             </Link>
           </CardContent>

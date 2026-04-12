@@ -49,7 +49,7 @@ export function FormationDetailPage() {
     try {
       await deleteFormation.mutateAsync(id!)
       toast.success('Formation supprimée')
-      navigate('/formations')
+      navigate('/dashboard/formations')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
     }
@@ -59,7 +59,7 @@ export function FormationDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Formations', href: '/formations' }, { label: formation.title }]} />
+      <Breadcrumb items={[{ label: 'Formations', href: '/dashboard/formations' }, { label: formation.title }]} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
@@ -234,7 +234,7 @@ export function FormationDetailPage() {
             <CardTitle className="text-base">Liens rapides</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            <Link to={`/sessions?formation=${formation.id}`}>
+            <Link to={`/dashboard/sessions?formation=${formation.id}`}>
               <Button variant="outline" size="sm">Sessions associées</Button>
             </Link>
           </CardContent>

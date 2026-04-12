@@ -77,21 +77,21 @@ export function DashboardPage() {
               value={formatEuros(stats.invoices.caMoisEnCours)}
               description={`${formatEuros(stats.invoices.montantPaye)} total encaissé`}
               icon={TrendingUp}
-              href="/factures"
+              href="/dashboard/factures"
             />
             <StatCard
               title="Sessions cette semaine"
               value={String(stats.sessions.cetteSemaine)}
               description={`${stats.sessions.enCours} en cours`}
               icon={CalendarDays}
-              href="/sessions"
+              href="/dashboard/sessions"
             />
             <StatCard
               title="Factures impayées"
               value={stats.invoices.enAttente > 0 ? formatEuros(stats.invoices.montantDu) : '0 €'}
               description={`${stats.invoices.enAttente} facture(s)${stats.invoices.facturesEnRetard > 0 ? ` · ${stats.invoices.facturesEnRetard} en retard` : ''}`}
               icon={FileText}
-              href="/factures"
+              href="/dashboard/factures"
               alert={stats.invoices.facturesEnRetard > 0}
             />
             <StatCard
@@ -99,7 +99,7 @@ export function DashboardPage() {
               value={String(stats.enrollments.enFormation)}
               description={`${stats.enrollments.termines} terminés`}
               icon={GraduationCap}
-              href="/beneficiaires"
+              href="/dashboard/beneficiaires"
             />
           </div>
 
@@ -110,28 +110,28 @@ export function DashboardPage() {
               value={String(stats.companies.active)}
               description={`${stats.companies.total} au total`}
               icon={Building2}
-              href="/entreprises"
+              href="/dashboard/entreprises"
             />
             <StatCard
               title="Formations"
               value={String(stats.formations.active)}
               description={`${stats.formations.total} au catalogue`}
               icon={BookOpen}
-              href="/formations"
+              href="/dashboard/formations"
             />
             <StatCard
               title="Formateurs"
               value={String(stats.trainers.total)}
               description="Inscrits"
               icon={UserCheck}
-              href="/formateurs"
+              href="/dashboard/formateurs"
             />
             <StatCard
               title="Financements"
               value={stats.funding.totalGranted > 0 ? formatEuros(stats.funding.totalGranted) : '0 €'}
               description={`${stats.funding.enInstruction} en instruction`}
               icon={Wallet}
-              href="/financements"
+              href="/dashboard/financements"
             />
           </div>
 
@@ -216,14 +216,14 @@ export function DashboardPage() {
             value={String(stats.sessions.enCours)}
             description="En cours"
             icon={CalendarDays}
-            href="/sessions"
+            href="/dashboard/sessions"
           />
           <StatCard
             title="Apprenants"
             value={String(stats.enrollments.enFormation)}
             description="En formation"
             icon={GraduationCap}
-            href="/beneficiaires"
+            href="/dashboard/beneficiaires"
           />
         </div>
       )}

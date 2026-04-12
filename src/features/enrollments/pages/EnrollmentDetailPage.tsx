@@ -81,7 +81,7 @@ export function EnrollmentDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Inscriptions', href: '/inscriptions' }, { label: 'Inscription #' + (enrollment.id?.slice(0, 8) ?? '') }]} />
+      <Breadcrumb items={[{ label: 'Inscriptions', href: '/dashboard/inscriptions' }, { label: 'Inscription #' + (enrollment.id?.slice(0, 8) ?? '') }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -188,7 +188,7 @@ export function EnrollmentDetailPage() {
               <p className="text-xs font-medium text-muted-foreground uppercase">Nom</p>
               <p className="text-sm">
                 {enrollment.beneficiaries
-                  ? <Link to={`/beneficiaires/${enrollment.beneficiary_id}`} className="text-primary hover:underline">
+                  ? <Link to={`/dashboard/beneficiaires/${enrollment.beneficiary_id}`} className="text-primary hover:underline">
                       {enrollment.beneficiaries.first_name} {enrollment.beneficiaries.last_name}
                     </Link>
                   : '—'}
@@ -293,17 +293,17 @@ export function EnrollmentDetailPage() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           {enrollment.session_id && (
-            <Link to={`/sessions/${enrollment.session_id}`}>
+            <Link to={`/dashboard/sessions/${enrollment.session_id}`}>
               <Button variant="outline" size="sm">Voir la session</Button>
             </Link>
           )}
           {enrollment.beneficiary_id && (
-            <Link to={`/beneficiaires/${enrollment.beneficiary_id}`}>
+            <Link to={`/dashboard/beneficiaires/${enrollment.beneficiary_id}`}>
               <Button variant="outline" size="sm">Fiche bénéficiaire</Button>
             </Link>
           )}
           {enrollment.company_id && (
-            <Link to={`/entreprises/${enrollment.company_id}`}>
+            <Link to={`/dashboard/entreprises/${enrollment.company_id}`}>
               <Button variant="outline" size="sm">Entreprise</Button>
             </Link>
           )}

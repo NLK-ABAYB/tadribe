@@ -123,8 +123,8 @@ describe('EnrollmentsListPage', () => {
     renderPage()
 
     // Beneficiary names as links
-    expect(screen.getByRole('link', { name: /durand alice/i })).toHaveAttribute('href', '/inscriptions/enr-1')
-    expect(screen.getByRole('link', { name: /leroy bob/i })).toHaveAttribute('href', '/inscriptions/enr-2')
+    expect(screen.getByRole('link', { name: /durand alice/i })).toHaveAttribute('href', '/dashboard/inscriptions/enr-1')
+    expect(screen.getByRole('link', { name: /leroy bob/i })).toHaveAttribute('href', '/dashboard/inscriptions/enr-2')
 
     // Formation titles
     expect(screen.getByText('Qualiopi Essentials')).toBeInTheDocument()

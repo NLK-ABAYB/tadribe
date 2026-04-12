@@ -26,12 +26,12 @@ export function SessionDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Sessions', href: '/sessions' }, { label: session.formations?.title ?? session.code ?? 'Session' }]} />
+      <Breadcrumb items={[{ label: 'Sessions', href: '/dashboard/sessions' }, { label: session.formations?.title ?? session.code ?? 'Session' }]} />
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">
             {session.formation_id ? (
-              <Link to={`/formations/${session.formation_id}`} className="hover:underline">{session.formations?.title ?? 'Session'}</Link>
+              <Link to={`/dashboard/formations/${session.formation_id}`} className="hover:underline">{session.formations?.title ?? 'Session'}</Link>
             ) : (
               session.formations?.title ?? 'Session'
             )}
@@ -41,7 +41,7 @@ export function SessionDetailPage() {
             {session.status && <Badge>{SESSION_STATUSES[session.status]}</Badge>}
           </div>
         </div>
-        <Link to={`/sessions/${id}/emargement`}>
+        <Link to={`/dashboard/sessions/${id}/emargement`}>
           <Button variant="outline" size="sm">
             <ClipboardCheck className="mr-2 h-4 w-4" />
             Émargement
@@ -123,7 +123,7 @@ export function SessionDetailPage() {
           <CardContent className="text-sm">
             {session.trainers ? (
               <div>
-                <Link to={`/formateurs/${session.trainer_id}`} className="font-medium text-primary hover:underline">
+                <Link to={`/dashboard/formateurs/${session.trainer_id}`} className="font-medium text-primary hover:underline">
                   {session.trainers.first_name} {session.trainers.last_name}
                 </Link>
                 {session.trainers.email && (
@@ -165,13 +165,13 @@ export function SessionDetailPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            <Link to={`/inscriptions?session=${session.id}`}>
+            <Link to={`/dashboard/inscriptions?session=${session.id}`}>
               <Button variant="outline" size="sm">
                 <ClipboardList className="mr-2 h-4 w-4" />
                 Voir les inscriptions
               </Button>
             </Link>
-            <Link to={`/factures?session=${session.id}`}>
+            <Link to={`/dashboard/factures?session=${session.id}`}>
               <Button variant="outline" size="sm">
                 <FileText className="mr-2 h-4 w-4" />
                 Factures liées

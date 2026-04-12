@@ -41,7 +41,7 @@ export function InvoicesListPage() {
             Gestion de la facturation et du suivi des paiements
           </p>
         </div>
-        <Link to="/factures/new">
+        <Link to="/dashboard/factures/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Nouvelle facture
@@ -90,7 +90,7 @@ export function InvoicesListPage() {
                 <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/30">
                   <td className="px-4 py-3">
                     <Link
-                      to={`/factures/${inv.id}`}
+                      to={`/dashboard/factures/${inv.id}`}
                       className="text-sm font-medium text-primary hover:underline"
                     >
                       {inv.invoice_number}

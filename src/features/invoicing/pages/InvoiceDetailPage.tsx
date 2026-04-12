@@ -60,7 +60,7 @@ export function InvoiceDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Factures', href: '/factures' }, { label: invoice.invoice_number }]} />
+      <Breadcrumb items={[{ label: 'Factures', href: '/dashboard/factures' }, { label: invoice.invoice_number }]} />
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -205,17 +205,17 @@ export function InvoiceDetailPage() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           {invoice.company_id && (
-            <Link to={`/entreprises/${invoice.company_id}`}>
+            <Link to={`/dashboard/entreprises/${invoice.company_id}`}>
               <Button variant="outline" size="sm">Entreprise</Button>
             </Link>
           )}
           {invoice.session_id && (
-            <Link to={`/sessions/${invoice.session_id}`}>
+            <Link to={`/dashboard/sessions/${invoice.session_id}`}>
               <Button variant="outline" size="sm">Session</Button>
             </Link>
           )}
           {invoice.funding_dossier_id && (
-            <Link to={`/financements/${invoice.funding_dossier_id}`}>
+            <Link to={`/dashboard/financements/${invoice.funding_dossier_id}`}>
               <Button variant="outline" size="sm">Dossier financement</Button>
             </Link>
           )}

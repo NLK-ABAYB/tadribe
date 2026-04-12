@@ -13,7 +13,7 @@ interface BreadcrumbProps {
 export function Breadcrumb({ items }: BreadcrumbProps) {
   return (
     <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
-      <Link to="/" className="hover:text-foreground transition-colors">
+      <Link to="/dashboard" className="hover:text-foreground transition-colors">
         <Home className="h-4 w-4" />
       </Link>
       {items.map((item, index) => (

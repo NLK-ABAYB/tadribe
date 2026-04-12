@@ -149,7 +149,7 @@ export function EvaluationsListPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((evaluation) => (
-            <Link key={evaluation.id} to={`/evaluations/${evaluation.id}`}>
+            <Link key={evaluation.id} to={`/dashboard/evaluations/${evaluation.id}`}>
               <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-2">

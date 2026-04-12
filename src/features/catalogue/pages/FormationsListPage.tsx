@@ -121,7 +121,7 @@ export function FormationsListPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((formation) => (
-            <Link key={formation.id} to={`/formations/${formation.id}`}>
+            <Link key={formation.id} to={`/dashboard/formations/${formation.id}`}>
               <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-2">

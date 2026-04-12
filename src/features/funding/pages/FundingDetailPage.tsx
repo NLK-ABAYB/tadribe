@@ -77,7 +77,7 @@ export function FundingDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Financements', href: '/financements' }, { label: 'Dossier #' + (dossier.id?.slice(0, 8) ?? '') }]} />
+      <Breadcrumb items={[{ label: 'Financements', href: '/dashboard/financements' }, { label: 'Dossier #' + (dossier.id?.slice(0, 8) ?? '') }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -282,17 +282,17 @@ export function FundingDetailPage() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           {dossier.enrollment_id && (
-            <Link to={`/inscriptions/${dossier.enrollment_id}`}>
+            <Link to={`/dashboard/inscriptions/${dossier.enrollment_id}`}>
               <Button variant="outline" size="sm">Inscription</Button>
             </Link>
           )}
           {dossier.beneficiary_id && (
-            <Link to={`/beneficiaires/${dossier.beneficiary_id}`}>
+            <Link to={`/dashboard/beneficiaires/${dossier.beneficiary_id}`}>
               <Button variant="outline" size="sm">Bénéficiaire</Button>
             </Link>
           )}
           {dossier.company_id && (
-            <Link to={`/entreprises/${dossier.company_id}`}>
+            <Link to={`/dashboard/entreprises/${dossier.company_id}`}>
               <Button variant="outline" size="sm">Entreprise</Button>
             </Link>
           )}

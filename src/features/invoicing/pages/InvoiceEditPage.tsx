@@ -37,7 +37,7 @@ export function InvoiceEditPage() {
         notes: (data.notes as string) || null,
       } as never)
       toast.success('Facture créée')
-      navigate('/factures')
+      navigate('/dashboard/factures')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
     }
@@ -45,7 +45,7 @@ export function InvoiceEditPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Factures', href: '/factures' }, { label: 'Nouvelle facture' }]} />
+      <Breadcrumb items={[{ label: 'Factures', href: '/dashboard/factures' }, { label: 'Nouvelle facture' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Nouvelle facture</h1>
         <p className="text-muted-foreground">

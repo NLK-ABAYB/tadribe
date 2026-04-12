@@ -18,6 +18,9 @@ function lazyNamed<T extends string>(
   )
 }
 
+// Landing page (public, smart redirect)
+const LandingOrDashboard = lazyNamed(() => import('@/features/landing/components/LandingOrDashboard'), 'LandingOrDashboard')
+
 // Auth pages (public)
 const LoginPage = lazyNamed(() => import('@/features/auth/pages/LoginPage'), 'LoginPage')
 const RegisterPage = lazyNamed(() => import('@/features/auth/pages/RegisterPage'), 'RegisterPage')
@@ -113,6 +116,9 @@ function publicElement(Component: React.ComponentType) {
 }
 
 export const router = createBrowserRouter([
+  // Public: landing page (redirects to /dashboard if authenticated)
+  { path: '/', element: publicElement(LandingOrDashboard) },
+
   // Public routes
   { path: '/login', element: publicElement(LoginPage) },
   { path: '/register', element: publicElement(RegisterPage) },
@@ -130,9 +136,9 @@ export const router = createBrowserRouter([
     ),
   },
 
-  // Protected routes
+  // Protected routes (staff workspace)
   {
-    path: '/',
+    path: '/dashboard',
     element: (
       <RequireAuth>
         <AppLayout />
@@ -257,7 +263,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Catch all
+  // Catch all — send to landing
   { path: '*', element: <Navigate to="/" replace /> },
 ])
 

@@ -48,7 +48,7 @@ export function BeneficiaryDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Bénéficiaires', href: '/beneficiaires' }, { label: beneficiary.last_name + ' ' + beneficiary.first_name }]} />
+      <Breadcrumb items={[{ label: 'Bénéficiaires', href: '/dashboard/beneficiaires' }, { label: beneficiary.last_name + ' ' + beneficiary.first_name }]} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
@@ -247,10 +247,10 @@ export function BeneficiaryDetailPage() {
             <CardTitle className="text-base">Liens rapides</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            <Link to={`/inscriptions?beneficiary=${beneficiary.id}`}>
+            <Link to={`/dashboard/inscriptions?beneficiary=${beneficiary.id}`}>
               <Button variant="outline" size="sm">Inscriptions</Button>
             </Link>
-            <Link to={`/financements?beneficiary=${beneficiary.id}`}>
+            <Link to={`/dashboard/financements?beneficiary=${beneficiary.id}`}>
               <Button variant="outline" size="sm">Financements</Button>
             </Link>
           </CardContent>

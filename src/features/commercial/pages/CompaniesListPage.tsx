@@ -92,7 +92,7 @@ export function CompaniesListPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((company) => (
-            <Link key={company.id} to={`/entreprises/${company.id}`}>
+            <Link key={company.id} to={`/dashboard/entreprises/${company.id}`}>
               <Card className="hover:border-primary/50 transition-colors cursor-pointer">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base">{company.name}</CardTitle>

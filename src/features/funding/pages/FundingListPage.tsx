@@ -183,7 +183,7 @@ export function FundingListPage() {
               {filtered.map((d) => (
                 <tr key={d.id} className="border-b last:border-0 hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <Link to={`/financements/${d.id}`} className="text-sm font-medium text-primary hover:underline">
+                    <Link to={`/dashboard/financements/${d.id}`} className="text-sm font-medium text-primary hover:underline">
                       {FUNDING_TYPES[d.funding_type]}
                     </Link>
                     {d.funder_reference && (

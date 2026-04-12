@@ -38,7 +38,7 @@ export function EvaluationDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Évaluations', href: '/evaluations' }, { label: evaluation.title }]} />
+      <Breadcrumb items={[{ label: 'Évaluations', href: '/dashboard/evaluations' }, { label: evaluation.title }]} />
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <h1 className="text-2xl font-bold tracking-tight">{evaluation.title}</h1>
@@ -172,7 +172,7 @@ export function EvaluationDetailPage() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           {evaluation.session_id && (
-            <Link to={`/sessions/${evaluation.session_id}`}>
+            <Link to={`/dashboard/sessions/${evaluation.session_id}`}>
               <Button variant="outline" size="sm">Session associée</Button>
             </Link>
           )}

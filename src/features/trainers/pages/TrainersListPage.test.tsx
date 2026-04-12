@@ -121,8 +121,8 @@ describe('TrainersListPage', () => {
     // Links to detail pages
     const links = screen.getAllByRole('link')
     const hrefs = links.map((a) => a.getAttribute('href'))
-    expect(hrefs).toContain('/formateurs/tr-1')
-    expect(hrefs).toContain('/formateurs/tr-2')
+    expect(hrefs).toContain('/dashboard/formateurs/tr-1')
+    expect(hrefs).toContain('/dashboard/formateurs/tr-2')
   })
 
   it('filters trainers by name', async () => {

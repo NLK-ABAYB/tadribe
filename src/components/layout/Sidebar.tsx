@@ -38,14 +38,14 @@ function getNavSections(isStaff: boolean, isFormateur: boolean): NavSection[] {
     return [
       {
         items: [
-          { label: 'Tableau de bord', href: '/', icon: LayoutDashboard },
+          { label: 'Tableau de bord', href: '/dashboard', icon: LayoutDashboard },
         ],
       },
       {
         title: 'Mes formations',
         items: [
-          { label: 'Sessions', href: '/sessions', icon: CalendarDays },
-          { label: 'Apprenants', href: '/beneficiaires', icon: GraduationCap },
+          { label: 'Sessions', href: '/dashboard/sessions', icon: CalendarDays },
+          { label: 'Apprenants', href: '/dashboard/beneficiaires', icon: GraduationCap },
         ],
       },
     ]
@@ -56,48 +56,48 @@ function getNavSections(isStaff: boolean, isFormateur: boolean): NavSection[] {
   return [
     {
       items: [
-        { label: 'Tableau de bord', href: '/', icon: LayoutDashboard },
+        { label: 'Tableau de bord', href: '/dashboard', icon: LayoutDashboard },
       ],
     },
     {
       title: 'Commercial',
       items: [
-        { label: 'Entreprises', href: '/entreprises', icon: Building2 },
-        { label: 'Contacts', href: '/contacts', icon: Users },
-        { label: 'Pipeline', href: '/pipeline', icon: Target },
+        { label: 'Entreprises', href: '/dashboard/entreprises', icon: Building2 },
+        { label: 'Contacts', href: '/dashboard/contacts', icon: Users },
+        { label: 'Pipeline', href: '/dashboard/pipeline', icon: Target },
       ],
     },
     {
       title: 'Formation',
       items: [
-        { label: 'Catalogue', href: '/formations', icon: BookOpen },
-        { label: 'Sessions', href: '/sessions', icon: CalendarDays },
-        { label: 'Formateurs', href: '/formateurs', icon: UserCheck },
-        { label: 'Bénéficiaires', href: '/beneficiaires', icon: GraduationCap },
-        { label: 'Inscriptions', href: '/inscriptions', icon: ClipboardList },
+        { label: 'Catalogue', href: '/dashboard/formations', icon: BookOpen },
+        { label: 'Sessions', href: '/dashboard/sessions', icon: CalendarDays },
+        { label: 'Formateurs', href: '/dashboard/formateurs', icon: UserCheck },
+        { label: 'Bénéficiaires', href: '/dashboard/beneficiaires', icon: GraduationCap },
+        { label: 'Inscriptions', href: '/dashboard/inscriptions', icon: ClipboardList },
       ],
     },
     {
       title: 'Facturation',
       items: [
-        { label: 'Factures', href: '/factures', icon: FileText },
-        { label: 'Financements', href: '/financements', icon: Wallet },
-        { label: 'Conventions', href: '/conventions', icon: PenLine },
-        { label: 'Certificats', href: '/certificats', icon: Award },
+        { label: 'Factures', href: '/dashboard/factures', icon: FileText },
+        { label: 'Financements', href: '/dashboard/financements', icon: Wallet },
+        { label: 'Conventions', href: '/dashboard/conventions', icon: PenLine },
+        { label: 'Certificats', href: '/dashboard/certificats', icon: Award },
       ],
     },
     {
       title: 'Qualité',
       items: [
-        { label: 'Évaluations', href: '/evaluations', icon: Star },
-        { label: 'Qualiopi', href: '/qualiopi', icon: Shield },
-        { label: 'Veille', href: '/veille', icon: Eye },
+        { label: 'Évaluations', href: '/dashboard/evaluations', icon: Star },
+        { label: 'Qualiopi', href: '/dashboard/qualiopi', icon: Shield },
+        { label: 'Veille', href: '/dashboard/veille', icon: Eye },
       ],
     },
     {
       title: 'Paramètres',
       items: [
-        { label: 'Paramètres', href: '/parametres', icon: Settings },
+        { label: 'Paramètres', href: '/dashboard/parametres', icon: Settings },
       ],
     },
   ]
@@ -109,18 +109,18 @@ export function Sidebar() {
   const sections = getNavSections(role.isStaff, role.isFormateur)
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r bg-sidebar">
+    <aside className="flex h-screen w-64 flex-col bg-sidebar text-sidebar-foreground">
       {/* Logo / Org name */}
-      <div className="flex h-16 items-center gap-2 border-b px-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
+      <div className="flex h-16 items-center gap-3 border-b border-white/10 px-4">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-white text-sm font-bold shadow-sm">
           T
         </div>
         <div className="flex flex-col overflow-hidden">
-          <span className="truncate text-sm font-semibold text-sidebar-foreground">
+          <span className="truncate text-sm font-semibold">
             {organization?.name ?? 'Tadribe'}
           </span>
           {organization?.nda && (
-            <span className="truncate text-xs text-muted-foreground">
+            <span className="truncate text-xs text-white/50">
               NDA: {organization.nda}
             </span>
           )}
@@ -133,26 +133,26 @@ export function Sidebar() {
           <div key={sectionIndex}>
             {section.title && (
               <>
-                {sectionIndex > 0 && <Separator className="my-2" />}
-                <p className="mb-1 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {sectionIndex > 0 && <Separator className="my-3 bg-white/10" />}
+                <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-widest text-white/40">
                   {section.title}
                 </p>
               </>
             )}
             {section.items.map((item) => {
               const isActive =
-                item.href === '/'
-                  ? location.pathname === '/'
+                item.href === '/dashboard'
+                  ? location.pathname === '/dashboard'
                   : location.pathname.startsWith(item.href)
               return (
                 <Link
                   key={item.href}
                   to={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
                     isActive
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                      ? 'bg-sidebar-accent text-white font-medium'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white'
                   )}
                 >
                   <item.icon className="h-4 w-4 shrink-0" />

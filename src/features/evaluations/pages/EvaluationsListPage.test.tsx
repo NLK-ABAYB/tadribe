@@ -113,8 +113,8 @@ describe('EvaluationsListPage', () => {
     // Links to detail pages
     const links = screen.getAllByRole('link')
     const hrefs = links.map((a) => a.getAttribute('href'))
-    expect(hrefs).toContain('/evaluations/eval-1')
-    expect(hrefs).toContain('/evaluations/eval-2')
+    expect(hrefs).toContain('/dashboard/evaluations/eval-1')
+    expect(hrefs).toContain('/dashboard/evaluations/eval-2')
   })
 
   it('shows Inactif badge for inactive evaluations', () => {

@@ -115,7 +115,7 @@ export function BeneficiariesListPage() {
                 <tr key={b.id} className="border-b last:border-0 hover:bg-muted/30">
                   <td className="px-4 py-3">
                     <Link
-                      to={`/beneficiaires/${b.id}`}
+                      to={`/dashboard/beneficiaires/${b.id}`}
                       className="text-sm font-medium text-primary hover:underline"
                     >
                       {b.last_name} {b.first_name}

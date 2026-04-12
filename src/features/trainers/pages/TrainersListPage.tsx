@@ -100,7 +100,7 @@ export function TrainersListPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((trainer) => (
-            <Link key={trainer.id} to={`/formateurs/${trainer.id}`}>
+            <Link key={trainer.id} to={`/dashboard/formateurs/${trainer.id}`}>
               <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">

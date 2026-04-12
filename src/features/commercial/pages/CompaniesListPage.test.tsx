@@ -109,8 +109,8 @@ describe('CompaniesListPage', () => {
     // Cards are links to the detail page
     const links = screen.getAllByRole('link')
     const hrefs = links.map((a) => a.getAttribute('href'))
-    expect(hrefs).toContain('/entreprises/co-1')
-    expect(hrefs).toContain('/entreprises/co-2')
+    expect(hrefs).toContain('/dashboard/entreprises/co-1')
+    expect(hrefs).toContain('/dashboard/entreprises/co-2')
   })
 
   it('filters the list as the user types a search term', async () => {
