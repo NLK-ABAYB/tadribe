@@ -11,6 +11,7 @@ import { useEnrollments, useCreateEnrollment } from '../hooks/use-enrollments'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { EnrollmentForm } from '../components/EnrollmentForm'
 import type { InscriptionStatus } from '@/lib/types/database'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 const STATUS_VARIANT: Record<InscriptionStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'outline'> = {
   pre_inscrit: 'secondary',
@@ -58,6 +59,7 @@ export function EnrollmentsListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Inscriptions' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Inscriptions</h1>

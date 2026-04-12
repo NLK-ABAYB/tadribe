@@ -1,5 +1,6 @@
 import { Navigate, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Loader2 } from 'lucide-react'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { useDashboardStats } from '../hooks/use-dashboard-stats'
@@ -12,7 +13,13 @@ import {
   UserCheck,
   Wallet,
   TrendingUp,
+  AlertTriangle,
+  Clock,
 } from 'lucide-react'
+
+function formatEuros(value: number): string {
+  return value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €'
+}
 
 export function DashboardPage() {
   const { profile, organization, role } = useAuthContext()
@@ -41,21 +48,51 @@ export function DashboardPage() {
 
       {role.isStaff && stats && (
         <>
+          {/* Alerts */}
+          {stats.alertes.length > 0 && (
+            <Card className="border-orange-200 bg-orange-50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2 text-orange-800">
+                  <AlertTriangle className="h-4 w-4" />
+                  Alertes ({stats.alertes.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-1">
+                  {stats.alertes.map((alerte, i) => (
+                    <li key={i} className="text-sm text-orange-700 flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shrink-0" />
+                      {alerte}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Primary KPIs */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
-              title="Entreprises"
-              value={String(stats.companies.active)}
-              description={`${stats.companies.total} au total`}
-              icon={Building2}
-              href="/entreprises"
+              title="CA mois en cours"
+              value={formatEuros(stats.invoices.caMoisEnCours)}
+              description={`${formatEuros(stats.invoices.montantPaye)} total encaissé`}
+              icon={TrendingUp}
+              href="/factures"
             />
             <StatCard
-              title="Sessions en cours"
-              value={String(stats.sessions.enCours)}
-              description={`${stats.sessions.planifiees} planifiées`}
+              title="Sessions cette semaine"
+              value={String(stats.sessions.cetteSemaine)}
+              description={`${stats.sessions.enCours} en cours`}
               icon={CalendarDays}
               href="/sessions"
+            />
+            <StatCard
+              title="Factures impayées"
+              value={stats.invoices.enAttente > 0 ? formatEuros(stats.invoices.montantDu) : '0 €'}
+              description={`${stats.invoices.enAttente} facture(s)${stats.invoices.facturesEnRetard > 0 ? ` · ${stats.invoices.facturesEnRetard} en retard` : ''}`}
+              icon={FileText}
+              href="/factures"
+              alert={stats.invoices.facturesEnRetard > 0}
             />
             <StatCard
               title="Apprenants en formation"
@@ -64,17 +101,17 @@ export function DashboardPage() {
               icon={GraduationCap}
               href="/beneficiaires"
             />
-            <StatCard
-              title="Factures en attente"
-              value={stats.invoices.enAttente > 0 ? `${stats.invoices.montantDu.toLocaleString('fr-FR')} €` : '0 €'}
-              description={`${stats.invoices.enAttente} facture(s)`}
-              icon={FileText}
-              href="/factures"
-            />
           </div>
 
           {/* Secondary KPIs */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              title="Entreprises"
+              value={String(stats.companies.active)}
+              description={`${stats.companies.total} au total`}
+              icon={Building2}
+              href="/entreprises"
+            />
             <StatCard
               title="Formations"
               value={String(stats.formations.active)}
@@ -91,17 +128,10 @@ export function DashboardPage() {
             />
             <StatCard
               title="Financements"
-              value={stats.funding.totalGranted > 0 ? `${stats.funding.totalGranted.toLocaleString('fr-FR')} €` : '0 €'}
+              value={stats.funding.totalGranted > 0 ? formatEuros(stats.funding.totalGranted) : '0 €'}
               description={`${stats.funding.enInstruction} en instruction`}
               icon={Wallet}
               href="/financements"
-            />
-            <StatCard
-              title="CA encaissé"
-              value={stats.invoices.montantPaye > 0 ? `${stats.invoices.montantPaye.toLocaleString('fr-FR')} €` : '0 €'}
-              description="Montant total payé"
-              icon={TrendingUp}
-              href="/factures"
             />
           </div>
 
@@ -109,12 +139,16 @@ export function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Vue d'ensemble des sessions</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  Sessions
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <SummaryRow label="En cours" value={stats.sessions.enCours} color="text-green-600" />
                   <SummaryRow label="Planifiées / Confirmées" value={stats.sessions.planifiees} color="text-blue-600" />
+                  <SummaryRow label="Cette semaine" value={stats.sessions.cetteSemaine} color="text-primary" />
                   <SummaryRow label="Terminées" value={stats.sessions.terminees} color="text-muted-foreground" />
                   <SummaryRow label="Total" value={stats.sessions.total} color="text-foreground" />
                 </div>
@@ -122,7 +156,10 @@ export function DashboardPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Vue d'ensemble des inscriptions</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                  Inscriptions
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -130,6 +167,41 @@ export function DashboardPage() {
                   <SummaryRow label="Terminés" value={stats.enrollments.termines} color="text-blue-600" />
                   <SummaryRow label="Total bénéficiaires" value={stats.beneficiaries.total} color="text-muted-foreground" />
                   <SummaryRow label="Total inscriptions" value={stats.enrollments.total} color="text-foreground" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Revenue & funding summary */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  Facturation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <SummaryRowEuros label="CA mois en cours" value={stats.invoices.caMoisEnCours} color="text-green-600" />
+                  <SummaryRowEuros label="Total encaissé" value={stats.invoices.montantPaye} color="text-blue-600" />
+                  <SummaryRowEuros label="Montant dû" value={stats.invoices.montantDu} color="text-orange-600" />
+                  <SummaryRow label="Factures en retard" value={stats.invoices.facturesEnRetard} color={stats.invoices.facturesEnRetard > 0 ? 'text-red-600' : 'text-muted-foreground'} />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                  Financements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <SummaryRowEuros label="Total demandé" value={stats.funding.totalRequested} color="text-foreground" />
+                  <SummaryRowEuros label="Total accordé" value={stats.funding.totalGranted} color="text-green-600" />
+                  <SummaryRow label="En instruction" value={stats.funding.enInstruction} color="text-blue-600" />
                 </div>
               </CardContent>
             </Card>
@@ -165,22 +237,27 @@ function StatCard({
   description,
   icon: Icon,
   href,
+  alert,
 }: {
   title: string
   value: string
   description: string
   icon: React.ComponentType<{ className?: string }>
   href?: string
+  alert?: boolean
 }) {
   const content = (
-    <Card className={href ? 'hover:border-primary/50 transition-colors cursor-pointer' : ''}>
+    <Card className={`${href ? 'hover:border-primary/50 transition-colors cursor-pointer' : ''} ${alert ? 'border-orange-300' : ''}`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Icon className={`h-4 w-4 ${alert ? 'text-orange-500' : 'text-muted-foreground'}`} />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-xs text-muted-foreground flex items-center gap-1">
+          {alert && <Badge variant="destructive" className="text-[10px] px-1 py-0">Retard</Badge>}
+          {description}
+        </p>
       </CardContent>
     </Card>
   )
@@ -194,6 +271,15 @@ function SummaryRow({ label, value, color }: { label: string; value: number; col
     <div className="flex items-center justify-between">
       <span className="text-sm text-muted-foreground">{label}</span>
       <span className={`text-sm font-semibold ${color}`}>{value}</span>
+    </div>
+  )
+}
+
+function SummaryRowEuros({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className={`text-sm font-semibold ${color}`}>{formatEuros(value)}</span>
     </div>
   )
 }

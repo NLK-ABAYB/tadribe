@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, MapPin, User, Calendar, Clock, Users, Video, ClipboardCheck } from 'lucide-react'
+import { Loader2, MapPin, User, Calendar, Clock, Users, Video, ClipboardCheck, ClipboardList, FileText } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -25,15 +26,15 @@ export function SessionDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Sessions', href: '/sessions' }, { label: session.formations?.title ?? session.code ?? 'Session' }]} />
       <div className="flex items-center gap-4">
-        <Link to="/sessions">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">
-            {session.formations?.title ?? 'Session'}
+            {session.formation_id ? (
+              <Link to={`/formations/${session.formation_id}`} className="hover:underline">{session.formations?.title ?? 'Session'}</Link>
+            ) : (
+              session.formations?.title ?? 'Session'
+            )}
           </h1>
           <div className="flex items-center gap-2 mt-1">
             {session.code && <Badge variant="outline">{session.code}</Badge>}
@@ -122,7 +123,9 @@ export function SessionDetailPage() {
           <CardContent className="text-sm">
             {session.trainers ? (
               <div>
-                <p className="font-medium">{session.trainers.first_name} {session.trainers.last_name}</p>
+                <Link to={`/formateurs/${session.trainer_id}`} className="font-medium text-primary hover:underline">
+                  {session.trainers.first_name} {session.trainers.last_name}
+                </Link>
                 {session.trainers.email && (
                   <p className="text-muted-foreground">{session.trainers.email}</p>
                 )}
@@ -161,9 +164,20 @@ export function SessionDetailPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Les inscriptions apparaîtront ici une fois le module Inscriptions activé.
-          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link to={`/inscriptions?session=${session.id}`}>
+              <Button variant="outline" size="sm">
+                <ClipboardList className="mr-2 h-4 w-4" />
+                Voir les inscriptions
+              </Button>
+            </Link>
+            <Link to={`/factures?session=${session.id}`}>
+              <Button variant="outline" size="sm">
+                <FileText className="mr-2 h-4 w-4" />
+                Factures liées
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
 

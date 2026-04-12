@@ -5,6 +5,7 @@ import { useFormations } from '@/features/catalogue/hooks/use-formations'
 import { useTrainers } from '@/features/trainers/hooks/use-trainers'
 import { useEnrollments } from '@/features/enrollments/hooks/use-enrollments'
 import { useEvaluations } from '@/features/evaluations/hooks/use-evaluations'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 interface Indicator {
   id: number
@@ -141,6 +142,7 @@ export function QualiopiDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Qualiopi' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <Shield className="h-8 w-8" />

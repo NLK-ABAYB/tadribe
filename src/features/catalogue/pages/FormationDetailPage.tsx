@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Pencil, Trash2, Loader2 } from 'lucide-react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { Pencil, Trash2, Loader2 } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -58,12 +59,9 @@ export function FormationDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Formations', href: '/formations' }, { label: formation.title }]} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/formations')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{formation.title}</h1>
             <div className="flex items-center gap-2 mt-1">
@@ -98,6 +96,7 @@ export function FormationDetailPage() {
           </CardContent>
         </Card>
       ) : (
+        <>
         <div className="grid gap-6 md:grid-cols-2">
           {/* Indicateur 1 : Informations publiques */}
           <Card>
@@ -229,6 +228,18 @@ export function FormationDetailPage() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Liens rapides</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Link to={`/sessions?formation=${formation.id}`}>
+              <Button variant="outline" size="sm">Sessions associées</Button>
+            </Link>
+          </CardContent>
+        </Card>
+        </>
       )}
     </div>
   )

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { InvoiceForm } from '../components/InvoiceForm'
 import { InvoiceWorkflow } from '../components/InvoiceWorkflow'
@@ -44,6 +45,7 @@ export function InvoiceEditPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Factures', href: '/factures' }, { label: 'Nouvelle facture' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Nouvelle facture</h1>
         <p className="text-muted-foreground">

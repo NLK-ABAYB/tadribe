@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, CheckCircle2, Circle, FileText, Send, BookOpenCheck } from 'lucide-react'
+import { useParams, Link } from 'react-router-dom'
+import { Loader2, CheckCircle2, Circle, FileText, Send, BookOpenCheck } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,7 +30,6 @@ const WORKFLOW_STEPS = [
 
 export function EnrollmentDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { data: enrollment, isLoading } = useEnrollment(id)
   const updateEnrollment = useUpdateEnrollment()
   const [updatingStatus, setUpdatingStatus] = useState(false)
@@ -81,22 +81,17 @@ export function EnrollmentDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Inscriptions', href: '/inscriptions' }, { label: 'Inscription #' + (enrollment.id?.slice(0, 8) ?? '') }]} />
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/inscriptions')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {enrollment.beneficiaries
-                ? `${enrollment.beneficiaries.first_name} ${enrollment.beneficiaries.last_name}`
-                : 'Inscription'}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {enrollment.sessions?.formations?.title ?? 'Session'} — {enrollment.sessions?.code ?? ''}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {enrollment.beneficiaries
+              ? `${enrollment.beneficiaries.first_name} ${enrollment.beneficiaries.last_name}`
+              : 'Inscription'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {enrollment.sessions?.formations?.title ?? 'Session'} — {enrollment.sessions?.code ?? ''}
+          </p>
         </div>
         {enrollment.status && (
           <Badge variant={STATUS_VARIANT[enrollment.status]} className="text-sm">
@@ -291,6 +286,29 @@ export function EnrollmentDetailPage() {
           </Card>
         )}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Liens rapides</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          {enrollment.session_id && (
+            <Link to={`/sessions/${enrollment.session_id}`}>
+              <Button variant="outline" size="sm">Voir la session</Button>
+            </Link>
+          )}
+          {enrollment.beneficiary_id && (
+            <Link to={`/beneficiaires/${enrollment.beneficiary_id}`}>
+              <Button variant="outline" size="sm">Fiche bénéficiaire</Button>
+            </Link>
+          )}
+          {enrollment.company_id && (
+            <Link to={`/entreprises/${enrollment.company_id}`}>
+              <Button variant="outline" size="sm">Entreprise</Button>
+            </Link>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

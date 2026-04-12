@@ -1,11 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import { VeilleReglementairePage } from './VeilleReglementairePage'
 
+function renderPage() {
+  return render(
+    <MemoryRouter>
+      <VeilleReglementairePage />
+    </MemoryRouter>,
+  )
+}
+
 describe('<VeilleReglementairePage />', () => {
   it('renders the page heading and description', () => {
-    render(<VeilleReglementairePage />)
+    renderPage()
     expect(
       screen.getByRole('heading', { name: /veille réglementaire/i }),
     ).toBeInTheDocument()
@@ -15,7 +24,7 @@ describe('<VeilleReglementairePage />', () => {
   })
 
   it('renders all 10 static regulatory items on first load', () => {
-    render(<VeilleReglementairePage />)
+    renderPage()
     expect(screen.getByText(/Référentiel National Qualité/i)).toBeInTheDocument()
     expect(screen.getByText(/Loi n°2018-771/i)).toBeInTheDocument()
     // "Bilan Pédagogique et Financier" appears in both a title and a summary,
@@ -27,7 +36,7 @@ describe('<VeilleReglementairePage />', () => {
 
   it('filters items matching the search term', async () => {
     const user = userEvent.setup()
-    render(<VeilleReglementairePage />)
+    renderPage()
 
     const input = screen.getByPlaceholderText(/rechercher/i)
     await user.type(input, 'CPF')
@@ -48,7 +57,7 @@ describe('<VeilleReglementairePage />', () => {
 
   it('shows the empty state when no item matches the search', async () => {
     const user = userEvent.setup()
-    render(<VeilleReglementairePage />)
+    renderPage()
 
     const input = screen.getByPlaceholderText(/rechercher/i)
     await user.type(input, 'zzz-no-match-zzz')
@@ -57,7 +66,7 @@ describe('<VeilleReglementairePage />', () => {
   })
 
   it('displays the aggregate counts (critiques, actions, total)', () => {
-    render(<VeilleReglementairePage />)
+    renderPage()
     // Total of 10 items in the static dataset
     expect(screen.getByText('10')).toBeInTheDocument()
     // Heading labels for the three summary cards

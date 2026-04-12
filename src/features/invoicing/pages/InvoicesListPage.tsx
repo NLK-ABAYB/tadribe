@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useInvoices } from '../hooks/use-invoices'
 import { INVOICE_STATUSES } from '@/lib/constants'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'outline'> = {
   brouillon: 'secondary',
@@ -32,6 +33,7 @@ export function InvoicesListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Factures' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Factures</h1>

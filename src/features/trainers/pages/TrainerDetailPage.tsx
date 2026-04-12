@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Pencil, Loader2 } from 'lucide-react'
+import { useParams, Link } from 'react-router-dom'
+import { Pencil, Loader2 } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,7 +11,6 @@ import { TrainerForm } from '../components/TrainerForm'
 
 export function TrainerDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { data: trainer, isLoading } = useTrainer(id)
   const { data: competencies } = useTrainerCompetencies(id)
   const updateTrainer = useUpdateTrainer()
@@ -46,12 +46,9 @@ export function TrainerDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Formateurs', href: '/formateurs' }, { label: trainer.first_name + ' ' + trainer.last_name }]} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/formateurs')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
               {trainer.first_name} {trainer.last_name}
@@ -82,6 +79,7 @@ export function TrainerDetailPage() {
           </CardContent>
         </Card>
       ) : (
+        <>
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -184,6 +182,18 @@ export function TrainerDetailPage() {
             </Card>
           )}
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Liens rapides</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Link to={`/sessions?trainer=${trainer.id}`}>
+              <Button variant="outline" size="sm">Sessions</Button>
+            </Link>
+          </CardContent>
+        </Card>
+        </>
       )}
     </div>
   )

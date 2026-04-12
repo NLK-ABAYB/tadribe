@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { SESSION_STATUSES } from '@/lib/constants'
 import { useSessions } from '../hooks/use-sessions'
 import type { SessionStatus } from '@/lib/types/database'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 const STATUS_VARIANT: Record<SessionStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'outline'> = {
   planifiee: 'secondary',
@@ -30,6 +31,7 @@ export function SessionsListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Sessions' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Sessions</h1>
         <p className="text-muted-foreground">

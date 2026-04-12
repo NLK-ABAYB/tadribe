@@ -3,6 +3,7 @@ import { Search, Users, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useContacts } from '../hooks/use-contacts'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 export function ContactsListPage() {
   const { data: contacts, isLoading } = useContacts()
@@ -15,6 +16,7 @@ export function ContactsListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Contacts' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Contacts</h1>
         <p className="text-muted-foreground">

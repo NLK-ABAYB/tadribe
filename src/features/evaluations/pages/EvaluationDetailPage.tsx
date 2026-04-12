@@ -1,5 +1,6 @@
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { useParams, Link } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,7 +9,6 @@ import { useEvaluation, useEvaluationResponses } from '../hooks/use-evaluations'
 
 export function EvaluationDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { data: evaluation, isLoading } = useEvaluation(id)
   const { data: responses } = useEvaluationResponses(id)
 
@@ -38,11 +38,8 @@ export function EvaluationDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Évaluations', href: '/evaluations' }, { label: evaluation.title }]} />
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/evaluations')}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Retour
-        </Button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold tracking-tight">{evaluation.title}</h1>
           <div className="flex items-center gap-2 mt-1">
@@ -165,6 +162,19 @@ export function EvaluationDetailPage() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground text-center py-4">Aucune réponse reçue</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Liens rapides</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          {evaluation.session_id && (
+            <Link to={`/sessions/${evaluation.session_id}`}>
+              <Button variant="outline" size="sm">Session associée</Button>
+            </Link>
           )}
         </CardContent>
       </Card>

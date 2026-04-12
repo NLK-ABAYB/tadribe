@@ -2,6 +2,7 @@ import { Loader2, FileDown, FileText } from 'lucide-react'
 import { pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { useEnrollments } from '@/features/enrollments/hooks/use-enrollments'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { ConventionPDF } from '../templates/ConventionPDF'
@@ -68,6 +69,7 @@ export function ConventionsPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Conventions' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Conventions de formation</h1>
         <p className="text-muted-foreground">

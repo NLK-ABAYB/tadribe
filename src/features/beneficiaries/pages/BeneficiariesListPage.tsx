@@ -10,6 +10,7 @@ import { QUALIFICATION_LEVELS } from '@/lib/constants'
 import { useBeneficiaries, useCreateBeneficiary } from '../hooks/use-beneficiaries'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { BeneficiaryForm } from '../components/BeneficiaryForm'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 export function BeneficiariesListPage() {
   const { profile } = useAuthContext()
@@ -46,6 +47,7 @@ export function BeneficiariesListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Bénéficiaires' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Bénéficiaires</h1>

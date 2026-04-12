@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Pencil, Loader2 } from 'lucide-react'
+import { useParams, Link } from 'react-router-dom'
+import { Pencil, Loader2 } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,7 +33,6 @@ const WORKFLOW_STEPS: { key: FundingStatus; label: string }[] = [
 
 export function FundingDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { data: dossier, isLoading } = useFundingDossier(id)
   const updateDossier = useUpdateFundingDossier()
   const [editing, setEditing] = useState(false)
@@ -77,27 +77,22 @@ export function FundingDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Financements', href: '/financements' }, { label: 'Dossier #' + (dossier.id?.slice(0, 8) ?? '') }]} />
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/financements')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {FUNDING_TYPES[dossier.funding_type]}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              {dossier.funder_reference && (
-                <span className="text-sm font-mono text-muted-foreground">{dossier.funder_reference}</span>
-              )}
-              {dossier.status && (
-                <Badge variant={STATUS_VARIANT[dossier.status]}>
-                  {FUNDING_STATUSES[dossier.status]}
-                </Badge>
-              )}
-              {dossier.is_subrogation && <Badge variant="outline">Subrogation</Badge>}
-            </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {FUNDING_TYPES[dossier.funding_type]}
+          </h1>
+          <div className="flex items-center gap-2 mt-1">
+            {dossier.funder_reference && (
+              <span className="text-sm font-mono text-muted-foreground">{dossier.funder_reference}</span>
+            )}
+            {dossier.status && (
+              <Badge variant={STATUS_VARIANT[dossier.status]}>
+                {FUNDING_STATUSES[dossier.status]}
+              </Badge>
+            )}
+            {dossier.is_subrogation && <Badge variant="outline">Subrogation</Badge>}
           </div>
         </div>
         <Button variant="outline" size="sm" onClick={() => setEditing(!editing)}>
@@ -280,6 +275,29 @@ export function FundingDetailPage() {
           )}
         </div>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Liens rapides</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          {dossier.enrollment_id && (
+            <Link to={`/inscriptions/${dossier.enrollment_id}`}>
+              <Button variant="outline" size="sm">Inscription</Button>
+            </Link>
+          )}
+          {dossier.beneficiary_id && (
+            <Link to={`/beneficiaires/${dossier.beneficiary_id}`}>
+              <Button variant="outline" size="sm">Bénéficiaire</Button>
+            </Link>
+          )}
+          {dossier.company_id && (
+            <Link to={`/entreprises/${dossier.company_id}`}>
+              <Button variant="outline" size="sm">Entreprise</Button>
+            </Link>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

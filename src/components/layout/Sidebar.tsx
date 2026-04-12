@@ -14,7 +14,6 @@ import {
   Star,
   Shield,
   Settings,
-  MapPin,
   Award,
   PenLine,
   Eye,
@@ -69,43 +68,22 @@ function getNavSections(isStaff: boolean, isFormateur: boolean): NavSection[] {
       ],
     },
     {
-      title: 'Catalogue',
+      title: 'Formation',
       items: [
-        { label: 'Formations', href: '/formations', icon: BookOpen },
-      ],
-    },
-    {
-      title: 'Planification',
-      items: [
+        { label: 'Catalogue', href: '/formations', icon: BookOpen },
         { label: 'Sessions', href: '/sessions', icon: CalendarDays },
-        { label: 'Lieux', href: '/lieux', icon: MapPin },
-      ],
-    },
-    {
-      title: 'Stagiaires',
-      items: [
+        { label: 'Formateurs', href: '/formateurs', icon: UserCheck },
         { label: 'Bénéficiaires', href: '/beneficiaires', icon: GraduationCap },
         { label: 'Inscriptions', href: '/inscriptions', icon: ClipboardList },
       ],
     },
     {
-      title: 'Équipe',
+      title: 'Facturation',
       items: [
-        { label: 'Formateurs', href: '/formateurs', icon: UserCheck },
-      ],
-    },
-    {
-      title: 'Documents',
-      items: [
+        { label: 'Factures', href: '/factures', icon: FileText },
+        { label: 'Financements', href: '/financements', icon: Wallet },
         { label: 'Conventions', href: '/conventions', icon: PenLine },
         { label: 'Certificats', href: '/certificats', icon: Award },
-      ],
-    },
-    {
-      title: 'Financier',
-      items: [
-        { label: 'Financements', href: '/financements', icon: Wallet },
-        { label: 'Factures', href: '/factures', icon: FileText },
       ],
     },
     {
@@ -117,7 +95,7 @@ function getNavSections(isStaff: boolean, isFormateur: boolean): NavSection[] {
       ],
     },
     {
-      title: 'Configuration',
+      title: 'Paramètres',
       items: [
         { label: 'Paramètres', href: '/parametres', icon: Settings },
       ],

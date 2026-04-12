@@ -11,6 +11,7 @@ import { EVAL_TYPES } from '@/lib/constants'
 import { useEvaluations, useCreateEvaluation } from '../hooks/use-evaluations'
 import { useAuthContext } from '@/features/auth/auth-context'
 import type { EvalType } from '@/lib/types/database'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 const TYPE_VARIANT: Record<string, 'default' | 'secondary' | 'success' | 'warning' | 'outline'> = {
   positionnement: 'secondary',
@@ -63,6 +64,7 @@ export function EvaluationsListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Évaluations' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Évaluations</h1>

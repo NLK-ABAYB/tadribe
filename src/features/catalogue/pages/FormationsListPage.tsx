@@ -11,6 +11,7 @@ import { useFormations, useCreateFormation } from '../hooks/use-formations'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { FormationForm } from '../components/FormationForm'
 import type { ActionCategory } from '@/lib/types/database'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 const CATEGORY_VARIANT: Record<ActionCategory, 'default' | 'secondary' | 'outline'> = {
   af: 'default',
@@ -54,6 +55,7 @@ export function FormationsListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Formations' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Formations</h1>

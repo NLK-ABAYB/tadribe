@@ -10,6 +10,7 @@ import { useOpportunities, useCreateOpportunity, useUpdateOpportunity } from '..
 import { useAuthContext } from '@/features/auth/auth-context'
 import { PIPELINE_STAGES } from '@/lib/constants'
 import type { PipelineStage } from '@/lib/types/database'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 const STAGE_COLORS: Record<string, string> = {
   prospect: 'bg-gray-100 text-gray-800',
@@ -63,6 +64,7 @@ export function PipelinePage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Pipeline' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Pipeline commercial</h1>

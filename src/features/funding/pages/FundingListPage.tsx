@@ -11,6 +11,7 @@ import { useFundingDossiers, useCreateFundingDossier } from '../hooks/use-fundin
 import { useAuthContext } from '@/features/auth/auth-context'
 import { FundingForm } from '../components/FundingForm'
 import type { FundingStatus, FundingType } from '@/lib/types/database'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 const STATUS_VARIANT: Record<FundingStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'outline'> = {
   brouillon: 'secondary',
@@ -69,6 +70,7 @@ export function FundingListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Financements' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Financements</h1>

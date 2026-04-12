@@ -5,6 +5,7 @@ import { pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { useCertificates, useCreateCertificate } from '../hooks/use-certificates'
 import { useEnrollments } from '@/features/enrollments/hooks/use-enrollments'
 import { useAuthContext } from '@/features/auth/auth-context'
@@ -86,6 +87,7 @@ export function CertificatesPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Certificats' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Certificats de réalisation</h1>
         <p className="text-muted-foreground">

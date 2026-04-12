@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { USER_ROLES } from '@/lib/constants'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { useOrganizationSettings, useUpdateOrganization, useTeamMembers, useUpdateProfile } from '../hooks/use-settings'
@@ -79,6 +80,7 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Paramètres' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Paramètres</h1>
         <p className="text-muted-foreground">Configuration de l'organisme et gestion de l'équipe</p>

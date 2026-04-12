@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Pencil, Loader2, AlertTriangle } from 'lucide-react'
+import { useParams, Link } from 'react-router-dom'
+import { Pencil, Loader2, AlertTriangle } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,7 +13,6 @@ import { BeneficiaryForm } from '../components/BeneficiaryForm'
 
 export function BeneficiaryDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { data: beneficiary, isLoading } = useBeneficiary(id)
   const { data: allEnrollments } = useEnrollments()
   const updateBeneficiary = useUpdateBeneficiary()
@@ -48,12 +48,9 @@ export function BeneficiaryDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Bénéficiaires', href: '/beneficiaires' }, { label: beneficiary.last_name + ' ' + beneficiary.first_name }]} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/beneficiaires')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
               {beneficiary.first_name} {beneficiary.last_name}
@@ -86,6 +83,7 @@ export function BeneficiaryDetailPage() {
           </CardContent>
         </Card>
       ) : (
+        <>
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -243,6 +241,21 @@ export function BeneficiaryDetailPage() {
             </Card>
           )}
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Liens rapides</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Link to={`/inscriptions?beneficiary=${beneficiary.id}`}>
+              <Button variant="outline" size="sm">Inscriptions</Button>
+            </Link>
+            <Link to={`/financements?beneficiary=${beneficiary.id}`}>
+              <Button variant="outline" size="sm">Financements</Button>
+            </Link>
+          </CardContent>
+        </Card>
+        </>
       )}
     </div>
   )

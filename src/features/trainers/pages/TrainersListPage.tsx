@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { useTrainers, useCreateTrainer } from '../hooks/use-trainers'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { TrainerForm } from '../components/TrainerForm'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 export function TrainersListPage() {
   const { profile } = useAuthContext()
@@ -45,6 +46,7 @@ export function TrainersListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Formateurs' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Formateurs</h1>

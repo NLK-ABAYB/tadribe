@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Loader2, Download, Send } from 'lucide-react'
+import { Loader2, Download, Send } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -59,12 +60,8 @@ export function InvoiceDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Factures', href: '/factures' }, { label: invoice.invoice_number }]} />
       <div className="flex items-center gap-4">
-        <Link to="/factures">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">
             {invoice.invoice_number}
@@ -201,6 +198,29 @@ export function InvoiceDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Liens rapides</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          {invoice.company_id && (
+            <Link to={`/entreprises/${invoice.company_id}`}>
+              <Button variant="outline" size="sm">Entreprise</Button>
+            </Link>
+          )}
+          {invoice.session_id && (
+            <Link to={`/sessions/${invoice.session_id}`}>
+              <Button variant="outline" size="sm">Session</Button>
+            </Link>
+          )}
+          {invoice.funding_dossier_id && (
+            <Link to={`/financements/${invoice.funding_dossier_id}`}>
+              <Button variant="outline" size="sm">Dossier financement</Button>
+            </Link>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

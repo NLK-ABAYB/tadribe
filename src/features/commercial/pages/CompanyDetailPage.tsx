@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Plus, Loader2, Mail, Phone, Globe, Users } from 'lucide-react'
+import { Plus, Loader2, Mail, Phone, Globe, Users } from 'lucide-react'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -61,12 +62,8 @@ export function CompanyDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Entreprises', href: '/entreprises' }, { label: company.name }]} />
       <div className="flex items-center gap-4">
-        <Link to="/entreprises">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">{company.name}</h1>
           <div className="flex gap-2 mt-1">
@@ -97,6 +94,7 @@ export function CompanyDetailPage() {
           </CardContent>
         </Card>
       ) : (
+        <>
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -183,6 +181,24 @@ export function CompanyDetailPage() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Liens rapides</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Link to={`/inscriptions?company=${company.id}`}>
+              <Button variant="outline" size="sm">Inscriptions</Button>
+            </Link>
+            <Link to={`/factures?company=${company.id}`}>
+              <Button variant="outline" size="sm">Factures</Button>
+            </Link>
+            <Link to={`/financements?company=${company.id}`}>
+              <Button variant="outline" size="sm">Financements</Button>
+            </Link>
+          </CardContent>
+        </Card>
+        </>
       )}
     </div>
   )

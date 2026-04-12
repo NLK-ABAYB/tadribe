@@ -3,6 +3,7 @@ import { Search, ExternalLink, Clock, Tag, BookOpen, Scale, Shield, Landmark } f
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 interface VeilleItem {
   id: string
@@ -155,6 +156,7 @@ export function VeilleReglementairePage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Veille réglementaire' }]} />
       <div>
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <BookOpen className="h-8 w-8" />

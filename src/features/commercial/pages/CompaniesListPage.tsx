@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { useCompanies, useCreateCompany } from '../hooks/use-companies'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { CompanyForm } from '../components/CompanyForm'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
 export function CompaniesListPage() {
   const { profile } = useAuthContext()
@@ -38,6 +39,7 @@ export function CompaniesListPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Entreprises' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Entreprises</h1>

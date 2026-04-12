@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Loader2, Check, X, Plus, FileDown } from 'lucide-react'
+import { useParams } from 'react-router-dom'
+import { Loader2, Check, X, Plus, FileDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { pdf } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { useSession } from '@/features/sessions/hooks/use-sessions'
 import { useEnrollments } from '@/features/enrollments/hooks/use-enrollments'
 import {
@@ -22,7 +23,6 @@ import { useAuthContext } from '@/features/auth/auth-context'
 
 export function AttendancePage() {
   const { id: sessionId } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { data: session, isLoading: sessionLoading } = useSession(sessionId)
   const { data: enrollments } = useEnrollments(sessionId)
   const { data: slots } = useSessionSlots(sessionId)
@@ -144,18 +144,13 @@ export function AttendancePage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Sessions', href: '/sessions' }, { label: 'Émargement' }]} />
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/sessions/${sessionId}`)}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Session
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Émargement</h1>
-            <p className="text-sm text-muted-foreground">
-              {session.formations?.title} — {session.code ?? ''}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Émargement</h1>
+          <p className="text-sm text-muted-foreground">
+            {session.formations?.title} — {session.code ?? ''}
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
