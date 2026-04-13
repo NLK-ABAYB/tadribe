@@ -7,6 +7,22 @@ import { renderWithQueryClient } from '@/test/query-client'
 const useSessionsMock = vi.fn()
 vi.mock('../hooks/use-sessions', () => ({
   useSessions: () => useSessionsMock(),
+  useCreateSession: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}))
+
+vi.mock('@/features/catalogue/hooks/use-formations', () => ({
+  useFormations: () => ({ data: [] }),
+}))
+
+vi.mock('@/features/auth/auth-context', () => ({
+  useAuthContext: () => ({
+    profile: { organization_id: 'org-1' },
+    user: null,
+    session: null,
+    organization: null,
+    loading: false,
+    role: { isAdmin: false, isStaff: true },
+  }),
 }))
 
 import { SessionsListPage } from './SessionsListPage'

@@ -5,6 +5,31 @@ import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
 export type Invoice = Tables<'invoices'>
 export type InvoiceLine = Tables<'invoice_lines'>
 
+/** Returns the next invoice number in FA-YYYY-NNN format. */
+export function useNextInvoiceNumber() {
+  return useQuery({
+    queryKey: ['invoices', 'next-number'],
+    queryFn: async () => {
+      const year = new Date().getFullYear()
+      const prefix = `FA-${year}-`
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('invoice_number')
+        .like('invoice_number', `${prefix}%`)
+        .order('invoice_number', { ascending: false })
+        .limit(1)
+      if (error) throw error
+      let next = 1
+      if (data?.length) {
+        const last = data[0].invoice_number
+        const num = parseInt(last.replace(prefix, ''), 10)
+        if (!isNaN(num)) next = num + 1
+      }
+      return `${prefix}${String(next).padStart(3, '0')}`
+    },
+  })
+}
+
 export function useInvoices() {
   return useQuery({
     queryKey: ['invoices'],

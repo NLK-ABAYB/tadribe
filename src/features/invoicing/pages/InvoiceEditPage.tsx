@@ -1,15 +1,17 @@
 import { useNavigate } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { InvoiceForm } from '../components/InvoiceForm'
 import { InvoiceWorkflow } from '../components/InvoiceWorkflow'
-import { useCreateInvoice } from '../hooks/use-invoices'
+import { useCreateInvoice, useNextInvoiceNumber } from '../hooks/use-invoices'
 import { useAuthContext } from '@/features/auth/auth-context'
 
 export function InvoiceEditPage() {
   const { profile, organization } = useAuthContext()
   const createInvoice = useCreateInvoice()
+  const { data: nextNumber, isLoading: numberLoading } = useNextInvoiceNumber()
   const navigate = useNavigate()
 
   async function handleSubmit(data: Record<string, unknown>) {
@@ -25,7 +27,8 @@ export function InvoiceEditPage() {
         organization_id: profile.organization_id,
         invoice_number: data.invoice_number as string,
         invoice_type: data.invoice_type as string,
-        recipient_name: data.recipient_name as string,
+        recipient_name: (data.recipient_name as string) || '',
+        company_id: (data.company_id as string) || null,
         issue_date: data.issue_date as string,
         due_date: data.due_date as string,
         total_ht: totalHt,
@@ -41,6 +44,14 @@ export function InvoiceEditPage() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
     }
+  }
+
+  if (numberLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
   }
 
   return (
@@ -61,6 +72,7 @@ export function InvoiceEditPage() {
         </CardHeader>
         <CardContent>
           <InvoiceForm
+            defaultValues={{ invoice_number: nextNumber }}
             tvaExempt={organization?.tva_exempt ?? false}
             ndaNumber={organization?.nda ?? undefined}
             onSubmit={handleSubmit}

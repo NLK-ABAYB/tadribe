@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Loader2, Plus, Trash2 } from 'lucide-react'
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { computeInvoiceTotals, formatEuros } from '../lib/calculations'
+import { useCompanies } from '@/features/commercial/hooks/use-companies'
 
 const lineSchema = z.object({
   description: z.string().min(1, 'Description requise'),
@@ -18,7 +19,8 @@ const lineSchema = z.object({
 const invoiceSchema = z.object({
   invoice_number: z.string().min(1, 'Numéro requis'),
   invoice_type: z.enum(['facture', 'avoir', 'acompte']),
-  recipient_name: z.string().min(1, 'Destinataire requis'),
+  company_id: z.string().min(1, 'Entreprise requise'),
+  recipient_name: z.string().optional(),
   issue_date: z.string().min(1, 'Date requise'),
   due_date: z.string().min(1, 'Échéance requise'),
   tva_rate: z.coerce.number().min(0).max(100),
@@ -39,16 +41,19 @@ interface InvoiceFormProps {
 }
 
 export function InvoiceForm({ defaultValues, tvaExempt = false, ndaNumber, onSubmit, isSubmitting }: InvoiceFormProps) {
+  const { data: companies } = useCompanies()
   const {
     register,
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       invoice_type: 'facture',
+      company_id: '',
       tva_rate: tvaExempt ? 0 : 20,
       nda_mention: ndaNumber ? `Déclaration d'activité enregistrée sous le numéro ${ndaNumber} auprès du préfet de région.` : '',
       tva_mention: tvaExempt ? 'TVA non applicable, art. 261 du CGI (organisme de formation exonéré)' : '',
@@ -72,7 +77,7 @@ export function InvoiceForm({ defaultValues, tvaExempt = false, ndaNumber, onSub
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="invoice_number">Numéro *</Label>
-          <Input id="invoice_number" placeholder="FA-2026-001" {...register('invoice_number')} />
+          <Input id="invoice_number" readOnly className="bg-muted" {...register('invoice_number')} />
           {errors.invoice_number && <p className="text-sm text-destructive">{errors.invoice_number.message}</p>}
         </div>
         <div className="space-y-2">
@@ -88,9 +93,29 @@ export function InvoiceForm({ defaultValues, tvaExempt = false, ndaNumber, onSub
           </select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="recipient_name">Destinataire *</Label>
-          <Input id="recipient_name" {...register('recipient_name')} />
-          {errors.recipient_name && <p className="text-sm text-destructive">{errors.recipient_name.message}</p>}
+          <Label htmlFor="company_id">Entreprise destinataire *</Label>
+          <Controller
+            control={control}
+            name="company_id"
+            render={({ field }) => (
+              <select
+                id="company_id"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={field.value}
+                onChange={(e) => {
+                  field.onChange(e.target.value)
+                  const company = companies?.find(c => c.id === e.target.value)
+                  if (company) setValue('recipient_name', company.name)
+                }}
+              >
+                <option value="">Sélectionner une entreprise</option>
+                {companies?.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            )}
+          />
+          {errors.company_id && <p className="text-sm text-destructive">{errors.company_id.message}</p>}
         </div>
       </div>
 

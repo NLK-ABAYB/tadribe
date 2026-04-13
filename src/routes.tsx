@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import {
   LayoutDashboard, BookOpen, FileText, Award, CheckCircle2,
   Users, Wallet, GraduationCap, Loader2,
@@ -84,6 +84,9 @@ const VeilleReglementairePage = lazyNamed(() => import('@/features/quality/pages
 
 // Paramètres
 const SettingsPage = lazyNamed(() => import('@/features/settings/pages/SettingsPage'), 'SettingsPage')
+
+// 404
+const NotFoundPage = lazyNamed(() => import('@/components/shared/NotFoundPage'), 'NotFoundPage')
 
 // Portail Apprenant
 const LearnerDashboardPage = lazyNamed(() => import('@/features/portal-learner/pages/LearnerDashboardPage'), 'LearnerDashboardPage')
@@ -263,8 +266,8 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Catch all — send to landing
-  { path: '*', element: <Navigate to="/" replace /> },
+  // Catch all — 404
+  { path: '*', element: publicElement(NotFoundPage) },
 ])
 
 function PlaceholderPage({ title }: { title: string }) {

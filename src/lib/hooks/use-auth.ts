@@ -19,27 +19,32 @@ export function useAuth() {
   })
 
   useEffect(() => {
-    console.log('[auth] mounting useAuth, calling getSession()')
+    // Track the last user ID we fetched a profile for, to deduplicate.
+    let lastFetchedUserId: string | null = null
+    let cancelled = false
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('[auth] getSession resolved:', {
-        hasSession: !!session,
-        userId: session?.user?.id ?? null,
-      })
+    function handleSession(session: Session | null) {
+      if (cancelled) return
       if (session?.user) {
-        fetchProfile(session.user.id).then(profile => {
-          console.log('[auth] initial profile fetched:', {
-            hasProfile: !!profile,
-            organizationId: profile?.organization_id ?? null,
-            role: profile?.role ?? null,
-          })
+        const userId = session.user.id
+        // Deduplicate: skip if we already fetched/are fetching for this user
+        if (lastFetchedUserId === userId) return
+        lastFetchedUserId = userId
+
+        setState(prev => ({ ...prev, user: session.user, session, loading: true }))
+        fetchProfile(userId).then(profile => {
+          if (cancelled) return
           setState({ user: session.user, profile, session, loading: false })
         })
       } else {
-        console.log('[auth] no initial session, marking loading=false')
+        lastFetchedUserId = null
         setState({ user: null, profile: null, session: null, loading: false })
       }
+    }
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleSession(session)
     })
 
     // Listen for auth changes.
@@ -50,45 +55,26 @@ export function useAuth() {
     // freezes the login button spinner.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('[auth] onAuthStateChange:', {
-          event,
-          hasSession: !!session,
-          userId: session?.user?.id ?? null,
-        })
-        if (session?.user) {
-          // Set user/session immediately so RequireAuth sees a logged-in
-          // user (shows spinner, not a redirect to /login) while the
-          // profile loads in the background.
-          setState(prev => ({
-            ...prev,
-            user: session.user,
-            session,
-            loading: true,
-          }))
-          fetchProfile(session.user.id).then(profile => {
-            console.log('[auth] profile fetched after auth change:', {
-              event,
-              hasProfile: !!profile,
-              organizationId: profile?.organization_id ?? null,
-              role: profile?.role ?? null,
-            })
-            setState({ user: session.user, profile, session, loading: false })
-          })
-        } else {
-          console.log('[auth] auth change with no session, clearing state')
+        // On SIGNED_OUT, always clear regardless of dedup
+        if (event === 'SIGNED_OUT') {
+          lastFetchedUserId = null
           setState({ user: null, profile: null, session: null, loading: false })
+          return
         }
+        handleSession(session)
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      cancelled = true
+      subscription.unsubscribe()
+    }
   }, [])
 
   return state
 }
 
 async function fetchProfile(userId: string): Promise<Profile | null> {
-  console.log('[auth] fetchProfile() →', userId)
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -96,31 +82,16 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
     .single()
 
   if (error) {
-    console.error('[auth] fetchProfile error:', {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-    })
+    console.error('[auth] fetchProfile error:', error.message)
     return null
   }
 
-  console.log('[auth] fetchProfile success:', {
-    id: data.id,
-    organizationId: data.organization_id,
-    role: data.role,
-  })
   return data
 }
 
 export async function signInWithEmail(email: string, password: string) {
-  console.log('[auth] signInWithEmail →', email)
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) {
-    console.error('[auth] signInWithEmail error:', error.message)
-    throw error
-  }
-  console.log('[auth] signInWithEmail success:', { userId: data.user?.id ?? null })
+  if (error) throw error
   return data
 }
 

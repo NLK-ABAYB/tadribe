@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -118,34 +118,50 @@ export function PipelinePage() {
                 </Badge>
               </div>
               <div className="space-y-2 min-h-[200px]">
-                {byStage[stage]?.map((opp) => (
-                  <Card key={opp.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-3">
-                      <p className="text-sm font-medium mb-2">{opp.title}</p>
-                      {opp.amount && (
-                        <p className="text-sm font-bold text-primary">
-                          {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(opp.amount)}
-                        </p>
-                      )}
-                      {opp.expected_close && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Clôture : {new Date(opp.expected_close).toLocaleDateString('fr-FR')}
-                        </p>
-                      )}
-                      <div className="flex gap-1 mt-2 flex-wrap">
-                        {ACTIVE_STAGES.filter((s) => s !== stage).slice(0, 3).map((targetStage) => (
-                          <button
-                            key={targetStage}
-                            onClick={() => handleStageChange(opp.id, targetStage)}
-                            className={`text-xs px-1.5 py-0.5 rounded ${STAGE_COLORS[targetStage]} hover:opacity-80`}
-                          >
-                            {PIPELINE_STAGES[targetStage]}
-                          </button>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {byStage[stage]?.map((opp) => {
+                  const stageIdx = ACTIVE_STAGES.indexOf(stage)
+                  const prevStage = stageIdx > 0 ? ACTIVE_STAGES[stageIdx - 1] : null
+                  const nextStage = stageIdx < ACTIVE_STAGES.length - 1 ? ACTIVE_STAGES[stageIdx + 1] : null
+                  return (
+                    <Card key={opp.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                      <CardContent className="p-3">
+                        <p className="text-sm font-medium mb-2">{opp.title}</p>
+                        {opp.amount && (
+                          <p className="text-sm font-bold text-primary">
+                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(opp.amount)}
+                          </p>
+                        )}
+                        {opp.expected_close && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Clôture : {new Date(opp.expected_close).toLocaleDateString('fr-FR')}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between mt-2">
+                          {prevStage ? (
+                            <button
+                              onClick={() => handleStageChange(opp.id, prevStage)}
+                              className={`text-xs px-1.5 py-0.5 rounded flex items-center gap-0.5 ${STAGE_COLORS[prevStage]} hover:opacity-80`}
+                              title={`Reculer vers ${PIPELINE_STAGES[prevStage]}`}
+                            >
+                              <ChevronLeft className="h-3 w-3" />
+                              {PIPELINE_STAGES[prevStage]}
+                            </button>
+                          ) : <span />}
+                          {nextStage && (
+                            <button
+                              onClick={() => handleStageChange(opp.id, nextStage)}
+                              className={`text-xs px-1.5 py-0.5 rounded flex items-center gap-0.5 ${STAGE_COLORS[nextStage]} hover:opacity-80`}
+                              title={`Avancer vers ${PIPELINE_STAGES[nextStage]}`}
+                            >
+                              {PIPELINE_STAGES[nextStage]}
+                              <ChevronRight className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </div>
             </div>
           ))}

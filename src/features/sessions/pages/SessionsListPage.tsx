@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarDays, Search, Loader2 } from 'lucide-react'
+import { CalendarDays, Search, Loader2, Plus } from 'lucide-react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { SESSION_STATUSES } from '@/lib/constants'
-import { useSessions } from '../hooks/use-sessions'
+import { useSessions, useCreateSession } from '../hooks/use-sessions'
+import { useFormations } from '@/features/catalogue/hooks/use-formations'
+import { useAuthContext } from '@/features/auth/auth-context'
 import type { SessionStatus } from '@/lib/types/database'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 
@@ -17,8 +23,35 @@ const STATUS_VARIANT: Record<SessionStatus, 'default' | 'secondary' | 'success' 
 }
 
 export function SessionsListPage() {
+  const { profile } = useAuthContext()
   const { data: sessions, isLoading } = useSessions()
+  const { data: formations } = useFormations()
+  const createSession = useCreateSession()
   const [search, setSearch] = useState('')
+  const [showForm, setShowForm] = useState(false)
+  const [formationId, setFormationId] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+
+  async function handleCreate() {
+    if (!profile?.organization_id || !formationId || !startDate || !endDate) return
+    try {
+      await createSession.mutateAsync({
+        organization_id: profile.organization_id,
+        formation_id: formationId,
+        start_date: startDate,
+        end_date: endDate,
+        status: 'planifiee',
+      })
+      toast.success('Session créée')
+      setFormationId('')
+      setStartDate('')
+      setEndDate('')
+      setShowForm(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
+  }
 
   const filtered = sessions?.filter((s) => {
     const term = search.toLowerCase()
@@ -32,12 +65,55 @@ export function SessionsListPage() {
   return (
     <div className="space-y-6">
       <Breadcrumb items={[{ label: 'Sessions' }]} />
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Sessions</h1>
-        <p className="text-muted-foreground">
-          Planification et suivi des sessions de formation
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Sessions</h1>
+          <p className="text-muted-foreground">
+            Planification et suivi des sessions de formation
+          </p>
+        </div>
+        <Button onClick={() => setShowForm(!showForm)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nouvelle session
+        </Button>
       </div>
+
+      {showForm && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="session-formation">Formation *</Label>
+                <select
+                  id="session-formation"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={formationId}
+                  onChange={(e) => setFormationId(e.target.value)}
+                >
+                  <option value="">Sélectionner...</option>
+                  {formations?.map((f) => (
+                    <option key={f.id} value={f.id}>{f.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="session-start">Date début *</Label>
+                <Input id="session-start" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="session-end">Date fin *</Label>
+                <Input id="session-end" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              </div>
+              <div className="flex items-end">
+                <Button onClick={handleCreate} disabled={createSession.isPending || !formationId || !startDate || !endDate}>
+                  {createSession.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Créer
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="relative">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
