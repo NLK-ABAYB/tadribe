@@ -46,8 +46,8 @@ export function useCreateCompany() {
       if (error) throw error
       return data as Company
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companies'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['companies'], refetchType: 'active' })
     },
   })
 }
