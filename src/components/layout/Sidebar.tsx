@@ -11,6 +11,7 @@ import {
   UserCheck,
   Wallet,
   FileText,
+  FileSpreadsheet,
   Star,
   Shield,
   Settings,
@@ -65,6 +66,7 @@ function getNavSections(isStaff: boolean, isFormateur: boolean): NavSection[] {
         { label: 'Entreprises', href: '/dashboard/entreprises', icon: Building2 },
         { label: 'Contacts', href: '/dashboard/contacts', icon: Users },
         { label: 'Pipeline', href: '/dashboard/pipeline', icon: Target },
+        { label: 'Devis', href: '/dashboard/devis', icon: FileSpreadsheet },
       ],
     },
     {

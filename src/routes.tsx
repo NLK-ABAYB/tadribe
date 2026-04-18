@@ -67,8 +67,16 @@ const EnrollmentDetailPage = lazyNamed(() => import('@/features/enrollments/page
 const AttendancePage = lazyNamed(() => import('@/features/attendance/pages/AttendancePage'), 'AttendancePage')
 
 // Documents
-const ConventionsPage = lazyNamed(() => import('@/features/documents/pages/ConventionsPage'), 'ConventionsPage')
 const CertificatesPage = lazyNamed(() => import('@/features/documents/pages/CertificatesPage'), 'CertificatesPage')
+
+// Conventions (dedicated feature)
+const ConventionsListPage = lazyNamed(() => import('@/features/conventions/pages/ConventionsListPage'), 'ConventionsListPage')
+const ConventionDetailPage = lazyNamed(() => import('@/features/conventions/pages/ConventionDetailPage'), 'ConventionDetailPage')
+
+// Quotes (devis)
+const QuotesListPage = lazyNamed(() => import('@/features/quotes/pages/QuotesListPage'), 'QuotesListPage')
+const QuoteDetailPage = lazyNamed(() => import('@/features/quotes/pages/QuoteDetailPage'), 'QuoteDetailPage')
+const QuoteEditPage = lazyNamed(() => import('@/features/quotes/pages/QuoteEditPage'), 'QuoteEditPage')
 
 // Financements
 const FundingListPage = lazyNamed(() => import('@/features/funding/pages/FundingListPage'), 'FundingListPage')
@@ -184,8 +192,16 @@ export const router = createBrowserRouter([
       // Émargement
       { path: 'sessions/:id/emargement', element: <AttendancePage /> },
 
+      // Devis
+      { path: 'devis', element: <QuotesListPage /> },
+      { path: 'devis/new', element: <QuoteEditPage /> },
+      { path: 'devis/:id', element: <QuoteDetailPage /> },
+
+      // Conventions
+      { path: 'conventions', element: <ConventionsListPage /> },
+      { path: 'conventions/:id', element: <ConventionDetailPage /> },
+
       // Documents
-      { path: 'conventions', element: <ConventionsPage /> },
       { path: 'certificats', element: <CertificatesPage /> },
 
       // Financements
