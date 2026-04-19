@@ -1,13 +1,20 @@
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Loader2, Download, Send } from 'lucide-react'
+import { pdf } from '@react-pdf/renderer'
+import { Loader2, Download, Send, Plus, CreditCard } from 'lucide-react'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useAuthContext } from '@/features/auth/auth-context'
 import { useInvoice, useInvoiceLines, useUpdateInvoice } from '../hooks/use-invoices'
+import { usePayments, useCreatePayment } from '../hooks/use-payments'
 import { InvoiceWorkflow } from '../components/InvoiceWorkflow'
+import { InvoicePDF } from '../templates/InvoicePDF'
 import { INVOICE_STATUSES } from '@/lib/constants'
 
 function getWorkflowStep(status: string | null): string {
@@ -17,11 +24,30 @@ function getWorkflowStep(status: string | null): string {
   return 'convention'
 }
 
+const PAYMENT_METHODS = [
+  { value: 'virement', label: 'Virement' },
+  { value: 'cheque', label: 'Chèque' },
+  { value: 'cb', label: 'Carte bancaire' },
+  { value: 'prelevement', label: 'Prélèvement' },
+  { value: 'especes', label: 'Espèces' },
+  { value: 'autre', label: 'Autre' },
+]
+
 export function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const { profile, organization } = useAuthContext()
   const { data: invoice, isLoading } = useInvoice(id)
   const { data: lines } = useInvoiceLines(id)
+  const { data: payments } = usePayments(id)
   const updateInvoice = useUpdateInvoice()
+  const createPayment = useCreatePayment()
+
+  const [showPaymentForm, setShowPaymentForm] = useState(false)
+  const [payAmount, setPayAmount] = useState('')
+  const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0])
+  const [payMethod, setPayMethod] = useState('virement')
+  const [payRef, setPayRef] = useState('')
+  const [payPayer, setPayPayer] = useState('')
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
@@ -38,6 +64,46 @@ export function InvoiceDetailPage() {
     return <p className="text-center text-muted-foreground py-12">Facture non trouvée</p>
   }
 
+  async function handleDownloadPDF() {
+    if (!invoice || !lines || !organization) return
+    try {
+      const blob = await pdf(
+        <InvoicePDF
+          invoice={{
+            invoice_number: invoice.invoice_number,
+            issue_date: invoice.issue_date,
+            due_date: invoice.due_date,
+            total_ht: invoice.total_ht,
+            tva_rate: invoice.tva_rate,
+            tva_amount: invoice.tva_amount,
+            total_ttc: invoice.total_ttc,
+            amount_paid: invoice.amount_paid,
+            nda_mention: invoice.nda_mention,
+            tva_mention: invoice.tva_mention,
+            recipient_name: invoice.recipient_name,
+          }}
+          lines={lines}
+          organization={{
+            name: organization.name,
+            siret: organization.siret,
+            nda: organization.nda,
+            email: organization.email,
+            phone: organization.phone,
+            tva_exempt: organization.tva_exempt ?? false,
+          }}
+        />,
+      ).toBlob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${invoice.invoice_number}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      toast.error('Erreur lors de la génération du PDF')
+    }
+  }
+
   async function advanceStatus() {
     if (!invoice || !invoice.status) return
     const nextStatus: Record<string, string> = {
@@ -52,6 +118,33 @@ export function InvoiceDetailPage() {
       toast.success(`Statut mis à jour : ${INVOICE_STATUSES[next as keyof typeof INVOICE_STATUSES]}`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
+  }
+
+  async function handleAddPayment() {
+    if (!invoice || !profile?.organization_id) return
+    const amount = parseFloat(payAmount)
+    if (isNaN(amount) || amount <= 0) {
+      toast.error('Montant invalide')
+      return
+    }
+    try {
+      await createPayment.mutateAsync({
+        organization_id: profile.organization_id,
+        invoice_id: invoice.id,
+        amount,
+        payment_date: payDate,
+        payment_method: payMethod,
+        reference: payRef || null,
+        payer_name: payPayer || invoice.recipient_name,
+      })
+      toast.success('Paiement enregistré')
+      setShowPaymentForm(false)
+      setPayAmount('')
+      setPayRef('')
+      setPayPayer('')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de l\'enregistrement')
     }
   }
 
@@ -76,7 +169,7 @@ export function InvoiceDetailPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>
@@ -185,6 +278,111 @@ export function InvoiceDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Payments */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Paiements ({payments?.length ?? 0})
+          </CardTitle>
+          {remaining > 0 && (
+            <Button size="sm" variant="outline" onClick={() => setShowPaymentForm(!showPaymentForm)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Enregistrer un paiement
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent>
+          {showPaymentForm && (
+            <div className="mb-4 p-4 border rounded-md space-y-3 bg-muted/30">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Montant *</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder={formatCurrency(remaining)}
+                    value={payAmount}
+                    onChange={(e) => setPayAmount(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Date *</Label>
+                  <Input
+                    type="date"
+                    value={payDate}
+                    onChange={(e) => setPayDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Méthode</Label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={payMethod}
+                    onChange={(e) => setPayMethod(e.target.value)}
+                  >
+                    {PAYMENT_METHODS.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Référence</Label>
+                  <Input
+                    placeholder="ex: VIR-2026-001"
+                    value={payRef}
+                    onChange={(e) => setPayRef(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Payeur</Label>
+                <Input
+                  placeholder={invoice.recipient_name}
+                  value={payPayer}
+                  onChange={(e) => setPayPayer(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setShowPaymentForm(false)}>
+                  Annuler
+                </Button>
+                <Button size="sm" onClick={handleAddPayment} disabled={createPayment.isPending}>
+                  {createPayment.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Valider
+                </Button>
+              </div>
+            </div>
+          )}
+          {payments && payments.length > 0 ? (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-muted-foreground">
+                  <th className="py-2 text-left">Date</th>
+                  <th className="py-2 text-left">Méthode</th>
+                  <th className="py-2 text-left">Référence</th>
+                  <th className="py-2 text-left">Payeur</th>
+                  <th className="py-2 text-right">Montant</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map((p) => (
+                  <tr key={p.id} className="border-b last:border-0">
+                    <td className="py-2">{new Date(p.payment_date).toLocaleDateString('fr-FR')}</td>
+                    <td className="py-2">{PAYMENT_METHODS.find((m) => m.value === p.payment_method)?.label ?? p.payment_method ?? '—'}</td>
+                    <td className="py-2 text-muted-foreground">{p.reference ?? '—'}</td>
+                    <td className="py-2">{p.payer_name ?? '—'}</td>
+                    <td className="py-2 text-right font-medium text-green-600">{formatCurrency(p.amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-2">Aucun paiement enregistré</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Legal mentions */}
       {(invoice.nda_mention || invoice.tva_mention) && (

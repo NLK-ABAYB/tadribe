@@ -1,16 +1,36 @@
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Loader2, MapPin, User, Calendar, Clock, Users, Video, ClipboardCheck, ClipboardList, FileText } from 'lucide-react'
+import { Loader2, MapPin, User, Calendar, Clock, Users, Video, ClipboardCheck, ClipboardList, FileText, Pencil, X } from 'lucide-react'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { useSession } from '../hooks/use-sessions'
+import { useSession, useUpdateSession } from '../hooks/use-sessions'
+import { SessionForm, type SessionFormData } from '../components/SessionForm'
 import { SESSION_STATUSES } from '@/lib/constants'
+import type { SessionStatus } from '@/lib/types/database'
+
+const STATUS_TRANSITIONS: Record<string, { next: string; label: string }[]> = {
+  planifiee: [{ next: 'confirmee', label: 'Confirmer' }],
+  confirmee: [{ next: 'en_cours', label: 'Démarrer' }, { next: 'annulee', label: 'Annuler' }],
+  en_cours: [{ next: 'terminee', label: 'Terminer' }],
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  planifiee: 'secondary',
+  confirmee: 'default',
+  en_cours: 'warning',
+  terminee: 'success',
+  annulee: 'destructive',
+}
 
 export function SessionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { data: session, isLoading } = useSession(id)
+  const updateSession = useUpdateSession()
+  const [editing, setEditing] = useState(false)
 
   if (isLoading) {
     return (
@@ -23,6 +43,39 @@ export function SessionDetailPage() {
   if (!session) {
     return <p className="text-center text-muted-foreground py-12">Session non trouvée</p>
   }
+
+  async function handleUpdate(data: SessionFormData) {
+    if (!id) return
+    try {
+      await updateSession.mutateAsync({
+        id,
+        code: data.code || null,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        is_remote: data.is_remote ?? false,
+        remote_url: data.remote_url || null,
+        min_participants: data.min_participants ?? null,
+        max_participants: data.max_participants ?? null,
+        notes: data.notes || null,
+      })
+      toast.success('Session mise à jour')
+      setEditing(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
+  }
+
+  async function handleStatusChange(newStatus: string) {
+    if (!id) return
+    try {
+      await updateSession.mutateAsync({ id, status: newStatus as SessionStatus })
+      toast.success(`Statut mis à jour : ${SESSION_STATUSES[newStatus as keyof typeof SESSION_STATUSES]}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
+    }
+  }
+
+  const transitions = session.status ? STATUS_TRANSITIONS[session.status] ?? [] : []
 
   return (
     <div className="space-y-6">
@@ -38,16 +91,66 @@ export function SessionDetailPage() {
           </h1>
           <div className="flex items-center gap-2 mt-1">
             {session.code && <Badge variant="outline">{session.code}</Badge>}
-            {session.status && <Badge>{SESSION_STATUSES[session.status]}</Badge>}
+            {session.status && (
+              <Badge variant={STATUS_COLORS[session.status] as 'default' | 'secondary' | 'success' | 'warning' | 'destructive'}>
+                {SESSION_STATUSES[session.status]}
+              </Badge>
+            )}
           </div>
         </div>
-        <Link to={`/dashboard/sessions/${id}/emargement`}>
-          <Button variant="outline" size="sm">
-            <ClipboardCheck className="mr-2 h-4 w-4" />
-            Émargement
+        <div className="flex gap-2">
+          {transitions.map((t) => (
+            <Button
+              key={t.next}
+              size="sm"
+              variant={t.next === 'annulee' ? 'destructive' : 'default'}
+              onClick={() => handleStatusChange(t.next)}
+              disabled={updateSession.isPending}
+            >
+              {t.label}
+            </Button>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEditing(!editing)}
+          >
+            {editing ? <X className="mr-2 h-4 w-4" /> : <Pencil className="mr-2 h-4 w-4" />}
+            {editing ? 'Annuler' : 'Modifier'}
           </Button>
-        </Link>
+          <Link to={`/dashboard/sessions/${id}/emargement`}>
+            <Button variant="outline" size="sm">
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              Émargement
+            </Button>
+          </Link>
+        </div>
       </div>
+
+      {editing && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Modifier la session</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SessionForm
+              defaultValues={{
+                code: session.code ?? '',
+                start_date: session.start_date,
+                end_date: session.end_date,
+                is_remote: session.is_remote ?? false,
+                remote_url: session.remote_url ?? '',
+                min_participants: session.min_participants ?? undefined,
+                max_participants: session.max_participants ?? undefined,
+                notes: session.notes ?? '',
+              }}
+              onSubmit={handleUpdate}
+              isSubmitting={updateSession.isPending}
+              onCancel={() => setEditing(false)}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>

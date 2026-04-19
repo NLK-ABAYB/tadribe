@@ -213,6 +213,7 @@ export function PipelinePage() {
             </div>
             <div className="p-4">
               <OpportunityForm
+                key={editingOpp.id}
                 showStage
                 defaultValues={{
                   title: editingOpp.title,
