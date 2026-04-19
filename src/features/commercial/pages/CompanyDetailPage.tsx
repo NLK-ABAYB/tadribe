@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Plus, Loader2, Mail, Phone, Globe, Users } from 'lucide-react'
+import { Plus, Loader2, Mail, Phone, Globe, Users, UserPlus } from 'lucide-react'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import { useContacts, useCreateContact } from '../hooks/use-contacts'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { CompanyForm } from '../components/CompanyForm'
 import { ContactForm } from '../components/ContactForm'
+import { useInviteUser } from '@/features/shared/hooks/use-invite-user'
 
 export function CompanyDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -20,8 +21,32 @@ export function CompanyDetailPage() {
   const { data: contacts } = useContacts(id)
   const updateCompany = useUpdateCompany()
   const createContact = useCreateContact()
+  const inviteUser = useInviteUser()
   const [editing, setEditing] = useState(false)
   const [showContactForm, setShowContactForm] = useState(false)
+  const [invitingId, setInvitingId] = useState<string | null>(null)
+
+  async function handleInviteContact(contact: { id: string; email: string | null; first_name: string; last_name: string }) {
+    if (!contact.email) {
+      toast.error('Aucune adresse email renseignée pour ce contact')
+      return
+    }
+    setInvitingId(contact.id)
+    try {
+      const res = await inviteUser.mutateAsync({
+        email: contact.email,
+        role: 'entreprise',
+        target_id: contact.id,
+        first_name: contact.first_name,
+        last_name: contact.last_name,
+      })
+      toast.success(res.already_invited ? 'Contact déjà invité — lien régénéré' : 'Invitation envoyée')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de l\'invitation')
+    } finally {
+      setInvitingId(null)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -166,9 +191,32 @@ export function CompanyDetailPage() {
                           <p className="text-xs text-muted-foreground">{contact.email}</p>
                         )}
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex items-center gap-2">
                         {contact.contact_type && <Badge variant="outline" className="text-xs">{contact.contact_type}</Badge>}
                         {contact.is_active === false && <Badge variant="outline" className="text-xs">Inactif</Badge>}
+                        {contact.user_id ? (
+                          <Badge variant="success" className="text-xs">Portail activé</Badge>
+                        ) : contact.email ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            disabled={invitingId === contact.id}
+                            onClick={() => handleInviteContact({
+                              id: contact.id,
+                              email: contact.email,
+                              first_name: contact.first_name,
+                              last_name: contact.last_name,
+                            })}
+                          >
+                            {invitingId === contact.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <UserPlus className="h-3 w-3" />
+                            )}
+                            <span className="ml-1">Inviter</span>
+                          </Button>
+                        ) : null}
                       </div>
                     </div>
                   ))}

@@ -19,6 +19,7 @@ import {
 } from '../hooks/use-attendance'
 import { SignatureCanvas } from '../components/SignatureCanvas'
 import { AttendanceSheetPDF } from '@/features/documents/templates/AttendanceSheetPDF'
+import { toPDFOrgInfo, readOrgSettings } from '@/features/shared/pdf/org-info'
 import { useAuthContext } from '@/features/auth/auth-context'
 
 export function AttendancePage() {
@@ -112,11 +113,7 @@ export function AttendancePage() {
     const blob = await pdf(
       <AttendanceSheetPDF
         data={{
-          organization: {
-            name: organization.name,
-            siret: organization.siret,
-            nda: organization.nda,
-          },
+          organization: toPDFOrgInfo(organization),
           formation: {
             title: s.formations?.title ?? 'Formation',
             duration_hours: s.formations?.duration_hours ?? null,
@@ -131,6 +128,7 @@ export function AttendancePage() {
             ? { first_name: s.trainers.first_name, last_name: s.trainers.last_name }
             : null,
           days,
+          legalMentions: readOrgSettings(organization.settings).legal_mentions ?? null,
         }}
       />
     ).toBlob()

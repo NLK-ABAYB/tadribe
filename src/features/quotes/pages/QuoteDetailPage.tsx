@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
-import { Loader2, Download, Send, CheckCircle, XCircle, FileText, Receipt } from 'lucide-react'
+import { Loader2, Download, Send, CheckCircle, XCircle, FileText, Receipt, Mail } from 'lucide-react'
 import { toast } from 'sonner'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { Button } from '@/components/ui/button'
@@ -10,7 +11,11 @@ import { useAuthContext } from '@/features/auth/auth-context'
 import { useQuote, useQuoteLines, useUpdateQuote } from '../hooks/use-quotes'
 import { useCreateInvoice } from '@/features/invoicing/hooks/use-invoices'
 import { useNextInvoiceNumber } from '@/features/invoicing/hooks/use-invoices'
+import { useCreateConvention, useNextConventionRef } from '@/features/conventions/hooks/use-conventions'
 import { QuotePDF } from '../templates/QuotePDF'
+import { toPDFOrgInfo, readOrgSettings } from '@/features/shared/pdf/org-info'
+import { SendDocumentEmailDialog } from '@/features/shared/components/SendDocumentEmailDialog'
+import { DocumentEmailsHistory } from '@/features/shared/components/DocumentEmailsHistory'
 import { QUOTE_STATUS_LABELS, type QuoteStatus } from '../types'
 
 const STATUS_VARIANT: Record<QuoteStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'outline'> = {
@@ -31,6 +36,9 @@ export function QuoteDetailPage() {
   const updateQuote = useUpdateQuote()
   const createInvoice = useCreateInvoice()
   const { data: nextInvoiceNumber } = useNextInvoiceNumber()
+  const createConvention = useCreateConvention()
+  const { data: nextConventionRef } = useNextConventionRef()
+  const [showEmailDialog, setShowEmailDialog] = useState(false)
 
   const fmt = (n: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
@@ -47,9 +55,10 @@ export function QuoteDetailPage() {
     return <p className="text-center text-muted-foreground py-12">Devis non trouvé</p>
   }
 
-  async function handleDownloadPDF() {
-    if (!organization || !quote || !lines) return
-    const blob = await pdf(
+  async function buildQuotePdfBlob(): Promise<Blob> {
+    if (!organization || !quote || !lines) throw new Error('Devis non disponible')
+    const settings = readOrgSettings(organization.settings)
+    return pdf(
       <QuotePDF
         quote={{
           quote_number: quote.quote_number,
@@ -62,20 +71,19 @@ export function QuoteDetailPage() {
           terms: quote.terms,
         }}
         lines={lines}
-        organization={{
-          name: organization.name,
-          siret: organization.siret,
-          nda: organization.nda,
-          email: organization.email,
-          phone: organization.phone,
-          tva_exempt: organization.tva_exempt ?? false,
-        }}
+        organization={toPDFOrgInfo(organization)}
         company={{
           name: quote.companies?.name ?? '',
           siret: quote.companies?.siret ?? null,
         }}
+        legalMentions={settings.legal_mentions ?? null}
       />,
     ).toBlob()
+  }
+
+  async function handleDownloadPDF() {
+    if (!quote) return
+    const blob = await buildQuotePdfBlob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -95,6 +103,28 @@ export function QuoteDetailPage() {
       toast.success(`Devis marqué ${QUOTE_STATUS_LABELS[status].toLowerCase()}`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erreur')
+    }
+  }
+
+  async function handleConvertToConvention() {
+    if (!quote || !nextConventionRef || !organization) return
+    try {
+      const convention = await createConvention.mutateAsync({
+        organization_id: quote.organization_id,
+        reference: nextConventionRef,
+        company_id: quote.company_id,
+        type: 'intra',
+        status: 'draft',
+        amount_ht: quote.subtotal_ht,
+        terms: quote.terms,
+        start_date: null,
+        end_date: null,
+      })
+      await updateQuote.mutateAsync({ id: quote.id, converted_convention_id: convention.id } as never)
+      toast.success('Convention créée')
+      navigate(`/dashboard/conventions/${convention.id}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de la conversion')
     }
   }
 
@@ -148,6 +178,10 @@ export function QuoteDetailPage() {
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowEmailDialog(true)}>
+            <Mail className="mr-2 h-4 w-4" />
+            Envoyer
+          </Button>
           {quote.status === 'draft' && (
             <Button size="sm" onClick={() => handleStatusChange('sent')}>
               <Send className="mr-2 h-4 w-4" />
@@ -167,10 +201,16 @@ export function QuoteDetailPage() {
             </>
           )}
           {quote.status === 'accepted' && (
-            <Button size="sm" onClick={handleConvertToInvoice} disabled={createInvoice.isPending}>
-              <Receipt className="mr-2 h-4 w-4" />
-              Convertir en facture
-            </Button>
+            <>
+              <Button size="sm" onClick={handleConvertToInvoice} disabled={createInvoice.isPending}>
+                <Receipt className="mr-2 h-4 w-4" />
+                Convertir en facture
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleConvertToConvention} disabled={createConvention.isPending}>
+                <FileText className="mr-2 h-4 w-4" />
+                Convertir en convention
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -247,6 +287,20 @@ export function QuoteDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      <DocumentEmailsHistory documentType="devis" documentId={quote.id} />
+
+      <SendDocumentEmailDialog
+        open={showEmailDialog}
+        onClose={() => setShowEmailDialog(false)}
+        documentType="devis"
+        documentId={quote.id}
+        pdfFilename={`${quote.quote_number}.pdf`}
+        buildPdfBlob={buildQuotePdfBlob}
+        defaultTo={null}
+        defaultSubject={`Devis ${quote.quote_number} — ${organization?.name ?? ''}`}
+        defaultBody={`Bonjour,\n\nVeuillez trouver ci-joint le devis ${quote.quote_number} d'un montant de ${fmt(quote.total_ttc)} TTC.\n\nCe devis est valable ${quote.valid_until ? `jusqu'au ${new Date(quote.valid_until).toLocaleDateString('fr-FR')}` : '30 jours'}.\n\nN'hésitez pas à revenir vers nous pour toute question.\n\nCordialement,\n${organization?.name ?? ''}`}
+      />
     </div>
   )
 }

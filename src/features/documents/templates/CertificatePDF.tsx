@@ -1,46 +1,31 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { PDFHeader, type PDFOrgInfo } from '@/features/shared/pdf/PDFHeader'
+import { PDFFooter } from '@/features/shared/pdf/PDFFooter'
 
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 10, fontFamily: 'Helvetica' },
-  title: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 5, marginTop: 40 },
-  subtitle: { fontSize: 12, textAlign: 'center', marginBottom: 30, color: '#555' },
-  body: { marginTop: 20, lineHeight: 1.6 },
+  page: { padding: 40, paddingBottom: 90, fontSize: 10, fontFamily: 'Helvetica' },
+  subtitle: { fontSize: 11, textAlign: 'center', marginBottom: 20, color: '#555' },
+  body: { marginTop: 10, lineHeight: 1.6 },
   bold: { fontWeight: 'bold' },
-  section: { marginBottom: 15 },
+  section: { marginBottom: 14 },
   row: { flexDirection: 'row', marginBottom: 3 },
   label: { width: '35%', fontWeight: 'bold' },
   value: { width: '65%' },
-  certify: { fontSize: 11, textAlign: 'center', marginTop: 30, marginBottom: 30, lineHeight: 1.8 },
-  signatureBlock: { marginTop: 50, alignItems: 'flex-end' },
-  signatureLine: { borderBottom: '1 solid #333', width: 200, marginTop: 40, marginBottom: 5 },
-  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, fontSize: 8, color: '#666', textAlign: 'center' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
-  orgName: { fontSize: 14, fontWeight: 'bold' },
+  certify: { fontSize: 11, textAlign: 'center', marginTop: 20, marginBottom: 20, lineHeight: 1.8 },
+  signatureBlock: { marginTop: 30, alignItems: 'flex-end' },
+  signatureLine: { borderBottom: '1 solid #333', width: 200, marginTop: 30, marginBottom: 5 },
   objectivesList: { marginLeft: 15, marginTop: 5 },
 })
 
 interface CertificateData {
-  organization: {
-    name: string
-    siret: string
-    nda: string | null
-  }
-  beneficiary: {
-    first_name: string
-    last_name: string
-  }
-  formation: {
-    title: string
-    objectives: string[]
-    duration_hours: number | null
-  }
-  session: {
-    start_date: string
-    end_date: string
-    code: string | null
-  }
+  organization: PDFOrgInfo
+  beneficiary: { first_name: string; last_name: string }
+  formation: { title: string; objectives: string[]; duration_hours: number | null }
+  session: { start_date: string; end_date: string; code: string | null }
   issued_date: string
   objectives_achieved: string[]
+  reference?: string
+  legalMentions?: string | null
 }
 
 export function CertificatePDF({ data }: { data: CertificateData }) {
@@ -49,18 +34,12 @@ export function CertificatePDF({ data }: { data: CertificateData }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.orgName}>{data.organization.name}</Text>
-            <Text>SIRET : {data.organization.siret}</Text>
-            {data.organization.nda && <Text>NDA : {data.organization.nda}</Text>}
-          </View>
-        </View>
-
-        <Text style={styles.title}>CERTIFICAT DE RÉALISATION</Text>
-        <Text style={styles.subtitle}>
-          Article L. 6353-1 du Code du travail
-        </Text>
+        <PDFHeader
+          organization={data.organization}
+          documentTitle="CERTIFICAT DE RÉALISATION"
+          documentRef={data.reference}
+        />
+        <Text style={styles.subtitle}>Article L. 6353-1 du Code du travail</Text>
 
         <View style={styles.body}>
           <Text style={styles.certify}>
@@ -115,10 +94,7 @@ export function CertificatePDF({ data }: { data: CertificateData }) {
           <Text>Cachet et signature</Text>
         </View>
 
-        <Text style={styles.footer}>
-          {data.organization.name} — SIRET : {data.organization.siret}
-          {data.organization.nda ? ` — NDA : ${data.organization.nda}` : ''}
-        </Text>
+        <PDFFooter organization={data.organization} docType="certificat" legalMentions={data.legalMentions ?? null} />
       </Page>
     </Document>
   )

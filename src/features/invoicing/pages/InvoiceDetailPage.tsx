@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
-import { Loader2, Download, Send, Plus, CreditCard } from 'lucide-react'
+import { Loader2, Download, Send, Plus, CreditCard, Mail } from 'lucide-react'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,9 @@ import { useInvoice, useInvoiceLines, useUpdateInvoice } from '../hooks/use-invo
 import { usePayments, useCreatePayment } from '../hooks/use-payments'
 import { InvoiceWorkflow } from '../components/InvoiceWorkflow'
 import { InvoicePDF } from '../templates/InvoicePDF'
+import { toPDFOrgInfo, readOrgSettings } from '@/features/shared/pdf/org-info'
+import { SendDocumentEmailDialog } from '@/features/shared/components/SendDocumentEmailDialog'
+import { DocumentEmailsHistory } from '@/features/shared/components/DocumentEmailsHistory'
 import { INVOICE_STATUSES } from '@/lib/constants'
 
 function getWorkflowStep(status: string | null): string {
@@ -48,6 +51,7 @@ export function InvoiceDetailPage() {
   const [payMethod, setPayMethod] = useState('virement')
   const [payRef, setPayRef] = useState('')
   const [payPayer, setPayPayer] = useState('')
+  const [showEmailDialog, setShowEmailDialog] = useState(false)
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
@@ -64,9 +68,35 @@ export function InvoiceDetailPage() {
     return <p className="text-center text-muted-foreground py-12">Facture non trouvée</p>
   }
 
+  async function buildInvoicePdfBlob(): Promise<Blob> {
+    if (!invoice || !lines || !organization) throw new Error('Facture non disponible')
+    const settings = readOrgSettings(organization.settings)
+    return pdf(
+      <InvoicePDF
+        invoice={{
+          invoice_number: invoice.invoice_number,
+          issue_date: invoice.issue_date,
+          due_date: invoice.due_date,
+          total_ht: invoice.total_ht,
+          tva_rate: invoice.tva_rate,
+          tva_amount: invoice.tva_amount,
+          total_ttc: invoice.total_ttc,
+          amount_paid: invoice.amount_paid,
+          nda_mention: invoice.nda_mention,
+          tva_mention: invoice.tva_mention,
+          recipient_name: invoice.recipient_name,
+        }}
+        lines={lines}
+        organization={toPDFOrgInfo(organization)}
+        legalMentions={settings.legal_mentions ?? null}
+      />,
+    ).toBlob()
+  }
+
   async function handleDownloadPDF() {
     if (!invoice || !lines || !organization) return
     try {
+      const settings = readOrgSettings(organization.settings)
       const blob = await pdf(
         <InvoicePDF
           invoice={{
@@ -83,14 +113,8 @@ export function InvoiceDetailPage() {
             recipient_name: invoice.recipient_name,
           }}
           lines={lines}
-          organization={{
-            name: organization.name,
-            siret: organization.siret,
-            nda: organization.nda,
-            email: organization.email,
-            phone: organization.phone,
-            tva_exempt: organization.tva_exempt ?? false,
-          }}
+          organization={toPDFOrgInfo(organization)}
+          legalMentions={settings.legal_mentions ?? null}
         />,
       ).toBlob()
       const url = URL.createObjectURL(blob)
@@ -173,6 +197,10 @@ export function InvoiceDetailPage() {
             <Download className="mr-2 h-4 w-4" />
             PDF
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowEmailDialog(true)}>
+            <Mail className="mr-2 h-4 w-4" />
+            Envoyer
+          </Button>
           {(invoice.status === 'brouillon' || invoice.status === 'emise' || invoice.status === 'envoyee') && (
             <Button size="sm" onClick={advanceStatus} disabled={updateInvoice.isPending}>
               <Send className="mr-2 h-4 w-4" />
@@ -181,6 +209,20 @@ export function InvoiceDetailPage() {
           )}
         </div>
       </div>
+
+      <SendDocumentEmailDialog
+        open={showEmailDialog}
+        onClose={() => setShowEmailDialog(false)}
+        documentType="facture"
+        documentId={invoice.id}
+        pdfFilename={`${invoice.invoice_number}.pdf`}
+        buildPdfBlob={buildInvoicePdfBlob}
+        defaultTo={null}
+        defaultSubject={`Facture ${invoice.invoice_number} — ${organization?.name ?? ''}`}
+        defaultBody={`Bonjour,\n\nVeuillez trouver ci-joint la facture ${invoice.invoice_number} d'un montant de ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(invoice.total_ttc)} TTC, à régler avant le ${new Date(invoice.due_date).toLocaleDateString('fr-FR')}.\n\nCordialement,\n${organization?.name ?? ''}`}
+      />
+
+      <DocumentEmailsHistory documentType="facture" documentId={invoice.id} />
 
       {/* Workflow */}
       <InvoiceWorkflow currentStep={getWorkflowStep(invoice.status)} />

@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
-import { Loader2, Download, Send, CheckCircle, XCircle } from 'lucide-react'
+import { Loader2, Download, Send, CheckCircle, XCircle, Mail } from 'lucide-react'
 import { toast } from 'sonner'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,9 @@ import { Badge } from '@/components/ui/badge'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { useConvention, useUpdateConvention } from '../hooks/use-conventions'
 import { ConventionPDF } from '@/features/documents/templates/ConventionPDF'
+import { toPDFOrgInfo, readOrgSettings } from '@/features/shared/pdf/org-info'
+import { SendDocumentEmailDialog } from '@/features/shared/components/SendDocumentEmailDialog'
+import { DocumentEmailsHistory } from '@/features/shared/components/DocumentEmailsHistory'
 import { CONVENTION_STATUS_LABELS, CONVENTION_TYPE_LABELS, type ConventionStatus } from '../types'
 
 const STATUS_VARIANT: Record<ConventionStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'outline'> = {
@@ -23,6 +27,7 @@ export function ConventionDetailPage() {
   const { organization } = useAuthContext()
   const { data: convention, isLoading } = useConvention(id)
   const updateConvention = useUpdateConvention()
+  const [showEmailDialog, setShowEmailDialog] = useState(false)
 
   const fmt = (n: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
@@ -39,19 +44,13 @@ export function ConventionDetailPage() {
     return <p className="text-center text-muted-foreground py-12">Convention non trouvée</p>
   }
 
-  async function handleDownloadPDF() {
-    if (!organization || !convention) return
-    const blob = await pdf(
+  async function buildConventionPdfBlob(): Promise<Blob> {
+    if (!organization || !convention) throw new Error('Convention non disponible')
+    const settings = readOrgSettings(organization.settings)
+    return pdf(
       <ConventionPDF
         data={{
-          organization: {
-            name: organization.name,
-            siret: organization.siret,
-            nda: organization.nda,
-            address: '',
-            phone: organization.phone,
-            email: organization.email,
-          },
+          organization: toPDFOrgInfo(organization),
           company: {
             name: convention.companies?.name ?? '',
             siret: convention.companies?.siret ?? null,
@@ -76,9 +75,16 @@ export function ConventionDetailPage() {
           price_ttc: null,
           tva_exempt: organization.tva_exempt ?? false,
           convention_date: new Date().toISOString().slice(0, 10),
+          reference: convention.reference,
+          legalMentions: settings.legal_mentions ?? null,
         }}
       />,
     ).toBlob()
+  }
+
+  async function handleDownloadPDF() {
+    if (!convention) return
+    const blob = await buildConventionPdfBlob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -120,6 +126,10 @@ export function ConventionDetailPage() {
           <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
             <Download className="mr-2 h-4 w-4" />
             PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowEmailDialog(true)}>
+            <Mail className="mr-2 h-4 w-4" />
+            Envoyer
           </Button>
           {convention.status === 'draft' && (
             <Button size="sm" onClick={() => handleStatusChange('sent')}>
@@ -202,6 +212,20 @@ export function ConventionDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      <DocumentEmailsHistory documentType="convention" documentId={convention.id} />
+
+      <SendDocumentEmailDialog
+        open={showEmailDialog}
+        onClose={() => setShowEmailDialog(false)}
+        documentType="convention"
+        documentId={convention.id}
+        pdfFilename={`${convention.reference}.pdf`}
+        buildPdfBlob={buildConventionPdfBlob}
+        defaultTo={null}
+        defaultSubject={`Convention ${convention.reference} — ${organization?.name ?? ''}`}
+        defaultBody={`Bonjour,\n\nVeuillez trouver ci-joint la convention de formation ${convention.reference}.\n\nMerci de bien vouloir la retourner signée.\n\nCordialement,\n${organization?.name ?? ''}`}
+      />
     </div>
   )
 }

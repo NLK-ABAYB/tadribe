@@ -1,16 +1,16 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
+import { PDFHeader, type PDFOrgInfo } from '@/features/shared/pdf/PDFHeader'
+import { PDFFooter } from '@/features/shared/pdf/PDFFooter'
 
 const styles = StyleSheet.create({
-  page: { padding: 30, fontSize: 9, fontFamily: 'Helvetica' },
-  header: { marginBottom: 15 },
-  title: { fontSize: 14, fontWeight: 'bold', textAlign: 'center', marginBottom: 5 },
-  subtitle: { fontSize: 10, textAlign: 'center', marginBottom: 15, color: '#555' },
-  infoGrid: { flexDirection: 'row', marginBottom: 15 },
+  page: { padding: 30, paddingBottom: 80, fontSize: 9, fontFamily: 'Helvetica' },
+  subtitle: { fontSize: 10, textAlign: 'center', marginBottom: 12, color: '#555' },
+  infoGrid: { flexDirection: 'row', marginBottom: 12 },
   infoColumn: { width: '50%' },
   infoRow: { flexDirection: 'row', marginBottom: 2 },
   infoLabel: { fontWeight: 'bold', width: 80 },
   infoValue: {},
-  table: { marginTop: 10 },
+  table: { marginTop: 8 },
   tableHeader: { flexDirection: 'row', backgroundColor: '#f0f0f0', borderBottom: '1 solid #333' },
   tableRow: { flexDirection: 'row', borderBottom: '0.5 solid #ccc', minHeight: 35, alignItems: 'center' },
   colName: { width: '25%', padding: 4 },
@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
   colSignAfternoonTrainer: { width: '18.75%', padding: 4, borderLeft: '0.5 solid #ccc', textAlign: 'center' },
   thText: { fontWeight: 'bold', fontSize: 8, textAlign: 'center' },
   signatureImg: { width: 60, height: 25, objectFit: 'contain' },
-  footer: { position: 'absolute', bottom: 20, left: 30, right: 30, fontSize: 7, color: '#666', textAlign: 'center' },
   dateHeader: { backgroundColor: '#e8e8e8', padding: 6, fontWeight: 'bold', fontSize: 10, borderBottom: '1 solid #333' },
 })
 
@@ -39,26 +38,12 @@ interface SlotDay {
 }
 
 interface AttendanceSheetData {
-  organization: {
-    name: string
-    siret: string
-    nda: string | null
-  }
-  formation: {
-    title: string
-    duration_hours: number | null
-  }
-  session: {
-    code: string | null
-    start_date: string
-    end_date: string
-    location: string
-  }
-  trainer: {
-    first_name: string
-    last_name: string
-  } | null
+  organization: PDFOrgInfo
+  formation: { title: string; duration_hours: number | null }
+  session: { code: string | null; start_date: string; end_date: string; location: string }
+  trainer: { first_name: string; last_name: string } | null
   days: SlotDay[]
+  legalMentions?: string | null
 }
 
 export function AttendanceSheetPDF({ data }: { data: AttendanceSheetData }) {
@@ -67,17 +52,15 @@ export function AttendanceSheetPDF({ data }: { data: AttendanceSheetData }) {
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.title}>FEUILLE D'ÉMARGEMENT</Text>
-          <Text style={styles.subtitle}>{data.formation.title}</Text>
-        </View>
+        <PDFHeader
+          organization={data.organization}
+          documentTitle="FEUILLE D'ÉMARGEMENT"
+          documentRef={data.session.code ?? undefined}
+        />
+        <Text style={styles.subtitle}>{data.formation.title}</Text>
 
         <View style={styles.infoGrid}>
           <View style={styles.infoColumn}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Organisme :</Text>
-              <Text style={styles.infoValue}>{data.organization.name}</Text>
-            </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Session :</Text>
               <Text style={styles.infoValue}>{data.session.code ?? '—'}</Text>
@@ -153,11 +136,7 @@ export function AttendanceSheetPDF({ data }: { data: AttendanceSheetData }) {
           </View>
         ))}
 
-        <Text style={styles.footer}>
-          {data.organization.name} — SIRET : {data.organization.siret}
-          {data.organization.nda ? ` — NDA : ${data.organization.nda}` : ''}
-          {' — Ind. 12 Qualiopi : émargement et assiduité'}
-        </Text>
+        <PDFFooter organization={data.organization} docType="emargement" legalMentions={data.legalMentions ?? null} />
       </Page>
     </Document>
   )

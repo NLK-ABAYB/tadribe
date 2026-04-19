@@ -10,6 +10,7 @@ import { useCertificates, useCreateCertificate } from '../hooks/use-certificates
 import { useEnrollments } from '@/features/enrollments/hooks/use-enrollments'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { CertificatePDF } from '../templates/CertificatePDF'
+import { toPDFOrgInfo, readOrgSettings } from '@/features/shared/pdf/org-info'
 import type { CertificateWithRelations } from '../hooks/use-certificates'
 
 export function CertificatesPage() {
@@ -50,14 +51,11 @@ export function CertificatesPage() {
 
   async function handleDownloadPDF(cert: CertificateWithRelations) {
     if (!organization) return
+    const settings = readOrgSettings(organization.settings)
     const blob = await pdf(
       <CertificatePDF
         data={{
-          organization: {
-            name: organization.name,
-            siret: organization.siret,
-            nda: organization.nda,
-          },
+          organization: toPDFOrgInfo(organization),
           beneficiary: {
             first_name: cert.enrollments?.beneficiaries?.first_name ?? '',
             last_name: cert.enrollments?.beneficiaries?.last_name ?? '',
@@ -74,6 +72,7 @@ export function CertificatesPage() {
           },
           issued_date: cert.issued_date,
           objectives_achieved: cert.objectives_achieved ?? [],
+          legalMentions: settings.legal_mentions ?? null,
         }}
       />
     ).toBlob()

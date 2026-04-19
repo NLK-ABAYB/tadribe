@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Pencil, Loader2, AlertTriangle } from 'lucide-react'
+import { Pencil, Loader2, AlertTriangle, Mail } from 'lucide-react'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -10,13 +10,34 @@ import { QUALIFICATION_LEVELS } from '@/lib/constants'
 import { useBeneficiary, useUpdateBeneficiary } from '../hooks/use-beneficiaries'
 import { useEnrollments } from '@/features/enrollments/hooks/use-enrollments'
 import { BeneficiaryForm } from '../components/BeneficiaryForm'
+import { useInviteUser } from '@/features/shared/hooks/use-invite-user'
 
 export function BeneficiaryDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { data: beneficiary, isLoading } = useBeneficiary(id)
   const { data: allEnrollments } = useEnrollments()
   const updateBeneficiary = useUpdateBeneficiary()
+  const inviteUser = useInviteUser()
   const [editing, setEditing] = useState(false)
+
+  async function handleInvite() {
+    if (!beneficiary?.email) {
+      toast.error('Aucune adresse email renseignée pour ce bénéficiaire')
+      return
+    }
+    try {
+      const res = await inviteUser.mutateAsync({
+        email: beneficiary.email,
+        role: beneficiary.is_apprentice ? 'apprenti' : 'apprenant',
+        target_id: beneficiary.id,
+        first_name: beneficiary.first_name,
+        last_name: beneficiary.last_name,
+      })
+      toast.success(res.already_invited ? 'Utilisateur déjà invité — lien régénéré' : 'Invitation envoyée')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de l\'invitation')
+    }
+  }
 
   const enrollments = allEnrollments?.filter((e) => e.beneficiaries?.first_name === beneficiary?.first_name && e.beneficiaries?.last_name === beneficiary?.last_name)
 
@@ -65,10 +86,25 @@ export function BeneficiaryDetailPage() {
             </div>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setEditing(!editing)}>
-          <Pencil className="mr-2 h-4 w-4" />
-          {editing ? 'Annuler' : 'Modifier'}
-        </Button>
+        <div className="flex gap-2">
+          {beneficiary.email && !beneficiary.profile_id && (
+            <Button variant="outline" size="sm" onClick={handleInvite} disabled={inviteUser.isPending}>
+              {inviteUser.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Mail className="mr-2 h-4 w-4" />
+              )}
+              Inviter au portail
+            </Button>
+          )}
+          {beneficiary.profile_id && (
+            <Badge variant="success" className="self-center">Portail activé</Badge>
+          )}
+          <Button variant="outline" size="sm" onClick={() => setEditing(!editing)}>
+            <Pencil className="mr-2 h-4 w-4" />
+            {editing ? 'Annuler' : 'Modifier'}
+          </Button>
+        </div>
       </div>
 
       {editing ? (

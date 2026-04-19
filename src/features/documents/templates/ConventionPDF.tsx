@@ -1,11 +1,11 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { PDFHeader, type PDFOrgInfo } from '@/features/shared/pdf/PDFHeader'
+import { PDFFooter } from '@/features/shared/pdf/PDFFooter'
 
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 10, fontFamily: 'Helvetica' },
-  header: { marginBottom: 20 },
-  title: { fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginBottom: 10 },
-  subtitle: { fontSize: 12, textAlign: 'center', marginBottom: 20, color: '#555' },
-  section: { marginBottom: 15 },
+  page: { padding: 40, paddingBottom: 90, fontSize: 10, fontFamily: 'Helvetica' },
+  subtitle: { fontSize: 11, textAlign: 'center', marginBottom: 18, color: '#555' },
+  section: { marginBottom: 14 },
   sectionTitle: { fontSize: 11, fontWeight: 'bold', marginBottom: 5, borderBottom: '1 solid #333', paddingBottom: 3 },
   row: { flexDirection: 'row', marginBottom: 3 },
   label: { width: '35%', fontWeight: 'bold' },
@@ -13,21 +13,13 @@ const styles = StyleSheet.create({
   article: { marginBottom: 10 },
   articleTitle: { fontWeight: 'bold', marginBottom: 3 },
   paragraph: { lineHeight: 1.4, marginBottom: 5 },
-  signatureBlock: { flexDirection: 'row', marginTop: 40 },
+  signatureBlock: { flexDirection: 'row', marginTop: 30 },
   signatureColumn: { width: '50%', padding: 10 },
   signatureLine: { borderBottom: '1 solid #333', marginTop: 40, marginBottom: 5 },
-  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, fontSize: 8, color: '#666', textAlign: 'center' },
 })
 
 interface ConventionData {
-  organization: {
-    name: string
-    siret: string
-    nda: string | null
-    address: string
-    phone: string | null
-    email: string | null
-  }
+  organization: PDFOrgInfo
   company: {
     name: string
     siret: string | null
@@ -52,6 +44,8 @@ interface ConventionData {
   price_ttc: number | null
   tva_exempt: boolean
   convention_date: string
+  reference?: string
+  legalMentions?: string | null
 }
 
 export function ConventionPDF({ data }: { data: ConventionData }) {
@@ -61,20 +55,17 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.title}>CONVENTION DE FORMATION PROFESSIONNELLE</Text>
-          <Text style={styles.subtitle}>
-            Articles L.6353-1 et L.6353-2 du Code du travail
-          </Text>
-        </View>
+        <PDFHeader
+          organization={data.organization}
+          documentTitle="CONVENTION DE FORMATION PROFESSIONNELLE"
+          documentRef={data.reference}
+        />
+        <Text style={styles.subtitle}>Articles L.6353-1 et L.6353-2 du Code du travail</Text>
 
-        {/* Parties */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>ENTRE LES SOUSSIGNÉS</Text>
           <View style={styles.article}>
-            <Text style={styles.paragraph}>
-              L'organisme de formation : {data.organization.name}
-            </Text>
+            <Text style={styles.paragraph}>L'organisme de formation : {data.organization.name}</Text>
             <View style={styles.row}>
               <Text style={styles.label}>SIRET :</Text>
               <Text style={styles.value}>{data.organization.siret}</Text>
@@ -87,9 +78,7 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
             )}
           </View>
           <View style={styles.article}>
-            <Text style={styles.paragraph}>
-              Et l'entreprise : {data.company.name}
-            </Text>
+            <Text style={styles.paragraph}>Et l'entreprise : {data.company.name}</Text>
             {data.company.siret && (
               <View style={styles.row}>
                 <Text style={styles.label}>SIRET :</Text>
@@ -99,7 +88,6 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
           </View>
         </View>
 
-        {/* Article 1 */}
         <View style={styles.section}>
           <Text style={styles.articleTitle}>Article 1 — Objet</Text>
           <Text style={styles.paragraph}>
@@ -111,7 +99,6 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
           </View>
         </View>
 
-        {/* Article 2 */}
         <View style={styles.section}>
           <Text style={styles.articleTitle}>Article 2 — Objectifs</Text>
           {data.formation.objectives?.map((obj, i) => (
@@ -119,7 +106,6 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
           ))}
         </View>
 
-        {/* Article 3 */}
         <View style={styles.section}>
           <Text style={styles.articleTitle}>Article 3 — Organisation</Text>
           <View style={styles.row}>
@@ -142,7 +128,6 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
           )}
         </View>
 
-        {/* Article 4 */}
         <View style={styles.section}>
           <Text style={styles.articleTitle}>Article 4 — Bénéficiaires</Text>
           {data.beneficiaries.map((b, i) => (
@@ -150,7 +135,6 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
           ))}
         </View>
 
-        {/* Article 5 */}
         <View style={styles.section}>
           <Text style={styles.articleTitle}>Article 5 — Prix</Text>
           <View style={styles.row}>
@@ -169,7 +153,6 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
           ) : null}
         </View>
 
-        {/* Signatures */}
         <View style={styles.signatureBlock}>
           <View style={styles.signatureColumn}>
             <Text>Fait à __________, le {fmtDate(data.convention_date)}</Text>
@@ -185,10 +168,7 @@ export function ConventionPDF({ data }: { data: ConventionData }) {
           </View>
         </View>
 
-        <Text style={styles.footer}>
-          {data.organization.name} — SIRET : {data.organization.siret}
-          {data.organization.nda ? ` — NDA : ${data.organization.nda}` : ''}
-        </Text>
+        <PDFFooter organization={data.organization} docType="convention" legalMentions={data.legalMentions ?? null} />
       </Page>
     </Document>
   )

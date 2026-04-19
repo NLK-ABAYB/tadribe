@@ -1,16 +1,14 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { PDFHeader, type PDFOrgInfo } from '@/features/shared/pdf/PDFHeader'
+import { PDFFooter } from '@/features/shared/pdf/PDFFooter'
 
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 10, fontFamily: 'Helvetica' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#1E3A5F' },
-  meta: { textAlign: 'right', fontSize: 9 },
-  partiesRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  partyBlock: { width: '48%' },
+  page: { padding: 40, paddingBottom: 90, fontSize: 10, fontFamily: 'Helvetica' },
+  metaRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, fontSize: 9, color: '#666' },
+  partyBlock: { marginBottom: 16 },
   partyTitle: { fontSize: 9, color: '#666', marginBottom: 3, textTransform: 'uppercase' },
   partyName: { fontSize: 11, fontWeight: 'bold', marginBottom: 3 },
-  partyDetail: { fontSize: 9, color: '#444', lineHeight: 1.4 },
-  table: { marginTop: 15, marginBottom: 15 },
+  table: { marginTop: 10, marginBottom: 15 },
   tableHead: { flexDirection: 'row', backgroundColor: '#1E3A5F', color: 'white', padding: 6, fontSize: 9, fontWeight: 'bold' },
   tableRow: { flexDirection: 'row', padding: 6, borderBottom: '1 solid #eee', fontSize: 9 },
   colDesc: { flex: 3 },
@@ -23,8 +21,6 @@ const styles = StyleSheet.create({
   paymentSection: { marginTop: 15, padding: 10, backgroundColor: '#f5f5f5', borderRadius: 4 },
   paymentTitle: { fontSize: 10, fontWeight: 'bold', marginBottom: 4 },
   paymentRow: { flexDirection: 'row', justifyContent: 'space-between', fontSize: 9, padding: 2 },
-  mentions: { marginTop: 20, fontSize: 8, color: '#555', lineHeight: 1.4 },
-  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, fontSize: 8, color: '#666', textAlign: 'center' },
 })
 
 interface InvoicePDFProps {
@@ -41,23 +37,12 @@ interface InvoicePDFProps {
     tva_mention: string | null
     recipient_name: string
   }
-  lines: {
-    description: string
-    quantity: number
-    unit_price_ht: number
-    total_ht: number
-  }[]
-  organization: {
-    name: string
-    siret: string
-    nda: string | null
-    email: string | null
-    phone: string | null
-    tva_exempt: boolean
-  }
+  lines: { description: string; quantity: number; unit_price_ht: number; total_ht: number }[]
+  organization: PDFOrgInfo
+  legalMentions?: string | null
 }
 
-export function InvoicePDF({ invoice, lines, organization }: InvoicePDFProps) {
+export function InvoicePDF({ invoice, lines, organization, legalMentions }: InvoicePDFProps) {
   const fmt = (n: number) =>
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
   const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-FR')
@@ -68,30 +53,16 @@ export function InvoicePDF({ invoice, lines, organization }: InvoicePDFProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>FACTURE</Text>
-            <Text style={{ color: '#666', marginTop: 4 }}>N° {invoice.invoice_number}</Text>
-          </View>
-          <View style={styles.meta}>
-            <Text>Date d'émission : {fmtDate(invoice.issue_date)}</Text>
-            <Text>Échéance : {fmtDate(invoice.due_date)}</Text>
-          </View>
+        <PDFHeader organization={organization} documentTitle="FACTURE" documentRef={invoice.invoice_number} />
+
+        <View style={styles.metaRow}>
+          <Text>Date d'émission : {fmtDate(invoice.issue_date)}</Text>
+          <Text>Échéance : {fmtDate(invoice.due_date)}</Text>
         </View>
 
-        <View style={styles.partiesRow}>
-          <View style={styles.partyBlock}>
-            <Text style={styles.partyTitle}>Émetteur</Text>
-            <Text style={styles.partyName}>{organization.name}</Text>
-            <Text style={styles.partyDetail}>SIRET : {organization.siret}</Text>
-            {organization.nda && <Text style={styles.partyDetail}>NDA : {organization.nda}</Text>}
-            {organization.email && <Text style={styles.partyDetail}>{organization.email}</Text>}
-            {organization.phone && <Text style={styles.partyDetail}>{organization.phone}</Text>}
-          </View>
-          <View style={styles.partyBlock}>
-            <Text style={styles.partyTitle}>Destinataire</Text>
-            <Text style={styles.partyName}>{invoice.recipient_name}</Text>
-          </View>
+        <View style={styles.partyBlock}>
+          <Text style={styles.partyTitle}>Destinataire</Text>
+          <Text style={styles.partyName}>{invoice.recipient_name}</Text>
         </View>
 
         <View style={styles.table}>
@@ -140,23 +111,12 @@ export function InvoicePDF({ invoice, lines, organization }: InvoicePDFProps) {
           </View>
         )}
 
-        {(invoice.nda_mention || invoice.tva_mention) && (
-          <View style={styles.mentions}>
-            {invoice.nda_mention && <Text>{invoice.nda_mention}</Text>}
-            {invoice.tva_mention && <Text>{invoice.tva_mention}</Text>}
-          </View>
-        )}
-
-        {organization.tva_exempt && (
-          <Text style={{ ...styles.mentions, marginTop: 8 }}>
-            TVA non applicable, art. 261 du CGI (organisme de formation exonéré).
-          </Text>
-        )}
-
-        <Text style={styles.footer}>
-          {organization.name} — SIRET : {organization.siret}
-          {organization.nda ? ` — NDA : ${organization.nda}` : ''}
-        </Text>
+        <PDFFooter
+          organization={organization}
+          docType="facture"
+          tvaMention={invoice.tva_mention}
+          legalMentions={legalMentions ?? null}
+        />
       </Page>
     </Document>
   )
