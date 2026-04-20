@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Loader2, CheckCircle2, Circle, FileText, Send, BookOpenCheck } from 'lucide-react'
+import { pdf } from '@react-pdf/renderer'
+import { Loader2, CheckCircle2, Circle, FileText, Send, BookOpenCheck, Download } from 'lucide-react'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { INSCRIPTION_STATUSES } from '@/lib/constants'
+import { useAuthContext } from '@/features/auth/auth-context'
 import { useEnrollment, useUpdateEnrollment } from '../hooks/use-enrollments'
+import { ConvocationPDF } from '@/features/documents/templates/ConvocationPDF'
+import { toPDFOrgInfo, readOrgSettings } from '@/features/shared/pdf/org-info'
 import type { InscriptionStatus } from '@/lib/types/database'
 
 const STATUS_VARIANT: Record<InscriptionStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'outline'> = {
@@ -30,6 +34,7 @@ const WORKFLOW_STEPS = [
 
 export function EnrollmentDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const { organization } = useAuthContext()
   const { data: enrollment, isLoading } = useEnrollment(id)
   const updateEnrollment = useUpdateEnrollment()
   const [updatingStatus, setUpdatingStatus] = useState(false)
@@ -61,6 +66,58 @@ export function EnrollmentDetailPage() {
       toast.error(error instanceof Error ? error.message : 'Une erreur est survenue')
     } finally {
       setUpdatingStatus(false)
+    }
+  }
+
+  async function handleDownloadConvocation() {
+    if (!enrollment || !organization) return
+    const settings = readOrgSettings(organization.settings)
+    const loc = enrollment.sessions?.locations
+    const locAddress = loc?.address && typeof loc.address === 'object'
+      ? [
+          (loc.address as Record<string, string>).street,
+          (loc.address as Record<string, string>).postal_code,
+          (loc.address as Record<string, string>).city,
+        ].filter(Boolean).join(', ')
+      : null
+    try {
+      const blob = await pdf(
+        <ConvocationPDF
+          data={{
+            organization: toPDFOrgInfo(organization),
+            beneficiary: {
+              first_name: enrollment.beneficiaries?.first_name ?? '',
+              last_name: enrollment.beneficiaries?.last_name ?? '',
+            },
+            formation: {
+              title: enrollment.sessions?.formations?.title ?? 'Formation',
+              objectives: enrollment.sessions?.formations?.objectives ?? [],
+              prerequisites: enrollment.sessions?.formations?.prerequisites ?? null,
+              duration_hours: enrollment.sessions?.formations?.duration_hours ?? null,
+              accessibility: enrollment.sessions?.formations?.accessibility ?? null,
+            },
+            session: {
+              start_date: enrollment.sessions?.start_date ?? '',
+              end_date: enrollment.sessions?.end_date ?? '',
+              location: locAddress ?? enrollment.sessions?.locations?.name ?? '—',
+              is_remote: enrollment.sessions?.is_remote ?? false,
+              remote_url: enrollment.sessions?.remote_url ?? null,
+              code: enrollment.sessions?.code ?? null,
+            },
+            trainer: enrollment.sessions?.trainers ?? null,
+            issued_date: new Date().toISOString().slice(0, 10),
+            legalMentions: settings.legal_mentions ?? null,
+          }}
+        />,
+      ).toBlob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `convocation-${enrollment.beneficiaries?.last_name ?? 'beneficiaire'}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      toast.error('Erreur lors de la génération de la convocation')
     }
   }
 
@@ -271,6 +328,12 @@ export function EnrollmentDetailPage() {
                 </Button>
               </div>
             ))}
+            <div className="pt-2 border-t">
+              <Button variant="outline" size="sm" onClick={handleDownloadConvocation}>
+                <Download className="mr-2 h-4 w-4" />
+                Télécharger convocation
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

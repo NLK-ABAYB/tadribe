@@ -63,7 +63,7 @@ export function CertificatesPage() {
           formation: {
             title: cert.enrollments?.sessions?.formations?.title ?? cert.title,
             objectives: cert.objectives_achieved ?? [],
-            duration_hours: cert.duration_hours,
+            duration_hours: cert.duration_hours ?? cert.enrollments?.sessions?.formations?.duration_hours ?? null,
           },
           session: {
             start_date: cert.start_date ?? cert.enrollments?.sessions?.start_date ?? '',

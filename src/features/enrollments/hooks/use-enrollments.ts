@@ -38,6 +38,28 @@ export function useEnrollments(sessionId?: string) {
   })
 }
 
+export interface EnrollmentDetailed extends Enrollment {
+  beneficiaries: { first_name: string; last_name: string; email: string | null; phone: string | null; company_id: string | null } | null
+  sessions: {
+    code: string | null
+    start_date: string
+    end_date: string
+    status: string | null
+    is_remote: boolean | null
+    remote_url: string | null
+    trainers: { first_name: string; last_name: string } | null
+    locations: { name: string; address: unknown } | null
+    formations: {
+      title: string
+      duration_hours: number | null
+      objectives: string[] | null
+      prerequisites: string | null
+      accessibility: string | null
+    } | null
+  } | null
+  companies: { name: string } | null
+}
+
 export function useEnrollment(id: string | undefined) {
   return useQuery({
     queryKey: ['enrollments', id],
@@ -48,15 +70,17 @@ export function useEnrollment(id: string | undefined) {
           *,
           beneficiaries:beneficiary_id (first_name, last_name, email, phone, company_id),
           sessions:session_id (
-            code, start_date, end_date, status,
-            formations:formation_id (title, duration_hours, objectives)
+            code, start_date, end_date, status, is_remote, remote_url,
+            trainers:trainer_id (first_name, last_name),
+            locations:location_id (name, address),
+            formations:formation_id (title, duration_hours, objectives, prerequisites, accessibility)
           ),
           companies:company_id (name)
         `)
         .eq('id', id!)
         .single()
       if (error) throw error
-      return data as unknown as EnrollmentWithRelations
+      return data as unknown as EnrollmentDetailed
     },
     enabled: !!id,
   })

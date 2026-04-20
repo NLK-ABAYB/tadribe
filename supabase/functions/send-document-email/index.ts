@@ -45,13 +45,12 @@ serve(async (req) => {
 
   const authHeader = req.headers.get('authorization') ?? ''
   if (!authHeader.startsWith('Bearer ')) return json(401, { error: 'missing bearer token' })
+  const token = authHeader.replace('Bearer ', '')
 
   const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } })
-  const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-    global: { headers: { Authorization: authHeader } },
-  })
 
-  const { data: userData, error: userErr } = await userClient.auth.getUser()
+  // Validate caller JWT manually (verify_jwt is disabled in config.toml)
+  const { data: userData, error: userErr } = await admin.auth.getUser(token)
   if (userErr || !userData.user) return json(401, { error: 'invalid session' })
 
   const { data: caller, error: callerErr } = await admin

@@ -42,7 +42,7 @@ interface QuotePDFProps {
 
 export function QuotePDF({ quote, lines, organization, company, legalMentions }: QuotePDFProps) {
   const fmt = (n: number) =>
-    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
+    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n).replace(/\u00A0/g, ' ').replace(/\u202F/g, ' ')
   const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-FR')
 
   return (

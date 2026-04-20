@@ -50,7 +50,7 @@ interface ConventionData {
 
 export function ConventionPDF({ data }: { data: ConventionData }) {
   const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-FR')
-  const fmtMoney = (n: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
+  const fmtMoney = (n: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n).replace(/\u00A0/g, ' ').replace(/\u202F/g, ' ')
 
   return (
     <Document>

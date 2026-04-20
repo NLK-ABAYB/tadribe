@@ -44,7 +44,7 @@ interface InvoicePDFProps {
 
 export function InvoicePDF({ invoice, lines, organization, legalMentions }: InvoicePDFProps) {
   const fmt = (n: number) =>
-    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
+    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n).replace(/\u00A0/g, ' ').replace(/\u202F/g, ' ')
   const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-FR')
 
   const amountPaid = invoice.amount_paid ?? 0
@@ -74,10 +74,10 @@ export function InvoicePDF({ invoice, lines, organization, legalMentions }: Invo
           </View>
           {lines.map((line, i) => (
             <View key={i} style={styles.tableRow}>
-              <Text style={styles.colDesc}>{line.description}</Text>
-              <Text style={styles.colQty}>{line.quantity}</Text>
-              <Text style={styles.colPrice}>{fmt(line.unit_price_ht)}</Text>
-              <Text style={styles.colTotal}>{fmt(line.total_ht)}</Text>
+              <Text style={styles.colDesc}>{line.description ?? ''}</Text>
+              <Text style={styles.colQty}>{line.quantity ?? 0}</Text>
+              <Text style={styles.colPrice}>{fmt(line.unit_price_ht ?? 0)}</Text>
+              <Text style={styles.colTotal}>{fmt(line.total_ht ?? 0)}</Text>
             </View>
           ))}
         </View>

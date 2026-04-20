@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useAuthContext } from '@/features/auth/auth-context'
 import { useConvention, useUpdateConvention } from '../hooks/use-conventions'
+import { useEnrollments } from '@/features/enrollments/hooks/use-enrollments'
 import { ConventionPDF } from '@/features/documents/templates/ConventionPDF'
 import { toPDFOrgInfo, readOrgSettings } from '@/features/shared/pdf/org-info'
 import { SendDocumentEmailDialog } from '@/features/shared/components/SendDocumentEmailDialog'
@@ -27,6 +28,7 @@ export function ConventionDetailPage() {
   const { organization } = useAuthContext()
   const { data: convention, isLoading } = useConvention(id)
   const updateConvention = useUpdateConvention()
+  const { data: sessionEnrollments } = useEnrollments(convention?.sessions?.id)
   const [showEmailDialog, setShowEmailDialog] = useState(false)
 
   const fmt = (n: number) =>
@@ -70,7 +72,10 @@ export function ConventionDetailPage() {
             location: '—',
             code: convention.sessions?.code ?? null,
           },
-          beneficiaries: [],
+          beneficiaries: (sessionEnrollments ?? []).map((e) => ({
+            first_name: e.beneficiaries?.first_name ?? '',
+            last_name: e.beneficiaries?.last_name ?? '',
+          })),
           price_ht: convention.amount_ht,
           price_ttc: null,
           tva_exempt: organization.tva_exempt ?? false,

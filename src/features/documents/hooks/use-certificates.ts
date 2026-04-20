@@ -13,7 +13,7 @@ export interface CertificateWithRelations extends Certificate {
       code: string | null
       start_date: string
       end_date: string
-      formations: { title: string } | null
+      formations: { title: string; duration_hours: number | null } | null
     } | null
   } | null
 }
@@ -29,7 +29,7 @@ export function useCertificates(sessionId?: string) {
           enrollments:enrollment_id (
             beneficiary_id, session_id,
             beneficiaries:beneficiary_id (first_name, last_name),
-            sessions:session_id (code, start_date, end_date, formations:formation_id (title))
+            sessions:session_id (code, start_date, end_date, formations:formation_id (title, duration_hours))
           )
         `)
         .order('issued_date', { ascending: false })
@@ -54,7 +54,7 @@ export function useCertificate(id: string | undefined) {
           enrollments:enrollment_id (
             beneficiary_id, session_id,
             beneficiaries:beneficiary_id (first_name, last_name),
-            sessions:session_id (code, start_date, end_date, formations:formation_id (title))
+            sessions:session_id (code, start_date, end_date, formations:formation_id (title, duration_hours))
           )
         `)
         .eq('id', id!)

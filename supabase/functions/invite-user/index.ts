@@ -37,16 +37,13 @@ serve(async (req) => {
 
   const authHeader = req.headers.get('authorization') ?? ''
   if (!authHeader.startsWith('Bearer ')) return json(401, { error: 'missing bearer token' })
+  const token = authHeader.replace('Bearer ', '')
 
   // Admin client (service role) bypasses RLS
   const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } })
 
-  // User-scoped client to identify the caller (staff user)
-  const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-    global: { headers: { Authorization: authHeader } },
-  })
-
-  const { data: userData, error: userErr } = await userClient.auth.getUser()
+  // Validate caller JWT manually (verify_jwt is disabled in config.toml)
+  const { data: userData, error: userErr } = await admin.auth.getUser(token)
   if (userErr || !userData.user) return json(401, { error: 'invalid session' })
 
   // Ensure the caller is a staff member of some organization

@@ -8,12 +8,13 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     paddingTop: 6,
-    borderTop: '1 solid #e5e5e5',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e5e5',
+    borderTopStyle: 'solid',
     fontSize: 7,
     color: '#666',
-    lineHeight: 1.35,
   },
-  line: { marginBottom: 2, textAlign: 'center' },
+  line: { marginBottom: 2, textAlign: 'center', lineHeight: 1.35 },
   pageNumber: { marginTop: 4, textAlign: 'center', color: '#999' },
 })
 
