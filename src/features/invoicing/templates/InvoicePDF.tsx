@@ -50,6 +50,17 @@ export function InvoicePDF({ invoice, lines, organization, legalMentions }: Invo
   const amountPaid = invoice.amount_paid ?? 0
   const remaining = invoice.total_ttc - amountPaid
 
+  // Fallback: a facture must never produce a visually empty line table.
+  // If no items were seeded, synthesize a single line from the invoice total.
+  const displayLines = lines && lines.length > 0
+    ? lines
+    : [{
+        description: 'Prestation de formation',
+        quantity: 1,
+        unit_price_ht: invoice.total_ht,
+        total_ht: invoice.total_ht,
+      }]
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -72,7 +83,7 @@ export function InvoicePDF({ invoice, lines, organization, legalMentions }: Invo
             <Text style={styles.colPrice}>PU HT</Text>
             <Text style={styles.colTotal}>Total HT</Text>
           </View>
-          {lines.map((line, i) => (
+          {displayLines.map((line, i) => (
             <View key={i} style={styles.tableRow}>
               <Text style={styles.colDesc}>{line.description ?? ''}</Text>
               <Text style={styles.colQty}>{line.quantity ?? 0}</Text>
